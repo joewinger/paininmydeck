@@ -1,6 +1,8 @@
-# paininmydeck
+# Pain in my Deck
+## A Cards Against Humanity clone using Vue and Firebase
 
-## Project setup
+## Yarn stuff:
+### Project setup
 ```
 yarn install
 ```

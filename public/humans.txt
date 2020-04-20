@@ -1,0 +1,13 @@
+/* TEAM */
+	Joe Winger
+	Contact: josephwinger1@gmail.com
+	From: Lehigh Valley, PA, USA
+
+/* THANKS AND ATTRIBUTION */
+	Cards: Tom Webster - https://github.com/samurailink3
+	Link: https://raw.githubusercontent.com/samurailink3/hangouts-against-humanity/master/source/data/cards.js
+
+	This file: http://humanstxt.org/
+
+/* SITE */
+	Tools: VS Code, Firebase, VueJS, Hyper
