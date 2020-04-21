@@ -1,6 +1,11 @@
 import Vuex from 'vuex';
+import Vue from 'vue';
 
-const roomData = {
+Vue.use(Vuex);
+
+const room = {
+	namespaced: true,
+	
 	state: {
 		roomId: null,
 		gameState: null,
@@ -17,7 +22,9 @@ const roomData = {
 	getters: {}
 }
 
-const userData = {
+const user = {
+	namespaced: true,
+
 	state: {
 		isReady: false,
 		username: "",
@@ -34,8 +41,8 @@ const userData = {
 
 const store = new Vuex.Store({
 	modules: {
-		roomData,
-		userData
+		room,
+		user
 	}
 });
 
