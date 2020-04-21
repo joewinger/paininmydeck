@@ -1,12 +1,30 @@
 const roomData = {
-	state: {},
+	state: {
+		roomId: null,
+		gameState: null,
+		users: [],
+		currentBlackCard: null,
+		currentCzar: null,
+		activeCards: [],
+		pointsToWin: null,
+		turnWinningCard: null,
+		winner: null
+	},
 	mutations: {},
 	actions: {},
 	getters: {}
 }
 
 const userData = {
-	state: {},
+	state: {
+		isReady: false,
+		username: "",
+		hand: {},
+		isCzar: false,
+		isPrivileged: false,
+		playedThisTurn: false,
+		points: null
+	},
 	mutations: {},
 	actions: {},
 	getters: {}
