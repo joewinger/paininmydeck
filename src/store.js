@@ -1,3 +1,5 @@
+import Vuex from 'vuex';
+
 const roomData = {
 	state: {
 		roomId: null,
