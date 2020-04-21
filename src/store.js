@@ -23,7 +23,7 @@ const room = {
 			state.roomId = roomId;
 		},
 		setPointsToWin(state, numPointsToWin) {
-			state.numPointsToWin = numPointsToWin;
+			state.pointsToWin = numPointsToWin;
 		},
 		updateUsers(state, users) {
 			state.users = users;
