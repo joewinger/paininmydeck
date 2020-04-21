@@ -207,7 +207,7 @@ function updateRoomData(snapshot) { // TODO tidy this up - I don't like updating
 	}
 
 	if(store.state.room.currentBlackCard != newRoomData.currentBlackCard) { // This is a new turn
-		store.commit('user/setPlayedThisTurn') = false;
+		store.commit('user/setPlayedThisTurn', false);
 	}
 
 	if(store.getters['user/isCzar']) {
