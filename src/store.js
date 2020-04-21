@@ -66,7 +66,7 @@ const user = {
 		points: 0
 	},
 	mutations: {
-		setUserName(state, username) {
+		setUsername(state, username) {
 			state.username = username
 		},
 		setPrivileged(state, isPrivileged) {
