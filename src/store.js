@@ -69,8 +69,8 @@ const user = {
 		setUsername(state, username) {
 			state.username = username
 		},
-		setPrivileged(state, isPrivileged) {
-			state.isPrivileged = isPrivileged
+		setPrivileged(state) {
+			state.isPrivileged = true
 		},
 		setPlayedThisTurn(state, playedThisTurn) {
 			state.playedThisTurn = playedThisTurn
@@ -97,7 +97,7 @@ const user = {
 
 const store = new Vuex.Store({
 	strict: process.env.NODE_ENV !== 'production',
-	
+
 	modules: {
 		room,
 		user
