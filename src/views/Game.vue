@@ -16,7 +16,7 @@
 		<div v-if="this.$root.$data.userData.playedThisTurn">
 			<br>
 			<span v-if="this.$root.$data.roomData.turnStatus == 'WAITING_FOR_CARDS'">Waiting for everyone to play a card... ({{this.$root.$data.roomData.activeCards.length}}/{{this.$root.$data.roomData.users.length-1}})</span>
-			<span v-if="this.$root.$data.roomData.turnStatus == 'WAITING_FOR_CZAR'">Waiting for the Czar to pick a winner...</span>
+			<span v-if="this.$root.$data.roomData.turnStatus == 'WAITING_FOR_CZAR'">Waiting for {{this.$root.$data.roomData.currentCzar}} to pick a winner...</span>
 		</div>
 		
 		<Hand v-if="!this.$root.$data.userData.isCzar && !this.$root.$data.userData.playedThisTurn" :cards="this.$root.$data.userData.hand"></Hand>
