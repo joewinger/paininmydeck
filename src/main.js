@@ -14,15 +14,15 @@ Vue.config.productionTip = false;
 firebase.analytics();
 
 Vue.filter('blankify', (value) => {
-  if (!value) return ''
-  value = value.toString()
-  return value.replace("_", "________")
+	if (!value) return ''
+	value = value.toString()
+	return value.replace("_", "________")
 })
 
 new Vue({
-  data: dbManager,
-  router,
-  render: function (h) { return h(App) }
+	data: dbManager,
+	router,
+	render: function (h) { return h(App) }
 }).$mount('#app');
 
 router.replace('/');
