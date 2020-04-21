@@ -1,0 +1,11 @@
+{
+  "name": "Pain In My Deck",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff",
+	"theme_color": "#fff",
+	"description": "A fun Cards Against Humanity clone to play with friends!",
+	"categories": ["games"],
+	"lang": "en-US",
+	"orientation": "portrait"
+}
