@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import Vue from 'vuex';
 import App from './App.vue';
 import router from './router';
 import firebase from 'firebase/app'; 
@@ -17,7 +18,9 @@ Vue.filter('blankify', (value) => {
 	if (!value) return ''
 	value = value.toString()
 	return value.replace("_", "________")
-})
+});
+
+Vue.use(Vuex);
 
 new Vue({
 	data: dbManager,
