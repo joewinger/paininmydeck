@@ -1,11 +1,11 @@
 <template>
-	<div class="whiteCard" :class="{ winner: (this.$root.$data.roomData.turnWinningCard != null) ? this.$root.$data.roomData.turnWinningCard.text == this.text : false }" @click.once="playCard">
+	<div class="whiteCard" :class="{ winner: (this.$store.state.room.turnWinningCard != null) ? this.$store.state.room.turnWinningCard.text == this.text : false }" @click.once="playCard">
 		<div class="front">
 			{{ this.text }}
 		</div>
 
-		<div class="back" v-if="(this.$root.$data.roomData.turnWinningCard != null) ? this.$root.$data.roomData.turnWinningCard.text == this.text : false">	
-			{{ this.$root.$data.roomData.turnWinningCard.playedBy }} wins this turn!
+		<div class="back" v-if="(this.$store.state.room.turnWinningCard != null) ? this.$store.state.room.turnWinningCard.text == this.text : false">	
+			{{ this.$store.state.room.turnWinningCard.playedBy }} wins this turn!
 		</div>	
 	</div>
 </template>
@@ -22,13 +22,13 @@ export default {
 		playCard() {
 			if(this.text == null) return;
 
-			if(dbManager.userData.isCzar) {
+			if(this.$store.getters['user/isCzar']) {
 				dbManager.chooseCard(this.text);
 			} else {
-				if(dbManager.userData.playedThisTurn) return;
+				if(this.$store.state.user.playedThisTurn) return;
 
 				dbManager.playCard(this.text);
-				dbManager.userData.playedThisTurn = true;
+				this.$store.commit('user/setPlayedThisTurn', true);
 			}
 		}
 	}
