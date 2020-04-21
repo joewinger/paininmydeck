@@ -51,7 +51,11 @@ const room = {
 		}
 	},
 	actions: {},
-	getters: {}
+	getters: {
+		sortedUsers(state) {
+			return state.users.sort((a, b) => (a.points > b.points) ? -1 : 1);
+		}
+	}
 }
 
 const user = {
