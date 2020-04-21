@@ -20,7 +20,7 @@ const defaultRoomDocument = {
 	gameState: "LOBBY", // PLAYING, FINISHED
 	players: [], // Used to cycle card czar
 	settings: {
-		pointsToWin: 3,
+		pointsToWin: 10,
 		cardsPerHand: 10
 	},
 	deckBlack: [],
