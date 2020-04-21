@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import Vue from 'vuex';
+import Vuex from 'vuex';
 import App from './App.vue';
 import router from './router';
 import firebase from 'firebase/app'; 
