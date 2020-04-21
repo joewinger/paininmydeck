@@ -3,6 +3,7 @@ import "firebase/firestore";
 import "firebase/functions";
 import config from './firebaseConfig';
 import router from './router';
+import store from "./store";
 
 const db = firebase.initializeApp(config).firestore();
 const functions = firebase.functions();
@@ -53,17 +54,15 @@ function joinRoom(roomId) {
 
 		roomDocRef.get().then(function(roomDocSnapshot) {
 			if (roomDocSnapshot.exists) {
-				dbManager.roomData.gameState = "LOBBY"; // Set this now, so if we join a game that's already started it'll forward us to the game view. Used for testing.
-
+				store.commit('room/updateGameState', 'LOBBY');// Set this now, so if we join a game that's already started it'll forward us to the game view. Used for testing.
+				
 				console.debug("Success! Room document retrieved.", roomDocSnapshot.data());
-				dbManager.roomData.roomId = roomDocSnapshot.id;
+				store.commit('room/setRoomId', roomDocSnapshot.id);
 				
 				// Start watching this room
 				roomDocRef.onSnapshot((snap) => updateRoomData(snap));
 				// Start watching the users collection (To display other users -- using a collection makes it easier to monitor ready-ness of players)
 				roomDocRef.collection('users').onSnapshot((snap) => updateUsersData(snap));
-
-				console.debug(`roomData.currentRoomId = ${dbManager.roomData.roomId}`);
 
 				resolve();
 			} else {
@@ -88,7 +87,6 @@ function createRoom() {
 		generateRoomId().then((newRoomId) => {
 			db.collection("games").doc("" + newRoomId).set(defaultRoomDocument)
 			.then(() => {
-				dbManager.currentRoom = newRoomId;
 				console.debug(`Room ${newRoomId} created successfully!`);
 				console.groupEnd();
 				
@@ -162,7 +160,7 @@ async function addUser(username) { // To be used after already joining the game
 	const roomDocData = await roomDocRef.get().then(snap => { return snap.data() });
 	const allUsers = roomDocData.players;
 	
-	dbManager.userData.isPrivileged = (allUsers.length == 0);
+	if(allUsers.length == 0) store.commit('user/setPrivileged');
 	
 	userDocRef = roomDocRef.collection('users').doc(username); // Create our user doc & save it for easy access
 	userDocRef.set(defaultUserDocument);
@@ -171,7 +169,7 @@ async function addUser(username) { // To be used after already joining the game
 		players: firebase.firestore.FieldValue.arrayUnion(username) // Add to list so we can become card czar at some point
 	});
 
-	dbManager.userData.username = username; // Save so that we remember who we are
+	store.commit('user/setUsername', username); // Save so that we remember who we are
 }
 
 function toggleReady() {
@@ -183,38 +181,38 @@ function toggleReady() {
 }
 
 async function startGame() {
-	await cloudFuncs.startGame({roomId:dbManager.roomData.roomId});
+	await cloudFuncs.startGame({roomId: store.state.room.roomId});
 }
 
 
 async function startNewTurn() {
-	await cloudFuncs.startNewTurn({roomId:dbManager.roomData.roomId});
+	await cloudFuncs.startNewTurn({roomId: store.state.room.roomId});
 }
 
 /*
  * Data Sync (giving the Vue object access to our data)
  */
 
-function updateRoomData(snapshot) {
+function updateRoomData(snapshot) { // TODO tidy this up - I don't like updating the entire state every time this is run
 	let newRoomData = snapshot.data();
 	console.log("New room data!", newRoomData);
 
 	/* Logic */
-	if(dbManager.roomData.gameState == "LOBBY" && newRoomData.gameState == "PLAYING") { // Game just started
+	if(store.state.room.gameState == "LOBBY" && newRoomData.gameState == "PLAYING") { // Game just started
 		console.log("Game has started!");
 		router.push('Game');
 	}
-	if(dbManager.roomData.gameState == "PLAYING" && newRoomData.gameState == "FINISHED") { // Game just finished
+	if(store.state.room.gameState == "PLAYING" && newRoomData.gameState == "FINISHED") { // Game just finished
 		router.push('EndGame');
 	}
 
-	if(dbManager.roomData.currentBlackCard != newRoomData.currentBlackCard) { // This is a new turn
-		dbManager.userData.playedThisTurn = false;
+	if(store.state.room.currentBlackCard != newRoomData.currentBlackCard) { // This is a new turn
+		store.commit('user/setPlayedThisTurn') = false;
 	}
 
-	if(dbManager.userData.isCzar) {
-	if(dbManager.roomData.activeCards.length < newRoomData.activeCards.length) { // If someone just played a card
-		if(newRoomData.activeCards.length == dbManager.roomData.users.length-1) { // Everyone has played cards
+	if(store.getters['user/isCzar']) {
+	if(store.state.room.activeCards.length < newRoomData.activeCards.length) { // If someone just played a card
+		if(newRoomData.activeCards.length == store.state.room.users.length-1) { // Everyone has played cards
 				roomDocRef.update({
 					turnStatus: "WAITING_FOR_CZAR"
 				});
@@ -222,16 +220,15 @@ function updateRoomData(snapshot) {
 		}
 	}
 
-	/* Setting values */
-	dbManager.roomData.gameState = newRoomData.gameState;
-	dbManager.roomData.currentBlackCard = newRoomData.currentBlackCard;
-	dbManager.roomData.currentCzar = newRoomData.currentCzar;
-	dbManager.roomData.activeCards = newRoomData.activeCards;
-	dbManager.roomData.turnStatus = newRoomData.turnStatus;
-	dbManager.roomData.pointsToWin = newRoomData.settings.pointsToWin;
-	dbManager.roomData.turnWinningCard = newRoomData.turnWinningCard;
-	dbManager.roomData.winner = newRoomData.winner;
-	dbManager.userData.isCzar = (newRoomData.currentCzar == dbManager.userData.username);
+	/* Setting state */
+	store.commit('room/updateGameState', newRoomData.gameState);
+	store.commit('room/updateBlackCard', newRoomData.currentBlackCard);
+	store.commit('room/updateCzar', newRoomData.currentCzar);
+	store.commit('room/updateActiveCards', newRoomData.activeCards);
+	store.commit('room/updateTurnStatus', newRoomData.turnStatus);
+	store.commit('room/setPointsToWin', newRoomData.settings.pointsToWin);
+	store.commit('room/updateTurnWinningCard', newRoomData.turnWinningCard);
+	store.commit('room/setGameWinner', newRoomData.winner);
 }
 
 function updateUsersData(snapshot) { // TODO: This still gets called after we detach the snapshot listener :/
@@ -246,26 +243,26 @@ function updateUsersData(snapshot) { // TODO: This still gets called after we de
 			'points': userDoc.get('points')
 		});
 
-		if(userDoc.id == dbManager.userData.username) { // This is us
-			dbManager.userData.isReady = (userDoc.get('ready') % 2) == 0;
-			dbManager.userData.hand = userDoc.get('hand');
-			dbManager.userData.points = userDoc.get('points');
+		if(userDoc.id == store.state.user.username) { // This is us
+			store.commit('user/updateReadyStatus', userDoc.get('ready'));
+			store.commit('user/updateHand', userDoc.get('hand'));
+			store.commit('user/updatePoints', userDoc.get('points'));
 		}
 	});
 
-	dbManager.roomData.users = users;
+	store.commit('room/updateUsers', users);
 }
 
 /*
  * Gameplay mechanics
  */
 
-async function playCard(cardText) {
-	if(dbManager.userData.isCzar) return; // Just in case this somehow gets called
+async function playCard(cardText) { // TODO: Move this to be a vuex action?
+	if(store.getters['user/isCzar']) return; // Just in case this somehow gets called
 
 	console.log(cardText);
 
-	const newHand = dbManager.userData.hand.filter(c => c != cardText); // Remove the card we just played from our hand
+	const newHand = store.state.user.hand.filter(c => c != cardText); // Remove the card we just played from our hand
 
 	userDocRef.update({
 		hand: newHand, // Remove this card from the array
@@ -273,27 +270,25 @@ async function playCard(cardText) {
 	});
 	
 	roomDocRef.update({
-		activeCards: firebase.firestore.FieldValue.arrayUnion({text: cardText, playedBy: dbManager.userData.username})
+		activeCards: firebase.firestore.FieldValue.arrayUnion({text: cardText, playedBy: store.state.user.username})
 	});
 
 }
 
 async function chooseCard(cardText) {
-	if(!dbManager.userData.isCzar) return;
+	if(!store.getters['user/isCzar']) return; // Just in case
 
-	const playedBy = dbManager.roomData.activeCards.find(c => c.text == cardText).playedBy;
+	const playedBy = store.state.room.activeCards.find(c => c.text == cardText).playedBy;
 
 	await roomDocRef.update({
 		turnWinningCard: {text:cardText, playedBy: playedBy}
 	});
 
-	console.log(cardText + ": " + playedBy);
-
 	await roomDocRef.collection('users').doc(playedBy).update({
 		points: firebase.firestore.FieldValue.increment(1)
 	});
 
-	const winner = dbManager.roomData.users.find(user => user.points >= dbManager.roomData.pointsToWin) || null;
+	const winner = store.state.room.users.find(user => user.points >= store.state.room.pointsToWin) || null;
 	
 	if(winner != null) {
 		endGame(winner);
