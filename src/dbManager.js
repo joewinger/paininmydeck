@@ -310,26 +310,6 @@ async function endGame(winner) {
 }
 
 const dbManager = {
-	roomData: {
-		roomId: null,
-		gameState: null,
-		users: [],
-		currentBlackCard: null,
-		currentCzar: null,
-		activeCards: [],
-		pointsToWin: null,
-		turnWinningCard: null,
-		winner: null
-	},
-	userData: {
-		isReady: false,
-		username: "",
-		hand: {},
-		isCzar: false,
-		isPrivileged: false,
-		playedThisTurn: false,
-		points: null
-	},
 	joinRoom: joinRoom, // Rooms
 	createRoom: createRoom,
 	addUser: addUser, // Lobby func
