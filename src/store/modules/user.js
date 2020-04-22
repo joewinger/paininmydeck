@@ -8,24 +8,12 @@ const state = {
 }
 
 const mutations = {
-	setUsername(state, username) {
-		state.username = username
-	},
-	setPrivileged(state) {
-		state.isPrivileged = true
-	},
-	setPlayedThisTurn(state, playedThisTurn) {
-		state.playedThisTurn = playedThisTurn
-	},
-	updateReadyStatus(state, readyInt) {
-		state.isReady = readyInt % 2 === 0;
-	},
-	updateHand(state, newHand) {
-		state.hand = newHand;
-	},
-	updatePoints(state, numPoints) {
-		state.points = numPoints
-	}
+	setUsername: (state, username) => state.username = username,
+	setPrivileged: (state) => state.isPrivileged = true,
+	setPlayedThisTurn: (state, playedThisTurn) => state.playedThisTurn = playedThisTurn,
+	updateReadyStatus: (state, readyInt) => state.isReady = (readyInt % 2 === 0),
+	updateHand: (state, newHand) => state.hand = newHand,
+	updatePoints: (state, numPoints) => state.points = numPoints
 	// removeCardFromHand(cardText): state.hand.filter(c => c != cardText) & update numCardsInHand
 }
 

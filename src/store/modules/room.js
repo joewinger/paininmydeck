@@ -12,36 +12,16 @@ const state = {
 }
 
 const mutations = {
-	setRoomId(state, roomId) {
-		state.roomId = roomId;
-	},
-	setPointsToWin(state, numPointsToWin) {
-		state.pointsToWin = numPointsToWin;
-	},
-	updateUsers(state, users) {
-		state.users = users;
-	},
-	updateGameState(state, newGameState) {
-		state.gameState = newGameState;
-	},
-	updateBlackCard(state, newBlackCard) {
-		state.currentBlackCard = newBlackCard;
-	},
-	updateCzar(state, newCzar) {
-		state.currentCzar = newCzar;
-	},
-	updateActiveCards(state, newActiveCards) {
-		state.activeCards = newActiveCards;
-	},
-	updateTurnStatus(state, newTurnStatus) {
-		state.turnStatus = newTurnStatus;
-	},
-	updateTurnWinningCard(state, card) {
-		state.turnWinningCard = card;
-	},
-	setGameWinner(state, username) {
-		state.winner = username;
-	}
+	setRoomId: (state, roomId) => state.roomId = roomId,
+	setPointsToWin: (state, numPointsToWin) => state.pointsToWin = numPointsToWin,
+	updateUsers: (state, users) => state.users = users,
+	updateGameState: (state, newGameState) => state.gameState = newGameState,
+	updateBlackCard: (state, newBlackCard) => state.currentBlackCard = newBlackCard,
+	updateCzar: (state, newCzar) => state.currentCzar = newCzar,
+	updateActiveCards: (state, newActiveCards) => state.activeCards = newActiveCards,
+	updateTurnStatus: (state, newTurnStatus) => state.turnStatus = newTurnStatus,
+	updateTurnWinningCard: (state, card) => state.turnWinningCard = card,
+	setGameWinner: (state, username) => state.winner = username
 }
 
 const actions = {}
