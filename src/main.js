@@ -4,7 +4,7 @@ import router from './router';
 import firebase from 'firebase/app'; 
 import 'firebase/analytics';
 import dbManager from './dbManager';
-import store from './store';
+import store from './store/store';
 // const attachFastClick = require('fastclick');
 // import './registerServiceWorker';
 
