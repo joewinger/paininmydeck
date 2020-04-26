@@ -19,13 +19,14 @@ ul {
 input, button {
   box-sizing: border-box;
   
+  height: 42px;
   margin: 100px;
   padding: 15px;
   margin: 0;
 
   max-width: 70%;
 
-  border-radius: 15px;
+  border-radius: 21px;
 }
 input:hover, input:active, input:focus,
 button:hover, button:active, button:focus {
@@ -43,11 +44,14 @@ button {
   margin: 2px;
 
   border: none;
-  background: #000;
+  background: #F9C545;
 
   color: #fff;
 
   cursor: pointer;
+
+  font-weight: 700;
+  line-height: 0;
 }
 
 button:focus {
