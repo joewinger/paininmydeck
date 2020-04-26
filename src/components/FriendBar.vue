@@ -4,7 +4,7 @@
 
 		<ol>
 			<li v-for="user in this.$store.state.room.users" :key="user.username">
-				<FriendIcon :username="user.username" :color="user.color"></FriendIcon>
+				<FriendIcon v-if="user.username != $store.state.user.username" :username="user.username" :color="user.color"></FriendIcon>
 			</li>
 		</ol>
 	</div>
