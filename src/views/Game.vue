@@ -4,7 +4,7 @@
 		<span>Points: {{this.$store.state.user.points}}</span>
 		<br>
 
-		<BlackCard :text="this.$store.state.room.currentBlackCard"></BlackCard>
+		<QuestionCard :text="this.$store.state.room.currentBlackCard"></QuestionCard>
 
 		<div v-if="this.$store.getters['user/isCzar']">
 			<br>
@@ -30,14 +30,14 @@
 </template>
 
 <script>
-import BlackCard from '@/components/BlackCard.vue';
+import QuestionCard from '@/components/QuestionCard.vue';
 import WhiteCard from '@/components/WhiteCard.vue';
 import Hand from '@/components/Hand.vue';
 
 export default {
 	name: 'Game',
 	components: {
-		BlackCard,
+		QuestionCard,
 		WhiteCard,
 		Hand
 	}
