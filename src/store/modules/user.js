@@ -1,7 +1,6 @@
 const state = {
 	isReady: false,
 	username: "",
-	color: "",
 	hand: {},
 	isPrivileged: false,
 	playedThisTurn: false,
@@ -10,7 +9,6 @@ const state = {
 
 const mutations = {
 	setUsername: (state, username) => state.username = username,
-	setColor: (state, color) => state.color = color,
 	setPrivileged: (state) => state.isPrivileged = true,
 	setPlayedThisTurn: (state, playedThisTurn) => state.playedThisTurn = playedThisTurn,
 	updateReadyStatus: (state, readyInt) => state.isReady = (readyInt % 2 === 0),
@@ -24,6 +22,9 @@ const	actions = {}
 const getters = {
 	isCzar(state, getters, rootState) {
 		return rootState.room.currentCzar === state.username
+	},
+	getColor(state, getters, rootState) {
+		return rootState.room.users.filter(user => user.username === state.username)[0].color
 	}
 }
 
