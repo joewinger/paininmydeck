@@ -1,6 +1,7 @@
 const state = {
 	isReady: false,
 	username: "",
+	color: "",
 	hand: {},
 	isPrivileged: false,
 	playedThisTurn: false,
@@ -9,6 +10,7 @@ const state = {
 
 const mutations = {
 	setUsername: (state, username) => state.username = username,
+	setColor: (state, color) => state.color = color,
 	setPrivileged: (state) => state.isPrivileged = true,
 	setPlayedThisTurn: (state, playedThisTurn) => state.playedThisTurn = playedThisTurn,
 	updateReadyStatus: (state, readyInt) => state.isReady = (readyInt % 2 === 0),
