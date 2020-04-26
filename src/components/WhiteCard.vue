@@ -1,12 +1,6 @@
 <template>
-	<div class="whiteCard" :class="{ winner: (this.$store.state.room.turnWinningCard != null) ? this.$store.state.room.turnWinningCard.text == this.text : false }" @click.once="playCard">
-		<div class="front">
-			{{ this.text }}
-		</div>
-
-		<div class="back" v-if="(this.$store.state.room.turnWinningCard != null) ? this.$store.state.room.turnWinningCard.text == this.text : false">	
-			{{ this.$store.state.room.turnWinningCard.playedBy }} wins this turn!
-		</div>	
+	<div class="whiteCard" @click.once="playCard">
+		{{ this.text }}
 	</div>
 </template>
 
@@ -41,12 +35,14 @@ export default {
 	display: inline-block;
 
 	width: 200px;
-	height: 200px;
+	height: 260px;
 	padding: 15px;
+	margin-left: 10px;
 
 	background: #fff;
 	border-radius: 15px;
-	box-shadow: #555 0px 0px 5px;
+	border: 2px solid #E0E0E0;
+	box-shadow: 0px 4px 4px rgba(177, 177, 177, 0.25);
 
 	color: #000;
 	text-align: left;
@@ -57,35 +53,5 @@ export default {
 
   transition: transform 0.6s;
 	transform-style: preserve-3d;
-}
-
-.whiteCard.winner {
-	transform: rotateY(180deg);
-}
-
-.front, .back {
-  -webkit-backface-visibility: hidden;
-	backface-visibility: hidden;
-	-webkit-font-smoothing: antialiased;
-}
-
-.front {
-	background: #fff;
-}
-
-.back {
-	position: absolute;
-	top: 0;
-	left: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	width: 100%;
-	height: 100%;
-	
-	border-radius: 15px;
-
-	transform: rotateY(180deg);
 }
 </style>
