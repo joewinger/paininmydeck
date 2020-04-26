@@ -184,7 +184,6 @@ async function startGame() {
 	await cloudFuncs.startGame({roomId: store.state.room.roomId});
 }
 
-
 async function startNewTurn() {
 	await cloudFuncs.startNewTurn({roomId: store.state.room.roomId});
 }
