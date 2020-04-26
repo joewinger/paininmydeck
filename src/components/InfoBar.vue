@@ -28,6 +28,5 @@ export default {
 	font-size: 11pt;
 	font-weight: 500;
 	line-height: 32px;
-	text-align: center;
 }
 </style>
