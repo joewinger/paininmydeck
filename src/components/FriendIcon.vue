@@ -1,7 +1,5 @@
 <template>
-	<div class="friendIcon">
-		{{ this.username.substring(0, 1) }}
-	</div>
+	<div class="friendIcon" :style="`background-color:${this.color}`">{{this.username.substring(0, 1)}}</div>
 </template>
 
 <script>
@@ -12,13 +10,6 @@ export default {
 		color: String,
 		playedThisTurn: Boolean,
 		isCzar: Boolean
-	},
-	computed: {
-		cssVars() {
-			return {
-				'--bg-color': this.color
-			}
-		}
 	}
 }
 </script>
@@ -33,9 +24,7 @@ export default {
 	width: 40px;
 	height: 40px;
 
-	background-color: var(--bg-color);
 	border-radius: 20px;
-	border: solid 1px red;
 
 	color: #F2F2F2;
 	text-align: left;

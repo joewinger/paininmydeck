@@ -1,6 +1,6 @@
 <template>
 	<div id="friendBar">
-		<FriendIcon class="us" :username="this.$store.state.user.username" :color="this.$store.state.user.color"></FriendIcon>
+		<FriendIcon class="us" :username="this.$store.state.user.username" :color="this.$store.getters['user/getColor']"></FriendIcon>
 
 		<ol>
 			<li v-for="user in this.$store.state.room.users" :key="user.username">
@@ -47,9 +47,6 @@ ol {
 
 li {
 	display: inline-block;
-	margin: 0 5px;
-}
-li:last-of-type {
-	margin-right: 0;
+	margin-left: 10px;
 }
 </style>
