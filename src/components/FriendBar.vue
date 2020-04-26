@@ -24,9 +24,11 @@ export default {
 <style scoped>
 #friendBar {
 	position: relative;
+	display: inline-block;
 
 	width: 360px;
 	height: 60px;
+	margin-top: 20px;
 	overflow: hidden;
 
 	background: #fff;
