@@ -40,7 +40,7 @@ ol {
 	display: flex;
 	position: absolute;
 	flex-direction: row;
-	top: 10px;
+	top: 8px;
 	right: 10px;
 
 	padding: 0;

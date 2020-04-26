@@ -1,5 +1,5 @@
 <template>
-	<div class="friendIcon" :style="`background-color:${this.color}`">{{this.username.substring(0, 1)}}</div>
+	<div class="friendIcon" :class="{ needsToPlay: !this.playedThisTurn}" :style="`background-color:${this.color}`">{{this.username.substring(0, 1)}}</div>
 </template>
 
 <script>
@@ -16,10 +16,7 @@ export default {
 
 <style scoped>
 .friendIcon {
-	display: flex;
 	position: relative;
-	align-items: center;
-	text-align: center;
 
 	width: 40px;
 	height: 40px;
@@ -27,15 +24,25 @@ export default {
 	border-radius: 20px;
 
 	color: #F2F2F2;
-	text-align: left;
 	font-size: 16pt;
+	line-height: 43px;
 	font-weight: 500;
 
   transition: all 0.2s;
 }
+
 .friendIcon.us {
 	position: absolute;
 	left: 10px;
+	top: 8px;
+}
+
+.friendIcon.needsToPlay:before {
+	width: 5px;
+	height: 5px;
+	position: absolute;
+	left: calc(50% - 2.5px);
 	top: 10px;
+	background-color: red;
 }
 </style>
