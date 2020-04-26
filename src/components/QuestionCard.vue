@@ -21,7 +21,8 @@ export default {
   
   width: 360px;
   min-height: 210px;
-  padding: 50px 15px 15px 15px;
+	padding: 50px 15px 15px 15px;
+	margin: 10px;
   
   border-radius: 15px;
   border: 3px solid #59A679;
