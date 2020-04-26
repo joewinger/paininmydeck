@@ -1,9 +1,5 @@
 <template>
 	<div id="game">
-		<h1>Room {{this.$store.state.room.roomId}}</h1>
-		<span>Points: {{this.$store.state.user.points}}</span>
-		<br>
-
 		<QuestionCard :text="this.$store.state.room.currentBlackCard"></QuestionCard>
 
 		<div v-if="this.$store.getters['user/isCzar']">
