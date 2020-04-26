@@ -19,7 +19,6 @@ export default {
   display: flex;
   align-items: flex-end;
   
-  box-sizing: border-box;
   width: 360px;
   min-height: 210px;
   padding: 50px 15px 15px 15px;
