@@ -61,6 +61,7 @@ export default {
 	flex-direction: column;
 	align-items: center;
 	justify-content: space-evenly;
+	z-index: 9999;
 
 	width: 300px;
 	height: 250px;

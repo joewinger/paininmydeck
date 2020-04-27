@@ -2,7 +2,7 @@
 	<div id="lobby">
 		<SetUsernameModal v-if="this.$store.state.user.username == ''"></SetUsernameModal>
 		
-		<ul>
+		<ul :class="{blur: this.$store.state.user.username == ''}">
 			Users:
 			<li v-for="user in this.$store.state.room.users" :key="user.username">
 				<LobbyUser :user="user"></LobbyUser>
@@ -51,3 +51,9 @@ export default {
 	}
 }
 </script>
+
+<style scoped>
+.blur {
+	filter: blur(1px);
+}
+</style>
