@@ -49,6 +49,5 @@ ol {
 
 li {
 	display: inline-block;
-	margin-left: 10px;
 }
 </style>

@@ -20,6 +20,7 @@ export default {
 
 	width: 40px;
 	height: 40px;
+	margin-left: 10px;
 
 	border-radius: 20px;
 
@@ -35,6 +36,7 @@ export default {
 	position: absolute;
 	left: 10px;
 	top: 8px;
+	margin-left: 0;
 }
 
 .friendIcon.needsToPlay:before {
