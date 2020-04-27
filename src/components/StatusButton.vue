@@ -1,15 +1,12 @@
 <template>
 	<div class="statusButton">
-		{{text}}
+		<slot></slot>
 	</div>
 </template>
 
 <script>
 export default {
-	name: 'StatusButton',
-	props: {
-		text: String
-	}
+	name: 'StatusButton'
 }
 </script>
 
