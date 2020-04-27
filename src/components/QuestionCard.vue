@@ -1,5 +1,5 @@
 <template>
-  <div class="questionCard">
+  <div class="questionCard" :style="`background-color:${$store.getters['room/getCzarColor']}`">
     {{ this.text | blankify }}
   </div>
 </template>
@@ -25,9 +25,9 @@ export default {
 	margin: 10px;
   
   border-radius: 15px;
-  border: 3px solid #59A679;
+  /* border: 3px solid #59A679;
   background: linear-gradient(112.52deg, #6FCF97 28.84%, #34B0A9 100.81%);
-  box-shadow: 0px 2px 4px rgba(69, 134, 96, 0.52);
+  box-shadow: 0px 2px 4px rgba(69, 134, 96, 0.52); */
   
   color: #fff;
   font-size: 32px;
