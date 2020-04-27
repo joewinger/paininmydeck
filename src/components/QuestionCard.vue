@@ -25,12 +25,13 @@ export default {
 	margin: 10px;
   
   border-radius: 15px;
+	border: 4px solid #0E0E0E22;
   /* border: 3px solid #59A679;
   background: linear-gradient(112.52deg, #6FCF97 28.84%, #34B0A9 100.81%);
   box-shadow: 0px 2px 4px rgba(69, 134, 96, 0.52); */
   
   color: #fff;
-  font-size: 32px;
+  font-size: 30px;
 	font-weight: 700;
 	text-align: left;
 }
