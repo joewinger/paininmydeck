@@ -46,7 +46,7 @@ const allColorSets = [
 function generateUserDocument() {
 	const availableColorSets = allColorSets.filter(colorSet => !store.getters['room/getUsedColorSets'].includes(colorSet))
 	let colorSet = null;
-	if($store.state.room.users.length >= allColorSets.length) {
+	if(this.$store.state.room.users.length >= allColorSets.length) {
 		colorSet = allColorSets[Math.floor(Math.random() * allColorSets.length)]
 	} else {
 		colorSet = availableColorSets[Math.floor(Math.random() * availableColorSets.length)]
