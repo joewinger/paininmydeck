@@ -30,6 +30,9 @@ const getters = {
 	sortedUsers(state) {
 		const users = JSON.parse(JSON.stringify(state.users)); // Make a copy so we aren't mutating state
 		return users.sort((a, b) => (a.points > b.points) ? -1 : 1);
+	},
+	getUsedColors(state) {
+		return state.users.map(user => user.color);
 	}
 }
 

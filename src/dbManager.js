@@ -33,13 +33,26 @@ const defaultRoomDocument = {
 	turnWinningCard: null,
 	winner: null
 };
-const defaultUserDocument = {
-	ready: 1, // odd = not ready, even = ready. This is 3x as fast as using a boolean.
-	color: "#000000",
-	points: 0,
-	hand: [],
-	numCardsInHand: 0
-};
+
+const allColors = [
+	"#F9C545",
+	"#6FCF97",
+	"#F47171",
+	"#BB6BD9",
+	"#4885FB"
+];
+// If users.length === allColors.length, just give any random color regardless of if it's been used.
+function generateUserDocument() {
+	const availableColors = allColors.filter(color => !store.getters['room/getUsedColors'].includes(color))
+	const color = availableColors[Math.floor(Math.random() * availableColors.length)]
+	return {
+		ready: 1, // odd = not ready, even = ready. This is 3x as fast as using a boolean.
+		color: color,
+		points: 0,
+		hand: [],
+		numCardsInHand: 0
+	}
+}
 
 /*
  * Joining & Creating Rooms
@@ -163,7 +176,7 @@ async function addUser(username) { // To be used after already joining the game
 	if(allUsers.length == 0) store.commit('user/setPrivileged');
 	
 	userDocRef = roomDocRef.collection('users').doc(username); // Create our user doc & save it for easy access
-	userDocRef.set(defaultUserDocument);
+	userDocRef.set(generateUserDocument());
 
 	roomDocRef.update({
 		players: firebase.firestore.FieldValue.arrayUnion(username) // Add to list so we can become card czar at some point
