@@ -2,7 +2,8 @@
 	<div id="statusBar">
 		<StatusButton :text="$store.state.room.roomId"></StatusButton>
 		<StatusButton text="chat"></StatusButton>
-		<StatusButton :text="`${$store.state.user.points} points`"></StatusButton>
+		<StatusButton v-if="$route.name ==='Lobby'" text="settings"></StatusButton>
+		<StatusButton v-if="$route.name ==='Game'" :text="`${$store.state.user.points} points`"></StatusButton>
 	</div>
 </template>
 

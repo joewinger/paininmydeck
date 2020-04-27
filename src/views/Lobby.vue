@@ -6,7 +6,9 @@
 
 		<ul>
 			Users:
-			<li v-for="user in this.$store.state.room.users" :key="user.username" :style="'color: ' + user.color">{{user.username}}{{user.ready ? ' 👍' : ''}}</li>
+			<li v-for="user in this.$store.state.room.users" :key="user.username">
+				<LobbyUser :user="user"></LobbyUser>
+			</li>
 		</ul>
 		
 		<div v-if="this.$store.state.user.username != ''">
@@ -14,12 +16,15 @@
 			<br/>
 			<button @click.once="startGame" v-if="this.$store.state.user.isPrivileged">Start Game</button>
 		</div>
+		<StatusBar></StatusBar>
 	</div>
 </template>
 
 <script>
 import dbManager from '../dbManager';
 import SetUsernameModal from '@/components/LobbySetUsernameModal.vue';
+import LobbyUser from '@/components/LobbyUser.vue';
+import StatusBar from '@/components/StatusBar.vue'
 
 export default {
 	name: 'Lobby',
@@ -29,7 +34,9 @@ export default {
 		}
 	},
 	components: {
-		SetUsernameModal
+		SetUsernameModal,
+		LobbyUser,
+		StatusBar
 	},
 	methods: {
 		toggleReady() {
