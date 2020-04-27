@@ -7,7 +7,6 @@
 		<InfoBar v-if="this.$store.getters['user/isCzar']" text="You are the Card Czar!"></InfoBar>
 
 		<div v-if="this.$store.state.user.playedThisTurn">
-			<br>
 			<InfoBar v-if="this.$store.state.room.turnStatus == 'WAITING_FOR_CARDS'" text="Waiting for everyone to play a card..."></InfoBar>
 			<InfoBar v-if="this.$store.state.room.turnStatus == 'WAITING_FOR_CZAR'" :text="`Waiting for ${this.$store.state.room.currentCzar} to pick a winner...`"></InfoBar>
 		</div>
