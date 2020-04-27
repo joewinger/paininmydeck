@@ -7,6 +7,7 @@ const state = {
 	currentTurnStatus: null,
 	activeCards: [],
 	pointsToWin: null,
+	turnStatus: null,
 	turnWinningCard: null,
 	winner: null
 }
@@ -33,6 +34,9 @@ const getters = {
 	},
 	getUsedColors(state) {
 		return state.users.map(user => user.color);
+	},
+	getCzarColor(state) {
+		return state.users.find(user => user.username == state.currentCzar).color;
 	}
 }
 
