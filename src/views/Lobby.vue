@@ -1,9 +1,7 @@
 <template>
 	<div id="lobby">
 		<SetUsernameModal v-if="this.$store.state.user.username == ''"></SetUsernameModal>
-
-		<h2>Room ID: {{ this.$store.state.room.roomId }}</h2>
-
+		
 		<ul>
 			Users:
 			<li v-for="user in this.$store.state.room.users" :key="user.username">
