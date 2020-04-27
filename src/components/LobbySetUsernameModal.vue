@@ -1,11 +1,13 @@
 <template>
-	<div id="modalWrapper">
-		<div id="setUsernameModal">
-			<h3>What should we call you?</h3>
-			<input type="text" v-model="username" @keyup.enter="addUser" placeholder="Your username" autofocus>
-			<button @click="addUser">Set Username</button>
+	<transition name="modal">
+		<div id="modalWrapper">
+			<div id="setUsernameModal">
+				<h3>What should we call you?</h3>
+				<input type="text" v-model="username" @keyup.enter="addUser" placeholder="Your username" autofocus>
+				<button @click="addUser">Set Username</button>
+			</div>
 		</div>
-	</div>
+	</transition>
 </template>
 
 <script>
@@ -47,6 +49,8 @@ export default {
 	height: 100%;
 
 	background-color: #4F4F4F64;
+	
+  transition: all 0.3s ease;
 }
 #setUsernameModal {
 	display: flex;
@@ -59,5 +63,18 @@ export default {
 	border-radius: 15px;
 	border: 3px solid #E0E0E0;
 	background: #FFFFFF;
+	
+  transition: all 0.3s ease;
+}
+
+.modal-enter,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter #setUsernameModal,
+.modal-leave-to #setUsernameModal {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
 }
 </style>
