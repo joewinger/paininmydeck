@@ -1,13 +1,6 @@
 <template>
 	<div id="lobby">
-		<h1>Lobby!</h1>
-
-		<!-- TODO: turn this username field in to its own component -->
-		<div v-if="this.$store.state.user.username == ''">
-			<input type="text" @keyup.enter="addUser" v-model="username" autofocus>
-			<br>
-			<button @click="addUser">Set Username</button>
-		</div>
+		<SetUsernameModal v-if="this.$store.state.user.username == ''"></SetUsernameModal>
 
 		<h2>Room ID: {{ this.$store.state.room.roomId }}</h2>
 
@@ -25,26 +18,20 @@
 </template>
 
 <script>
-import dbManager from '../dbManager'
+import dbManager from '../dbManager';
+import SetUsernameModal from '@/components/LobbySetUsernameModal.vue';
+
 export default {
 	name: 'Lobby',
 	data () {
 		return {
-			username: localStorage.getItem('username') || '', // used only to send to dbManager
 			canStartGame: true
 		}
 	},
+	components: {
+		SetUsernameModal
+	},
 	methods: {
-		addUser() {
-			if(this.$store.state.room.users.some((user) => user.username == this.username)) { // Is there already a user with this name?
-				console.log(`Username ${this.username} already in use :(`);
-				this.username = '';
-				return;
-			}
-
-			localStorage.setItem('username', this.username);
-			dbManager.addUser(this.username);
-		},
 		toggleReady() {
 			dbManager.toggleReady()
 		},
