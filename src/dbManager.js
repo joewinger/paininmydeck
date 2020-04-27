@@ -43,10 +43,14 @@ const allColorSets = [
 	"#C471F5,#FA71CD"
 ];
 
-// If users.length === allColors.length, just give any random color regardless of if it's been used.
 function generateUserDocument() {
 	const availableColorSets = allColorSets.filter(colorSet => !store.getters['room/getUsedColorSets'].includes(colorSet))
-	const colorSet = availableColorSets[Math.floor(Math.random() * availableColorSets.length)]
+	let colorSet = null;
+	if($store.state.room.users.length >= allColorSets.length) {
+		colorSet = allColorSets[Math.floor(Math.random() * allColorSets.length)]
+	} else {
+		colorSet = availableColorSets[Math.floor(Math.random() * availableColorSets.length)]
+	}
 	return {
 		ready: 1, // odd = not ready, even = ready. This is 3x as fast as using a boolean.
 		colorSet: colorSet,
