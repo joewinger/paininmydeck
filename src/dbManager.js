@@ -22,7 +22,7 @@ const defaultRoomDocument = {
 	players: [], // Used to cycle card czar
 	settings: {
 		pointsToWin: 10,
-		cardsPerHand: 10
+		cardsPerHand: 7
 	},
 	deckBlack: [],
 	deckWhite: [],
