@@ -35,5 +35,14 @@ export default {
 	box-shadow: 0px 0px 10px rgba(130, 130, 130, 0.47);
 	border-radius: 25px 25px 0px 0px;
 
+	-webkit-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-ms-transition: all 0.3s ease;
+	-o-transition: all 0.3s ease;
+	transition: all 0.3s ease;
+}
+
+#statusBar.hidden {
+	bottom: -100px;
 }
 </style>
