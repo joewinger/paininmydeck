@@ -24,7 +24,20 @@ const getters = {
 		return rootState.room.currentCzar === state.username
 	},
 	getColor(state, getters, rootState) {
-		return rootState.room.users.filter(user => user.username === state.username)[0].color
+		return rootState.room.users.filter(user => user.username === state.username)[0].colorSet[0]
+	},
+	getColorSet(state, getters, rootState) {
+		return rootState.room.users.filter(user => user.username === state.username)[0].colorSet
+	},
+	getUserObject(state, getters) { // Only used as a hack to get UserIcon.us to work properly -- I need an object version of our data
+		const userObject = {
+			'username': state.username,
+			'ready': state.isReady,
+			'colorSet': getters.getColorSet,
+			'points': state.points
+		}
+
+		return userObject;
 	}
 }
 

@@ -34,20 +34,22 @@ const defaultRoomDocument = {
 	winner: null
 };
 
-const allColors = [
-	"#F9C545",
-	"#6FCF97",
-	"#F47171",
-	"#BB6BD9",
-	"#4885FB"
+const allColorSets = [
+	"#A18CD1,#FBC2EB",
+	"#A6A1EE,#FBC2EB",
+	"#F6D365,#FDA085",
+	"#A1C4FD,#C2E9FB",
+	"#FEE140,#FA709A",
+	"#C471F5,#FA71CD"
 ];
+
 // If users.length === allColors.length, just give any random color regardless of if it's been used.
 function generateUserDocument() {
-	const availableColors = allColors.filter(color => !store.getters['room/getUsedColors'].includes(color))
-	const color = availableColors[Math.floor(Math.random() * availableColors.length)]
+	const availableColorSets = allColorSets.filter(colorSet => !store.getters['room/getUsedColorSets'].includes(colorSet))
+	const colorSet = availableColorSets[Math.floor(Math.random() * availableColorSets.length)]
 	return {
 		ready: 1, // odd = not ready, even = ready. This is 3x as fast as using a boolean.
-		color: color,
+		colorSet: colorSet,
 		points: 0,
 		hand: [],
 		numCardsInHand: 0
@@ -251,7 +253,7 @@ function updateUsersData(snapshot) { // TODO: This still gets called after we de
 		users.push({
 			'username': userDoc.id,
 			'ready': ((userDoc.get('ready') % 2) == 0), // true if even
-			'color': userDoc.get('color'),
+			'colorSet': userDoc.get('colorSet').split(','),
 			'points': userDoc.get('points')
 		});
 

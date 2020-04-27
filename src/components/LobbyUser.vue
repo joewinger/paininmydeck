@@ -1,5 +1,5 @@
 <template>
-	<div class="lobbyUser" :style="`background-color: ${user.color}`">
+	<div class="lobbyUser" :style="`background-image: linear-gradient(to right, ${user.colorSet[0]} 0%, ${user.colorSet[1]} 100%)`">
 		{{user.username}}
 	</div>
 </template>
@@ -25,6 +25,7 @@ export default {
 	
 	border-radius: 20px;
 	border: 3px solid #0E0E0E22;
+  background-origin: border-box;
 
 	color: #FFF;
 	font-weight: 500;

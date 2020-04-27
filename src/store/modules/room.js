@@ -32,11 +32,18 @@ const getters = {
 		const users = JSON.parse(JSON.stringify(state.users)); // Make a copy so we aren't mutating state
 		return users.sort((a, b) => (a.points > b.points) ? -1 : 1);
 	},
-	getUsedColors(state) {
-		return state.users.map(user => user.color);
+	getUsedColorSets(state) {
+		// Use colorSet.join() because the only time we use this
+		// is when assigning color sets to new users, and that
+		// comparison uses strings (i.e. "#FFFFFF,#000000")
+
+		return state.users.map(user => user.colorSet.join());
 	},
 	getCzarColor(state) {
-		return state.users.find(user => user.username == state.currentCzar).color;
+		return state.users.find(user => user.username == state.currentCzar).colorSet[0];
+	},
+	getCzarColorSet(state) {
+		return state.users.find(user => user.username == state.currentCzar).colorSet;
 	}
 }
 

@@ -1,10 +1,10 @@
 <template>
 	<div id="friendBar">
-		<FriendIcon class="us" :username="$store.state.user.username" :color="$store.getters['user/getColor']"></FriendIcon>
+		<FriendIcon class="us" :user="$store.getters['user/getUserObject']"></FriendIcon>
 
 		<ol>
 			<li v-for="user in $store.state.room.users" :key="user.username">
-				<FriendIcon v-if="user.username != $store.state.user.username" :username="user.username" :color="user.color"></FriendIcon>
+				<FriendIcon v-if="user.username != $store.state.user.username" :user="user"></FriendIcon>
 			</li>
 		</ol>
 	</div>
