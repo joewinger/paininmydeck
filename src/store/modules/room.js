@@ -1,16 +1,20 @@
-const state = {
-	roomId: null,
-	gameState: null,
-	users: [],
-	currentBlackCard: null,
-	currentCzar: null,
-	currentTurnStatus: null,
-	activeCards: [],
-	pointsToWin: null,
-	turnStatus: null,
-	turnWinningCard: null,
-	winner: null
+function initialState() {
+	return {
+		roomId: null,
+		gameState: null,
+		users: [],
+		currentBlackCard: null,
+		currentCzar: null,
+		currentTurnStatus: null,
+		activeCards: [],
+		pointsToWin: null,
+		turnStatus: null,
+		turnWinningCard: null,
+		winner: null
+	}
 }
+
+const state = initialState();
 
 const mutations = {
 	setRoomId: (state, roomId) => state.roomId = roomId,
@@ -22,7 +26,13 @@ const mutations = {
 	updateActiveCards: (state, newActiveCards) => state.activeCards = newActiveCards,
 	updateTurnStatus: (state, newTurnStatus) => state.turnStatus = newTurnStatus,
 	updateTurnWinningCard: (state, card) => state.turnWinningCard = card,
-	setGameWinner: (state, username) => state.winner = username
+	setGameWinner: (state, username) => state.winner = username,
+	reset: (state) => {
+		const initial = initialState();
+		Object.keys(initial).forEach(key => {
+			state[key] = initial[key]
+		});
+	}
 }
 
 const actions = {}

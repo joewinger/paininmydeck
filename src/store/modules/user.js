@@ -1,19 +1,29 @@
-const state = {
-	isReady: false,
-	username: "",
-	hand: {},
-	isPrivileged: false,
-	playedThisTurn: false,
-	points: 0
+function initialState() {
+	return {
+		isReady: false,
+		username: "",
+		hand: {},
+		isPrivileged: false,
+		playedThisTurn: false,
+		points: 0
+	}
 }
 
+const state = initialState();
+
 const mutations = {
-	setUsername: (state, username) => state.username = username,
+	setUsername: (state, username) => {state.username = username; console.log(state)},
 	setPrivileged: (state) => state.isPrivileged = true,
 	setPlayedThisTurn: (state, playedThisTurn) => state.playedThisTurn = playedThisTurn,
 	updateReadyStatus: (state, readyInt) => state.isReady = (readyInt % 2 === 0),
 	updateHand: (state, newHand) => state.hand = newHand,
-	updatePoints: (state, numPoints) => state.points = numPoints
+	updatePoints: (state, numPoints) => state.points = numPoints,
+	reset: (state) => {
+		const initial = initialState();
+		Object.keys(initial).forEach(key => {
+			state[key] = initial[key]
+		});
+	}
 	// removeCardFromHand(cardText): state.hand.filter(c => c != cardText) & update numCardsInHand
 }
 
