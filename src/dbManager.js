@@ -37,6 +37,8 @@ const defaultRoomDocument = {
 	winner: null
 };
 
+// From colours.cafe:
+// "#f36747", "#f197a2", "#4360a8", "#3cc6ed", "#842d73", "#ee316b", "#4152a5", "#ffb137", "#3cc6ed", "#5ce5aa"
 const allColorSets = [
 	"#A18CD1,#FBC2EB",
 	"#A6A1EE,#FBC2EB",
@@ -172,6 +174,8 @@ function generateRoomId() {
 }
 
 function leaveRoom() {
+	// TODO: Handle us leaving mid-game - Re-assign the czar if it's us, maybe add our cards back in the pile
+
 	unsubFromRoomDoc();
 	unsubFromUserCollection();
 	
