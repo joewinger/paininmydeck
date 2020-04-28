@@ -78,6 +78,7 @@ export default {
 }
 #statusMenuContent {
 	flex: 1 0 auto;
+	overflow: hidden;
 }
 
 .slide-enter-active,
@@ -90,9 +91,12 @@ export default {
 }
 .slide-enter, .slide-leave-to {
 	max-height: 0;
+	opacity: 0;
+	transform: translateY(200px);
 }
 .slide-enter-to, .slide-leave {
 	max-height: 70vh;
+	opacity: 1;
 }
 
 .fade-enter-active,
