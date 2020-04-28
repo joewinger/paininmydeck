@@ -1,5 +1,5 @@
 <template>
-	<transition name="modal">
+	<transition appear name="modal">
 		<div id="modalWrapper">
 			<div id="setUsernameModal">
 				<h3>What should we call you?</h3>
