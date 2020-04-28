@@ -19,5 +19,10 @@ export default {
 
 <style>
 #statusMenuContent-room {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	
+	height: 200px;
 }
 </style>
