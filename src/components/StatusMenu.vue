@@ -5,10 +5,10 @@
 		</transition>
 		<div id="statusMenu">
 			<div id="statusBar">
-				<StatusBarButton @click.native="currentMenu = 'ROOM'">{{$store.state.room.roomId}}</StatusBarButton>
-				<StatusBarButton>chat</StatusBarButton>
-				<StatusBarButton v-if="$route.name ==='Lobby'">settings</StatusBarButton>
-				<StatusBarButton v-if="$route.name ==='Game'">{{$store.state.user.points}} points</StatusBarButton>
+				<StatusBarButton :class="{active: currentMenu === 'ROOM'}" @click.native="currentMenu = 'ROOM'">{{$store.state.room.roomId}}</StatusBarButton>
+				<StatusBarButton :class="{active: currentMenu === 'CHAT'}">chat</StatusBarButton>
+				<StatusBarButton :class="{active: currentMenu === 'SETTINGS'}" v-if="$route.name ==='Lobby'">settings</StatusBarButton>
+				<StatusBarButton :class="{active: currentMenu === 'POINTS'}" v-if="$route.name ==='Game'">{{$store.state.user.points}} points</StatusBarButton>
 			</div>
 			<div id="statusMenuContent">
 				<transition name="slide">

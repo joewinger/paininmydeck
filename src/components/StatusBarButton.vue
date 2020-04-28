@@ -22,5 +22,11 @@ export default {
 	font-size: 18px;
 	line-height: 36px;
 	font-weight: 700;
+
+	transition: all 0.2s;
+}
+.statusBarButton.active {
+	background-color: #E0E0E0;
+	color: #777;
 }
 </style>
