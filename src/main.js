@@ -3,7 +3,6 @@ import App from './App';
 import router from './router';
 import firebase from 'firebase/app'; 
 import 'firebase/analytics';
-import dbManager from './dbManager';
 import store from './store';
 // const attachFastClick = require('fastclick');
 
@@ -20,7 +19,6 @@ Vue.filter('blankify', (value) => {
 });
 
 new Vue({
-	data: dbManager,
 	store: store,
 	router,
 	render: function (h) { return h(App) }
