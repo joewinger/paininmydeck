@@ -20,10 +20,10 @@ export default {
   display: flex;
   align-items: flex-end;
   
-  width: 360px;
+  width: 350px;
   min-height: 210px;
 	padding: 50px 15px 15px 15px;
-	margin: 10px;
+	margin: 10px 0;
   
   border-radius: 15px;
   border: 4px solid #0E0E0E22;
