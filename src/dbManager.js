@@ -92,7 +92,7 @@ function joinRoom(roomId) {
 			} else {
 				roomDocRef = null;
 				console.debug(`Room ${roomId} doesn't exist :(`);
-				reject(`Room ${roomId} doesn't exist :(`);
+				reject('ROOM_DOES_NOT_EXIST');
 			}
 			console.groupEnd();
 		}).catch(function(err) {
