@@ -3,7 +3,7 @@
 		<transition name="fade">
 			<div class="backgroundEffect" v-if="currentMenu !== null" @click="currentMenu = null"></div>
 		</transition>
-		<div id="statusMenu">
+		<div id="statusMenu" :class="{hidden: $store.state.user.username === ''}">
 			<div id="statusBar">
 				<StatusBarButton :class="{active: currentMenu === 'ROOM'}" @click.native="currentMenu = 'ROOM'">{{$store.state.room.roomId}}</StatusBarButton>
 				<StatusBarButton :class="{active: currentMenu === 'CHAT'}">chat</StatusBarButton>

@@ -14,7 +14,7 @@
 			<br/>
 			<button @click.once="startGame" v-if="this.$store.state.user.isPrivileged">Start Game</button>
 		</div>
-		<StatusMenu :class="{hidden: $store.state.user.username === ''}"></StatusMenu>
+		<StatusMenu></StatusMenu>
 	</div>
 </template>
 
