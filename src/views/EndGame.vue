@@ -14,11 +14,13 @@
 </template>
 
 <script>
+import dbManager from '../dbManager';
+
 export default {
 	name: 'EndGame',
   methods: {
 		goHome() {
-			this.$router.push('/');
+			dbManager.leaveRoom();
 		}
   }
 }

@@ -1,12 +1,19 @@
 <template>
 	<div id="statusMenuContent-room">
-		Room menu
+		<button @click="leaveRoom()">Leave Room</button>
 	</div>
 </template>
 
 <script>
+import dbManager from '../dbManager.js';
+
 export default {
-	name: 'StatusMenuContentRoom'
+	name: 'StatusMenuContentRoom',
+	methods: {
+		leaveRoom() {
+			dbManager.leaveRoom();
+		}
+	}
 }
 </script>
 

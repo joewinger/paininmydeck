@@ -16,12 +16,15 @@ const cloudFuncs = {
 let roomDocRef = null;
 let userDocRef = null;
 
+let unsubFromRoomDoc = null;
+let unsubFromUserCollection = null;
+
 const defaultRoomDocument = {
 	timestamp: firebase.firestore.FieldValue.serverTimestamp(),
 	gameState: "LOBBY", // PLAYING, FINISHED
 	players: [], // Used to cycle card czar
 	settings: {
-		pointsToWin: 10,
+		pointsToWin: 2,
 		cardsPerHand: 7
 	},
 	deckBlack: [],
@@ -61,7 +64,7 @@ function generateUserDocument() {
 }
 
 /*
- * Joining & Creating Rooms
+ * Joining, Creating, & Leaving Rooms
  */
 
 function joinRoom(roomId) {
@@ -79,9 +82,9 @@ function joinRoom(roomId) {
 				store.commit('room/setRoomId', roomDocSnapshot.id);
 				
 				// Start watching this room
-				roomDocRef.onSnapshot((snap) => updateRoomData(snap));
+				unsubFromRoomDoc = roomDocRef.onSnapshot((snap) => updateRoomData(snap));
 				// Start watching the users collection (To display other users -- using a collection makes it easier to monitor ready-ness of players)
-				roomDocRef.collection('users').onSnapshot((snap) => updateUsersData(snap));
+				unsubFromUserCollection = roomDocRef.collection('users').onSnapshot((snap) => updateUsersData(snap));
 
 				resolve();
 			} else {
@@ -166,6 +169,24 @@ function generateRoomId() {
 			resolve(roomId);
 		});
 	});
+}
+
+function leaveRoom() {
+	unsubFromRoomDoc();
+	unsubFromUserCollection();
+	
+	userDocRef.delete().catch(e => console.error(e));
+
+	roomDocRef.update({
+		players: firebase.firestore.FieldValue.arrayRemove(store.state.user.username) // Add to list so we can become card czar at some point
+	});
+	
+	roomDocRef = null;
+	userDocRef = null;
+
+	store.commit('user/reset');
+	store.commit('room/reset');
+	router.push('/');
 }
 
 /*
@@ -330,6 +351,7 @@ async function endGame(winner) {
 const dbManager = {
 	joinRoom: joinRoom, // Rooms
 	createRoom: createRoom,
+	leaveRoom: leaveRoom,
 	addUser: addUser, // Lobby func
 	toggleReady: toggleReady,
 	startGame: startGame,
