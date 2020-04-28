@@ -5,7 +5,7 @@
 		</transition>
 		<div id="statusMenu" :class="{hidden: $store.state.user.username === ''}">
 			<div id="statusBar">
-				<StatusBarButton :class="{active: currentMenu === 'ROOM'}" @click.native="currentMenu = 'ROOM'">{{$store.state.room.roomId}}</StatusBarButton>
+				<StatusBarButton :class="{active: currentMenu === 'ROOM'}" @click.native="toggleMenu('ROOM')">{{$store.state.room.roomId}}</StatusBarButton>
 				<StatusBarButton :class="{active: currentMenu === 'CHAT'}">chat</StatusBarButton>
 				<StatusBarButton :class="{active: currentMenu === 'SETTINGS'}" v-if="$route.name ==='Lobby'">settings</StatusBarButton>
 				<StatusBarButton :class="{active: currentMenu === 'POINTS'}" v-if="$route.name ==='Game'">{{$store.state.user.points}} points</StatusBarButton>
@@ -32,6 +32,11 @@ export default {
 	data() {
 		return {
 			currentMenu: null
+		}
+	},
+	methods: {
+		toggleMenu(menuName) {
+			this.currentMenu === menuName ? this.currentMenu = null : this.currentMenu = menuName;
 		}
 	}
 }
