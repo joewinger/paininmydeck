@@ -1,17 +1,17 @@
 <template>
-	<div class="statusButton">
+	<div class="statusBarButton">
 		<slot></slot>
 	</div>
 </template>
 
 <script>
 export default {
-	name: 'StatusButton'
+	name: 'StatusBarButton'
 }
 </script>
 
 <style scoped>
-.statusButton {
+.statusBarButton {
 	height: 40px;
 
 	border-radius: 20px;

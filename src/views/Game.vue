@@ -18,7 +18,7 @@
 				<WhiteCard :text="card.text"></WhiteCard>
 			</li>
 		</ul>
-		<StatusBar></StatusBar>
+		<StatusMenu></StatusMenu>
 	</div>
 </template>
 
@@ -28,7 +28,7 @@ import InfoBar from '@/components/InfoBar.vue';
 import QuestionCard from '@/components/QuestionCard.vue';
 import WhiteCard from '@/components/WhiteCard.vue';
 import Hand from '@/components/Hand.vue';
-import StatusBar from '@/components/StatusBar.vue';
+import StatusMenu from '@/components/StatusMenu.vue';
 
 export default {
 	name: 'Game',
@@ -38,7 +38,7 @@ export default {
 		QuestionCard,
 		WhiteCard,
 		Hand,
-		StatusBar
+		StatusMenu
 	}
 }
 </script>

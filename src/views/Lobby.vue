@@ -14,7 +14,7 @@
 			<br/>
 			<button @click.once="startGame" v-if="this.$store.state.user.isPrivileged">Start Game</button>
 		</div>
-		<StatusBar :class="{hidden: $store.state.user.username === ''}"></StatusBar>
+		<StatusMenu :class="{hidden: $store.state.user.username === ''}"></StatusMenu>
 	</div>
 </template>
 
@@ -22,7 +22,7 @@
 import dbManager from '../dbManager';
 import SetUsernameModal from '@/components/LobbySetUsernameModal.vue';
 import LobbyUser from '@/components/LobbyUser.vue';
-import StatusBar from '@/components/StatusBar.vue'
+import StatusMenu from '@/components/StatusMenu.vue'
 
 export default {
 	name: 'Lobby',
@@ -34,7 +34,7 @@ export default {
 	components: {
 		SetUsernameModal,
 		LobbyUser,
-		StatusBar
+		StatusMenu
 	},
 	methods: {
 		toggleReady() {
