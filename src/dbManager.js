@@ -190,7 +190,7 @@ function leaveRoom() {
 
 	store.commit('user/reset');
 	store.commit('room/reset');
-	router.push('/');
+	router.replace('/');
 }
 
 /*
@@ -246,7 +246,7 @@ function updateRoomData(snapshot) { // TODO tidy this up - I don't like updating
 		router.push('Game');
 	}
 	if(store.state.room.gameState == "PLAYING" && newRoomData.gameState == "FINISHED") { // Game just finished
-		router.push('EndGame');
+		router.replace('EndGame');
 	}
 
 	if(store.state.room.currentBlackCard != newRoomData.currentBlackCard) { // This is a new turn
