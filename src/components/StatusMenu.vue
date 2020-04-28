@@ -5,14 +5,17 @@
 		</transition>
 		<div id="statusMenu" :class="{hidden: $store.state.user.username === ''}">
 			<div id="statusBar">
-				<StatusBarButton :class="{active: currentMenu === 'ROOM'}" @click.native="toggleMenu('ROOM')">{{$store.state.room.roomId}}</StatusBarButton>
-				<StatusBarButton :class="{active: currentMenu === 'CHAT'}">chat</StatusBarButton>
-				<StatusBarButton :class="{active: currentMenu === 'SETTINGS'}" v-if="$route.name ==='Lobby'">settings</StatusBarButton>
-				<StatusBarButton :class="{active: currentMenu === 'POINTS'}" v-if="$route.name ==='Game'">{{$store.state.user.points}} points</StatusBarButton>
+				<StatusBarButton :class="{active: currentMenu === 'ROOM'}"     @click.native="toggleMenu('ROOM')"     >{{$store.state.room.roomId}}</StatusBarButton>
+				<StatusBarButton :class="{active: currentMenu === 'CHAT'}"     @click.native="toggleMenu('CHAT')"     >chat</StatusBarButton>
+				<StatusBarButton :class="{active: currentMenu === 'SETTINGS'}" @click.native="toggleMenu('SETTINGS')" v-if="$route.name ==='Lobby'">settings</StatusBarButton>
+				<StatusBarButton :class="{active: currentMenu === 'POINTS'}"   @click.native="toggleMenu('POINTS')"   v-if="$route.name ==='Game'">{{$store.state.user.points}} points</StatusBarButton>
 			</div>
 			<div id="statusMenuContent">
 				<transition name="slide">
 					<StatusMenuContentRoom v-if="currentMenu === 'ROOM'"></StatusMenuContentRoom>
+					<StatusMenuContentChat v-if="currentMenu === 'CHAT'"></StatusMenuContentChat>
+					<StatusMenuContentSettings v-if="currentMenu === 'SETTINGS'"></StatusMenuContentSettings>
+					<StatusMenuContentPoints v-if="currentMenu === 'POINTS'"></StatusMenuContentPoints>
 				</transition>
 			</div>
 		</div>
@@ -22,12 +25,18 @@
 <script>
 import StatusBarButton from '@/components/StatusBarButton.vue';
 import StatusMenuContentRoom from '@/components/StatusMenuContentRoom.vue';
+import StatusMenuContentChat from '@/components/StatusMenuContentChat.vue';
+import StatusMenuContentSettings from '@/components/StatusMenuContentSettings.vue';
+import StatusMenuContentPoints from '@/components/StatusMenuContentPoints.vue';
 
 export default {
 	name: 'StatusMenu',
 	components: {
 		StatusBarButton,
-		StatusMenuContentRoom
+		StatusMenuContentRoom,
+		StatusMenuContentChat,
+		StatusMenuContentSettings,
+		StatusMenuContentPoints
 	},
 	data() {
 		return {
