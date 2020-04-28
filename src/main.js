@@ -6,7 +6,6 @@ import 'firebase/analytics';
 import dbManager from './dbManager';
 import store from './store/store';
 // const attachFastClick = require('fastclick');
-// import './registerServiceWorker';
 
 // attachFastClick(document.body);
 
