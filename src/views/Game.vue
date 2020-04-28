@@ -23,12 +23,12 @@
 </template>
 
 <script>
-import FriendBar from '@/components/FriendBar.vue';
-import InfoBar from '@/components/InfoBar.vue';
-import QuestionCard from '@/components/QuestionCard.vue';
-import WhiteCard from '@/components/WhiteCard.vue';
-import Hand from '@/components/Hand.vue';
-import StatusMenu from '@/components/StatusMenu.vue';
+import FriendBar from '@/components/FriendBar';
+import InfoBar from '@/components/InfoBar';
+import QuestionCard from '@/components/QuestionCard';
+import WhiteCard from '@/components/WhiteCard';
+import Hand from '@/components/Hand';
+import StatusMenu from '@/components/StatusMenu';
 
 export default {
 	name: 'Game',

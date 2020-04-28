@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import dbManager from '../dbManager';
+import dbManager from '@/dbManager';
 
 export default {
 	name: 'SetUsernameModal',

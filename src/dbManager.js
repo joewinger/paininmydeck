@@ -3,7 +3,7 @@ import "firebase/firestore";
 import "firebase/functions";
 import config from './firebaseConfig';
 import router from './router';
-import store from "./store/store";
+import store from "./store";
 
 const db = firebase.initializeApp(config).firestore();
 const functions = firebase.functions();

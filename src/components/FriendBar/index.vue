@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import FriendIcon from '@/components/FriendIcon.vue'
+import FriendIcon from './FriendIcon'
 
 export default {
 	name: 'FriendBar',

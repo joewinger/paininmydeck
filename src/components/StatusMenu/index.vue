@@ -23,11 +23,11 @@
 </template>
 
 <script>
-import StatusBarButton from '@/components/StatusBarButton.vue';
-import StatusMenuContentRoom from '@/components/StatusMenuContentRoom.vue';
-import StatusMenuContentChat from '@/components/StatusMenuContentChat.vue';
-import StatusMenuContentSettings from '@/components/StatusMenuContentSettings.vue';
-import StatusMenuContentPoints from '@/components/StatusMenuContentPoints.vue';
+import StatusBarButton from './StatusBarButton';
+import StatusMenuContentRoom from './StatusMenuContentRoom';
+import StatusMenuContentChat from './StatusMenuContentChat';
+import StatusMenuContentSettings from './StatusMenuContentSettings';
+import StatusMenuContentPoints from './StatusMenuContentPoints';
 
 export default {
 	name: 'StatusMenu',

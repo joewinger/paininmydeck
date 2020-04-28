@@ -19,10 +19,10 @@
 </template>
 
 <script>
-import dbManager from '../dbManager';
-import SetUsernameModal from '@/components/LobbySetUsernameModal.vue';
-import LobbyUser from '@/components/LobbyUser.vue';
-import StatusMenu from '@/components/StatusMenu.vue'
+import dbManager from '@/dbManager';
+import SetUsernameModal from './LobbySetUsernameModal';
+import LobbyUser from './LobbyUser';
+import StatusMenu from '@/components/StatusMenu'
 
 export default {
 	name: 'Lobby',

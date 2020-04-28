@@ -1,10 +1,10 @@
 import Vue from 'vue';
-import App from './App.vue';
+import App from './App';
 import router from './router';
 import firebase from 'firebase/app'; 
 import 'firebase/analytics';
 import dbManager from './dbManager';
-import store from './store/store';
+import store from './store';
 // const attachFastClick = require('fastclick');
 
 // attachFastClick(document.body);

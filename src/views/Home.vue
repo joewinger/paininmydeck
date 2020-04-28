@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import dbManager from '../dbManager.js';
+import dbManager from '@/dbManager';
 
 export default {
 	name: 'Home',

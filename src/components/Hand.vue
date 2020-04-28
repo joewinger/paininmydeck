@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import WhiteCard from '@/components/WhiteCard.vue'
+import WhiteCard from '@/components/WhiteCard'
 
 export default {
 	name: 'Hand',

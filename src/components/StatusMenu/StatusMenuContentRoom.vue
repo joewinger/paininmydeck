@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import dbManager from '../dbManager.js';
+import dbManager from '@/dbManager.js';
 
 export default {
 	name: 'StatusMenuContentRoom',
