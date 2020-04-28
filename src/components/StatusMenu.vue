@@ -1,24 +1,38 @@
 <template>
-	<div id="statusMenu">
-		<div id="statusBar">
-			<StatusBarButton>{{$store.state.room.roomId}}</StatusBarButton>
-			<StatusBarButton>chat</StatusBarButton>
-			<StatusBarButton v-if="$route.name ==='Lobby'">settings</StatusBarButton>
-			<StatusBarButton v-if="$route.name ==='Game'">{{$store.state.user.points}} points</StatusBarButton>
-		</div>
-		<div id="statusMenuContent">
-
+	<div id="statusMenuWrapper">
+		<transition name="fade">
+			<div class="backgroundEffect" v-if="currentMenu !== null" @click="currentMenu = null"></div>
+		</transition>
+		<div id="statusMenu">
+			<div id="statusBar">
+				<StatusBarButton @click.native="currentMenu = 'ROOM'">{{$store.state.room.roomId}}</StatusBarButton>
+				<StatusBarButton>chat</StatusBarButton>
+				<StatusBarButton v-if="$route.name ==='Lobby'">settings</StatusBarButton>
+				<StatusBarButton v-if="$route.name ==='Game'">{{$store.state.user.points}} points</StatusBarButton>
+			</div>
+			<div id="statusMenuContent">
+				<transition name="slide">
+					<StatusMenuContentRoom v-if="currentMenu === 'ROOM'"></StatusMenuContentRoom>
+				</transition>
+			</div>
 		</div>
 	</div>
 </template>
 
 <script>
 import StatusBarButton from '@/components/StatusBarButton.vue';
+import StatusMenuContentRoom from '@/components/StatusMenuContentRoom.vue';
 
 export default {
 	name: 'StatusMenu',
 	components: {
-		StatusBarButton
+		StatusBarButton,
+		StatusMenuContentRoom
+	},
+	data() {
+		return {
+			currentMenu: null
+		}
 	}
 }
 </script>
@@ -29,9 +43,9 @@ export default {
 	flex-direction: column;
 	position: fixed;
 	bottom: 0;
-	left: 2.5vw;
+	left: 3vw;
 
-	width: 95vw;
+	width: 94vw;
 
 	background: #FFFFFF;
 	box-shadow: 0px 0px 10px rgba(130, 130, 130, 0.47);
@@ -55,11 +69,50 @@ export default {
 	justify-content: space-evenly;
 	align-items: center;
 	width: 100%;
+	
 }
 #statusMenuContent {
-	flex: 1 0 500px;
-	max-height: 0;
+	flex: 1 0 auto;
+}
 
-	transition: all 0.3s ease;
+.slide-enter-active,
+.slide-leave-active {
+	-webkit-transition: all 0.5s ease;
+	-moz-transition: all 0.5s ease;
+	-ms-transition: all 0.5s ease;
+	-o-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.slide-enter, .slide-leave-to {
+	max-height: 0;
+}
+.slide-enter-to, .slide-leave {
+	max-height: 70vh;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+	-webkit-transition: opacity 0.5s ease;
+	-moz-transition: opacity 0.5s ease;
+	-ms-transition: opacity 0.5s ease;
+	-o-transition: opacity 0.5s ease;
+	transition: opacity 0.5s ease;
+}
+.fade-enter, .fade-leave-to {
+	opacity: 0;
+}
+.fade-enter-to, .fade-leave {
+	opacity: 1;
+}
+
+.backgroundEffect {
+	position: fixed;
+	top: 0;
+	left: 0;
+
+	width: 100%;
+	height: 100%;
+	
+	background: #4F4F4F64;
 }
 </style>
