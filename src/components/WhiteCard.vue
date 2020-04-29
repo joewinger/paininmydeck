@@ -34,8 +34,10 @@ export default {
 	position: relative;
 	display: inline-block;
 
-	width: 200px;
-	height: 260px;
+	/* width: 200px;
+	height: 260px; */
+	width: 150px;
+	height: 195px;
 	padding: 15px;
 	margin-left: 10px;
 
@@ -46,7 +48,8 @@ export default {
 
 	color: #000;
 	text-align: left;
-	font-size: 16pt;
+	/* font-size: 16pt; */
+	font-size: 13pt;
 	font-weight: bold;
 
 	cursor: pointer;

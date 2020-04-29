@@ -31,7 +31,8 @@ export default {
   /* box-shadow: 0px 2px 4px rgba(69, 134, 96, 0.52); */
   
   color: #fff;
-  font-size: 30px;
+  /* font-size: 30px; */
+  font-size: 20pt;
 	font-weight: 700;
 	text-align: left;
 }
