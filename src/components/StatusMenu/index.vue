@@ -11,7 +11,7 @@
 				<StatusBarButton :class="{active: currentMenu === 'POINTS'}"   @click.native="toggleMenu('POINTS')"   v-if="$route.name === 'game'">{{$store.state.user.points}} points</StatusBarButton>
 			</div>
 			<div id="statusMenuContent">
-				<transition name="slide">
+				<transition name="slide" mode="out-in">
 					<StatusMenuContentRoom v-if="currentMenu === 'ROOM'"></StatusMenuContentRoom>
 					<StatusMenuContentChat v-if="currentMenu === 'CHAT'"></StatusMenuContentChat>
 					<StatusMenuContentSettings v-if="currentMenu === 'SETTINGS'"></StatusMenuContentSettings>
