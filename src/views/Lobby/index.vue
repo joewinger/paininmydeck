@@ -38,7 +38,7 @@ export default {
 	},
 	methods: {
 		toggleReady() {
-			dbManager.toggleReady()
+			dbManager.toggleReady();
 		},
 		startGame() {
 			// if(this.$store.state.room.users.length < 3) {
