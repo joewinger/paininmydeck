@@ -1,9 +1,18 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/functions";
-import config from './firebaseConfig';
 import router from './router';
 import store from "./store";
+
+let config;
+
+if(process.env.NODE_ENV === 'production') {
+	fetch('/__/firebase/init.json').then(response => {
+		config = response.json();
+	});
+} else {
+	config = require('./firebaseConfig').default;
+}
 
 const db = firebase.initializeApp(config).firestore();
 const functions = firebase.functions();
