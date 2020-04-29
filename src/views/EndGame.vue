@@ -9,19 +9,12 @@
 			<li v-for="user in this.$store.getters['room/sortedUsers']" :key="user.username">{{user.username}} - {{user.points}} points</li>
 		</ol>
 
-    <button @click="goHome">Go Back Home</button>
+    <button @click="$router.replace('/')">Go Back Home</button>
   </div>
 </template>
 
 <script>
-import dbManager from '@/dbManager';
-
 export default {
-	name: 'EndGame',
-  methods: {
-		goHome() {
-			dbManager.leaveRoom();
-		}
-  }
+	name: 'EndGame'
 }
 </script>

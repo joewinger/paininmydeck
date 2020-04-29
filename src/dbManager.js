@@ -80,6 +80,8 @@ function joinRoom(roomId) {
 			if (roomDocSnapshot.exists) {
 				store.commit('room/updateGameState', 'LOBBY');// Set this now, so if we join a game that's already started it'll forward us to the game view. Used for testing.
 				
+				if(roomDocSnapshot.data().players.length == 0) store.commit('user/setPrivileged');
+
 				console.debug("Success! Room document retrieved.", roomDocSnapshot.data());
 				store.commit('room/setRoomId', roomDocSnapshot.id);
 				
@@ -179,9 +181,9 @@ function leaveRoom() {
 	unsubFromRoomDoc();
 	unsubFromUserCollection();
 	
-	userDocRef.delete().catch(e => console.error(e));
+	if(userDocRef !== null) userDocRef.delete().catch(e => console.error(e));
 
-	roomDocRef.update({
+	if(roomDocRef !== null) roomDocRef.update({
 		players: firebase.firestore.FieldValue.arrayRemove(store.state.user.username) // Add to list so we can become card czar at some point
 	});
 	
@@ -190,7 +192,6 @@ function leaveRoom() {
 
 	store.commit('user/reset');
 	store.commit('room/reset');
-	router.replace('/');
 }
 
 /*
@@ -200,11 +201,6 @@ function leaveRoom() {
 // https://firebase.google.com/docs/firestore/manage-data/add-data?authuser=0#update_elements_in_an_array
 async function addUser(username) { // To be used after already joining the game
 	username = String(username);
-
-	const roomDocData = await roomDocRef.get().then(snap => { return snap.data() });
-	const allUsers = roomDocData.players;
-	
-	if(allUsers.length == 0) store.commit('user/setPrivileged');
 	
 	userDocRef = roomDocRef.collection('users').doc(username); // Create our user doc & save it for easy access
 	userDocRef.set(generateUserDocument());
@@ -243,10 +239,10 @@ function updateRoomData(snapshot) { // TODO tidy this up - I don't like updating
 	/* Logic */
 	if(store.state.room.gameState == "LOBBY" && newRoomData.gameState == "PLAYING") { // Game just started
 		console.log("Game has started!");
-		router.push('Game');
+		router.replace({name: 'game'});
 	}
 	if(store.state.room.gameState == "PLAYING" && newRoomData.gameState == "FINISHED") { // Game just finished
-		router.replace('EndGame');
+		router.replace({name: 'endgame'});
 	}
 
 	if(store.state.room.currentBlackCard != newRoomData.currentBlackCard) { // This is a new turn

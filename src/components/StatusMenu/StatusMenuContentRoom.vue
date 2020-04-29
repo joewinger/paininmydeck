@@ -1,19 +1,12 @@
 <template>
 	<div id="statusMenuContent-room">
-		<button @click="leaveRoom()">Leave Room</button>
+		<button @click="$router.replace('/')">Leave Room</button>
 	</div>
 </template>
 
 <script>
-import dbManager from '@/dbManager.js';
-
 export default {
-	name: 'StatusMenuContentRoom',
-	methods: {
-		leaveRoom() {
-			dbManager.leaveRoom();
-		}
-	}
+	name: 'StatusMenuContentRoom'
 }
 </script>
 

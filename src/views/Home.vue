@@ -22,25 +22,11 @@ export default {
 	methods: {
 		joinRoom () {
 			if(this.roomId == "") return;
-			const playing = this.roomId.charAt(0) == "P"; // for testing
-
-			let roomId = this.roomId;
-			if (playing) roomId = roomId.substring(1);
-
-			dbManager.joinRoom(roomId).then(() => {
-				playing ? this.$router.push('Game') : this.$router.push('Lobby');
-			}).catch((err) => {
-				console.error(err);
-				this.roomId = "";
-				// TODO: show error for incorrect room ID
-			});
+			this.$router.push({ name: 'lobby', params: {roomId: this.roomId} });
 		},
 		createRoom () {
 			dbManager.createRoom().then(roomId => {
-				this.roomId = roomId
-				dbManager.joinRoom(roomId).then(() => {
-					this.$router.push('Lobby');
-				});
+				this.$router.push({ name: 'lobby', params: {roomId: roomId} });
 			}).catch((err) => {
 				console.error(err);
 			});
