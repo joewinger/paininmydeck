@@ -88,6 +88,7 @@ export default {
 #statusMenuContent {
 	flex: 1 0 auto;
 	overflow: hidden;
+	max-height: 65vh;
 }
 
 .slide-enter-active,
@@ -104,7 +105,7 @@ export default {
 	transform: translateY(200px);
 }
 .slide-enter-to, .slide-leave {
-	max-height: 70vh;
+	max-height: 65vh;
 	opacity: 1;
 }
 

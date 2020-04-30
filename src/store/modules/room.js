@@ -1,8 +1,13 @@
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import dayjs from 'dayjs';
+
 function initialState() {
 	return {
 		roomId: null,
 		gameState: null,
 		users: [],
+		chatMessages: [],
 		currentBlackCard: null,
 		currentCzar: null,
 		currentTurnStatus: null,
@@ -17,9 +22,10 @@ function initialState() {
 const state = initialState();
 
 const mutations = {
-	setRoomId: (state, roomId) => state.roomId = roomId,
+	setRoomId: (state, roomId) => state.roomId = String(roomId),
 	setPointsToWin: (state, numPointsToWin) => state.pointsToWin = numPointsToWin,
 	updateUsers: (state, users) => state.users = users,
+	updateChatMessages: (state, chatMessageArray) => state.chatMessages = chatMessageArray,
 	updateGameState: (state, newGameState) => state.gameState = newGameState,
 	updateBlackCard: (state, newBlackCard) => state.currentBlackCard = newBlackCard,
 	updateCzar: (state, newCzar) => state.currentCzar = newCzar,
@@ -35,7 +41,17 @@ const mutations = {
 	}
 }
 
-const actions = {}
+const actions = {
+	sendMessage({state, rootState}, messageText) {
+		firebase.firestore().collection('games').doc(state.roomId).update({
+			chatMessages: firebase.firestore.FieldValue.arrayUnion({
+				timestamp: dayjs().valueOf(),
+				sender: rootState.user.username,
+				text: messageText
+			})
+		});
+	}
+}
 
 const getters = {
 	sortedUsers(state) {
@@ -54,6 +70,9 @@ const getters = {
 	},
 	getCzarColorSet(state) {
 		return state.users.find(user => user.username == state.currentCzar).colorSet;
+	},
+	getColorSetByUsername: (state) => (username) => {
+		return state.users.find(user => user.username == username).colorSet;
 	}
 }
 

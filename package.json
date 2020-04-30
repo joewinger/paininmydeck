@@ -9,6 +9,7 @@
 		"lint": "vue-cli-service lint"
 	},
 	"dependencies": {
+		"dayjs": "^1.8.25",
 		"fastclick": "^1.0.6",
 		"firebase": "^7.13.2",
 		"vue": "^2.6.11",

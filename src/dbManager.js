@@ -36,6 +36,12 @@ const defaultRoomDocument = {
 		pointsToWin: 10,
 		cardsPerHand: 7
 	},
+	chatMessages: [],
+	// [{
+	//   timestamp: Number (Unix timestamp in millis via dayjs().valueOf())
+	//   sender: String
+	//   text: String
+	// }, ...]
 	deckBlack: [],
 	deckWhite: [],
 	currentBlackCard: null,
@@ -269,6 +275,7 @@ function updateRoomData(snapshot) { // TODO tidy this up - I don't like updating
 	}
 
 	/* Setting state */
+	store.commit('room/updateChatMessages', newRoomData.chatMessages);
 	store.commit('room/updateGameState', newRoomData.gameState);
 	store.commit('room/updateBlackCard', newRoomData.currentBlackCard);
 	store.commit('room/updateCzar', newRoomData.currentCzar);
