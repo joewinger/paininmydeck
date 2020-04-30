@@ -12,7 +12,7 @@ function initialState() {
 const state = initialState();
 
 const mutations = {
-	setUsername: (state, username) => {state.username = username; console.log(state)},
+	setUsername: (state, username) => state.username = username,
 	setPrivileged: (state) => state.isPrivileged = true,
 	setPlayedThisTurn: (state, playedThisTurn) => state.playedThisTurn = playedThisTurn,
 	updateReadyStatus: (state, readyInt) => state.isReady = (readyInt % 2 === 0),
