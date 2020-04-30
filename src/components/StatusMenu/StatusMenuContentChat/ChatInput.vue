@@ -28,6 +28,10 @@ export default {
 .chatInput {
 	display: flex;
 	flex-direction: row;
+
+	align-items: center;
+
+	margin-bottom: 20px;
 }
 input {
 	flex-grow: 2;
