@@ -26,11 +26,6 @@ import StatusMenu from '@/components/StatusMenu'
 
 export default {
 	name: 'Lobby',
-	data () {
-		return {
-			canStartGame: true
-		}
-	},
 	components: {
 		SetUsernameModal,
 		LobbyUser,
