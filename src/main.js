@@ -19,7 +19,7 @@ Vue.filter('blankify', (value) => {
 });
 
 new Vue({
-	store: store,
+	store,
 	router,
 	render: function (h) { return h(App) }
 }).$mount('#app');
