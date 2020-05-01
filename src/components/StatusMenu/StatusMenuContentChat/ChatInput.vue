@@ -32,6 +32,8 @@ export default {
 	align-items: center;
 
 	margin-bottom: 20px;
+
+	z-index: 100;
 }
 input {
 	flex-grow: 2;
