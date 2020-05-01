@@ -10,7 +10,7 @@ import store from './store';
 
 Vue.config.productionTip = false;
 
-firebase.analytics();
+if(process.env.NODE_ENV === 'production') firebase.analytics();
 
 Vue.filter('blankify', (value) => {
 	if (!value) return ''
