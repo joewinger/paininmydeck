@@ -198,8 +198,8 @@ function generateRoomId() {
 function leaveRoom() {
 	// TODO: Handle us leaving mid-game - Re-assign the czar if it's us, maybe add our cards back in the pile
 
-	unsubFromRoomDoc();
-	unsubFromUserCollection();
+	if(unsubFromRoomDoc !== null) unsubFromRoomDoc();
+	if(unsubFromUserCollection !== null) unsubFromUserCollection();
 	
 	if(userDocRef !== null) userDocRef.delete().catch(e => console.error(e));
 
