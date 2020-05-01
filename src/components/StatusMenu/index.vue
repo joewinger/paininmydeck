@@ -6,7 +6,7 @@
 		<div id="statusMenu" :class="{hidden: $store.state.user.username === ''}">
 			<div id="statusBar">
 				<StatusBarButton :class="{active: currentMenu === 'ROOM'}"     @click.native="toggleMenu('ROOM')"     >{{$store.state.room.roomId}}</StatusBarButton>
-				<StatusBarButton :class="{active: currentMenu === 'CHAT'}"     @click.native="toggleMenu('CHAT')"     >chat</StatusBarButton>
+				<StatusBarButton :class="{active: currentMenu === 'CHAT', alert: hasUnreadMessages }"     @click.native="toggleMenu('CHAT')"     >chat</StatusBarButton>
 				<StatusBarButton :class="{active: currentMenu === 'SETTINGS'}" @click.native="toggleMenu('SETTINGS')" v-if="$route.name === 'lobby'">settings</StatusBarButton>
 				<StatusBarButton :class="{active: currentMenu === 'POINTS'}"   @click.native="toggleMenu('POINTS')"   v-if="$route.name === 'game' || $route.name === 'endgame'">{{$store.state.user.points}} points</StatusBarButton>
 			</div>
@@ -40,13 +40,28 @@ export default {
 	},
 	data() {
 		return {
-			currentMenu: null
+			currentMenu: null,
+			hasUnreadMessages: false,
 		}
 	},
 	methods: {
 		toggleMenu(menuName) {
+			if(menuName === 'CHAT') {
+				this.hasUnreadMessages = false;
+			}
 			this.currentMenu === menuName ? this.currentMenu = null : this.currentMenu = menuName;
 		}
+	},
+	created() {
+		this.unsubscribe = this.$store.subscribe((mutation) => {
+			if(this.currentMenu === 'CHAT') return;
+			if(mutation.type === 'room/updateChatMessages') {
+				this.hasUnreadMessages = true;
+			}
+		});
+	},
+	beforeDestroy() {
+		this.unsubscribe();
 	}
 }
 </script>
@@ -133,5 +148,16 @@ export default {
 	height: 100%;
 	
 	background: #4F4F4F64;
+}
+
+.alert::before {
+	content: '';
+	position: absolute;
+	width: 6px;
+	height: 6px;
+	border-radius: 3px;
+	background: #828282;
+	top: -11px;
+	left: calc(50% - 3px);
 }
 </style>

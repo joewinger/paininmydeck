@@ -12,6 +12,8 @@ export default {
 
 <style scoped>
 .statusBarButton {
+	position: relative;
+	
 	height: 40px;
 
 	border-radius: 20px;
