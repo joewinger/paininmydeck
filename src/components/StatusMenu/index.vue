@@ -13,7 +13,7 @@
 			<div id="statusMenuContent">
 				<transition name="slide" mode="out-in">
 					<StatusMenuContentRoom v-if="currentMenu === 'ROOM'"></StatusMenuContentRoom>
-					<StatusMenuContentChat v-show="currentMenu === 'CHAT'"></StatusMenuContentChat>
+					<StatusMenuContentChat v-if="currentMenu === 'CHAT'"></StatusMenuContentChat>
 					<StatusMenuContentSettings v-if="currentMenu === 'SETTINGS'"></StatusMenuContentSettings>
 					<StatusMenuContentPoints v-if="currentMenu === 'POINTS'"></StatusMenuContentPoints>
 				</transition>
