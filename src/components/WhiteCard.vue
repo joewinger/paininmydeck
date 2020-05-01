@@ -47,6 +47,7 @@ export default {
 	box-shadow: 0px 4px 4px rgba(177, 177, 177, 0.25);
 
 	color: #000;
+  font-family: aktiv-grotesk, Helvetica, sans-serif;
 	text-align: left;
 	/* font-size: 16pt; */
 	font-size: 13pt;

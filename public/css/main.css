@@ -49,7 +49,7 @@ button {
 
   cursor: pointer;
 
-  font-weight: 700;
+  font-weight: 500;
   line-height: 0;
 }
 
@@ -63,9 +63,7 @@ button:focus {
 
   height: 100%;
 
-  font-family: aktiv-grotesk, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: Roboto, sans-serif;
   text-align: center;
 }
 
