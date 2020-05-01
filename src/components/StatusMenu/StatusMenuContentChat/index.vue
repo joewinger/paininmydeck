@@ -24,13 +24,13 @@ export default {
 			const messageContainerElement = this.$refs.messageContainer;
 			for(let i = 0; i < messages.length; i++) {
 				let currentElement = messages[i].$el;
-				const destination = messageContainerElement.getBoundingClientRect().top
-				const currentPosition = currentElement.getBoundingClientRect().top;
+				const topBound = messageContainerElement.getBoundingClientRect().top
+				const currentTop = currentElement.getBoundingClientRect().top;
 				const threshold = 20;
 				
-				if(currentPosition < destination + threshold) {
+				if(currentTop < topBound + threshold) {
 					currentElement.classList.add('hidden');
-					// currentElement.style.opacity = (currentPosition - destination) / threshold;
+					// currentElement.style.opacity = (currentTop - topBound) / threshold;
 				} else {
 					currentElement.classList.remove('hidden');
 				}
@@ -56,11 +56,15 @@ ol.chatMessages {
 	box-sizing: border-box;
 	list-style: none;
 	margin: 0;
+	margin-bottom: -60px;
 	padding: 0 20px;
 
 	width: 100%;
 
 	overflow-y: scroll;
+}
+ol.chatMessages > li:last-of-type {
+	padding-bottom: 60px;
 }
 /* ol.chatMessages::after {
     content: '';
