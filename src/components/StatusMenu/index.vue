@@ -8,7 +8,7 @@
 				<StatusBarButton :class="{active: currentMenu === 'ROOM'}"     @click.native="toggleMenu('ROOM')"     >{{$store.state.room.roomId}}</StatusBarButton>
 				<StatusBarButton :class="{active: currentMenu === 'CHAT'}"     @click.native="toggleMenu('CHAT')"     >chat</StatusBarButton>
 				<StatusBarButton :class="{active: currentMenu === 'SETTINGS'}" @click.native="toggleMenu('SETTINGS')" v-if="$route.name === 'lobby'">settings</StatusBarButton>
-				<StatusBarButton :class="{active: currentMenu === 'POINTS'}"   @click.native="toggleMenu('POINTS')"   v-if="$route.name === 'game'">{{$store.state.user.points}} points</StatusBarButton>
+				<StatusBarButton :class="{active: currentMenu === 'POINTS'}"   @click.native="toggleMenu('POINTS')"   v-if="$route.name === 'game' || $route.name === 'endgame'">{{$store.state.user.points}} points</StatusBarButton>
 			</div>
 			<div id="statusMenuContent">
 				<transition name="slide" mode="out-in">
