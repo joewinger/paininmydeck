@@ -365,14 +365,14 @@ async function endGame(winner) {
 }
 
 const dbManager = {
-	joinRoom: joinRoom, // Rooms
-	createRoom: createRoom,
-	leaveRoom: leaveRoom,
-	addUser: addUser, // Lobby func
-	toggleReady: toggleReady,
-	startGame: startGame,
-	playCard: playCard, // Gameplay
-	chooseCard: chooseCard
+	joinRoom, // Rooms
+	createRoom,
+	leaveRoom,
+	addUser, // Lobby func
+	toggleReady,
+	startGame,
+	playCard, // Gameplay
+	chooseCard
 }
 
 export default dbManager;
