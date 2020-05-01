@@ -265,8 +265,8 @@ function updateRoomData(snapshot) { // TODO tidy this up - I don't like updating
 	}
 
 	if(store.getters['user/isCzar']) {
-	if(store.state.room.activeCards.length < newRoomData.activeCards.length) { // If someone just played a card
-		if(newRoomData.activeCards.length == store.state.room.users.length-1) { // Everyone has played cards
+		if(store.state.room.activeCards.length < newRoomData.activeCards.length) { // If someone just played a card
+			if(newRoomData.activeCards.length == store.state.room.users.length-1) { // Everyone has played cards
 				roomDocRef.update({
 					turnStatus: "WAITING_FOR_CZAR"
 				});
