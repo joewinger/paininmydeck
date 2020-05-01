@@ -53,9 +53,9 @@ export default {
 		}
 	},
 	created() {
-		this.unsubscribe = this.$store.subscribe((mutation) => {
+		this.unsubscribe = this.$store.subscribe((mutation, state) => {
 			if(this.currentMenu === 'CHAT') return;
-			if(mutation.type === 'room/updateChatMessages') {
+			if(mutation.type === 'room/updateChatMessages' && state.room.chatMessages.length > 0) {
 				this.hasUnreadMessages = true;
 			}
 		});
