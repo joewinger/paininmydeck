@@ -7,6 +7,7 @@ function initialState() {
 		roomId: null,
 		gameState: null,
 		users: [],
+		settings: {},
 		chatMessages: [],
 		currentBlackCard: null,
 		currentCzar: null,
@@ -25,6 +26,7 @@ const mutations = {
 	setRoomId: (state, roomId) => state.roomId = String(roomId),
 	setPointsToWin: (state, numPointsToWin) => state.pointsToWin = numPointsToWin,
 	updateUsers: (state, users) => state.users = users,
+	updateSettings: (state, settingsObject) => state.settings = settingsObject,
 	updateChatMessages: (state, chatMessageArray) => state.chatMessages = chatMessageArray,
 	updateGameState: (state, newGameState) => state.gameState = newGameState,
 	updateBlackCard: (state, newBlackCard) => state.currentBlackCard = newBlackCard,
@@ -49,6 +51,11 @@ const actions = {
 				sender: rootState.user.username,
 				text: messageText
 			})
+		});
+	},
+	updateSettings({state}, settingsObject) {
+		firebase.firestore().collection('games').doc(state.roomId).update({
+			settings: settingsObject
 		});
 	}
 }

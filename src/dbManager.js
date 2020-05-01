@@ -277,6 +277,7 @@ function updateRoomData(snapshot) { // TODO tidy this up - I don't like updating
 	/* Setting state */
 	// If we don't use this if, we're alerted of a new chat message any time updateRoomData() is called
 	if(newRoomData.chatMessages.length > store.state.room.chatMessages.length) store.commit('room/updateChatMessages', newRoomData.chatMessages);
+	store.commit('room/updateSettings', newRoomData.settings);
 	store.commit('room/updateGameState', newRoomData.gameState);
 	store.commit('room/updateBlackCard', newRoomData.currentBlackCard);
 	store.commit('room/updateCzar', newRoomData.currentCzar);
