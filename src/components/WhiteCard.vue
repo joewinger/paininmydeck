@@ -31,7 +31,6 @@ export default {
 
 <style scoped>
 .whiteCard {
-	position: relative;
 	display: inline-block;
 
 	/* width: 200px;
@@ -54,8 +53,5 @@ export default {
 	font-weight: bold;
 
 	cursor: pointer;
-
-  transition: transform 0.6s;
-	transform-style: preserve-3d;
 }
 </style>
