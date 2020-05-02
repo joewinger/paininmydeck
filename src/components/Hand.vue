@@ -32,6 +32,9 @@ export default {
 	overflow-y: visible;
 }
 li:first-of-type {
-	margin-left: 15px;
+	margin-left: 5px;
+}
+li:last-of-type {
+	padding-right: 10px;
 }
 </style>
