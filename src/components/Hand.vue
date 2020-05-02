@@ -31,8 +31,11 @@ export default {
 	overflow-x: scroll;
 	overflow-y: visible;
 }
+li {
+	margin-left: 10px;
+}
 li:first-of-type {
-	margin-left: 5px;
+	margin-left: 15px;
 }
 li:last-of-type {
 	padding-right: 10px;

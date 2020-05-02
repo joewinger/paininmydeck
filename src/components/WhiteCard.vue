@@ -38,7 +38,6 @@ export default {
 	width: 150px;
 	height: 195px;
 	padding: 15px;
-	margin-left: 10px;
 
 	background: #fff;
 	border-radius: 15px;
