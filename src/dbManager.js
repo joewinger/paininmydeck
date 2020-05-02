@@ -101,10 +101,7 @@ function joinRoom(roomId) {
 			return;
 		}
 
-		if(store.state.room.roomId !== null) {
-			console.debug(`Leaving room ${store.state.room.roomId}.`)
-			leaveRoom();
-		}
+		if(store.state.room.roomId !== null) leaveRoom();
 
 		roomDocRef = db.collection("games").doc(String(roomId));
 
