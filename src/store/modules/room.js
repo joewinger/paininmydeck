@@ -54,6 +54,10 @@ const actions = {
 		});
 	},
 	updateSettings({state}, settingsObject) {
+
+		if(settingsObject.cardsPerHand < 3) settingsObject.cardsPerHand = 3;
+		if(settingsObject.pointsToWin < 1) settingsObject.pointsToWin = 1;
+
 		firebase.firestore().collection('games').doc(state.roomId).update({
 			settings: settingsObject
 		});
