@@ -41,8 +41,10 @@ const routes = [
     name: 'game',
     component: Game,
     beforeEnter: (to, from, next) => { // https://router.vuejs.org/guide/advanced/navigation-guards.html
-      if(from.name !== 'lobby') next('/');
-      else next();
+      if(store.state.room.roomId !== null && store.state.room.gameState === 'PLAYING') {
+        // Verify that our state dictates we should be here
+        next();
+      } else next('/');
     }
   },
   {
@@ -50,8 +52,10 @@ const routes = [
     name: 'endgame',
     component: EndGame,
     beforeEnter: (to, from, next) => {
-      if(from.name !== 'lobby') next('/');
-      else next();
+      if(store.state.room.roomId !== null && store.state.room.gameState === 'FINISHED') {
+        // Verify that our state dictates we should be here
+        next();
+      } else next('/');
     }
   }
 ];
