@@ -17,6 +17,7 @@ export default {
 #infoBar {
 	display: inline-block;
 	padding: 0 35px;
+	margin-bottom: 10px;
 
 	height: 30px;
 	border-radius: 15px;
