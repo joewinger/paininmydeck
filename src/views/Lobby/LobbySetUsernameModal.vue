@@ -17,7 +17,8 @@ export default {
 	name: 'SetUsernameModal',
 	data () {
 		return {
-			username: localStorage.getItem('username') || ''
+			// Prioritize session store, useful for testing in different tabs
+			username: sessionStorage.getItem('username') || localStorage.getItem('username') || ''
 		}
 	},
 	methods: {
@@ -28,6 +29,7 @@ export default {
 				return;
 			}
 
+			sessionStorage.setItem('username', this.username);
 			localStorage.setItem('username', this.username);
 			dbManager.addUser(this.username);
 		}
