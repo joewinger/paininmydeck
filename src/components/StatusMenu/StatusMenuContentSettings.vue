@@ -15,19 +15,35 @@
 <script>
 export default {
 	name: 'StatusMenuContent',
+	data() {
+		return {
+			changeCardsPerHand: null,
+			changePointsToWin: null
+		}
+	},
 	computed: {
-		cardsPerHand() {
-			return this.$store.state.room.settings.cardsPerHand
+		cardsPerHand: {
+			get() {
+				return this.$store.state.room.settings.cardsPerHand
+			},
+			set(value) {
+				this.changeCardsPerHand = value
+			}
 		},
-		pointsToWin() {
-			return this.$store.state.room.settings.pointsToWin
+		pointsToWin: {
+			get() {
+				return this.$store.state.room.settings.pointsToWin
+			},
+			set(value) {
+				this.changePointsToWin = value
+			}
 		},
 	},
 	methods: {
 		updateSettings() {
 			const settingsObject = {
-				cardsPerHand: this.cardsPerHand,
-				pointsToWin: this.pointsToWin
+				cardsPerHand: this.changeCardsPerHand || this.cardsPerHand,
+				pointsToWin: this.changePointsToWin || this.pointsToWin
 			}
 
 			this.$store.dispatch('room/updateSettings', settingsObject);
