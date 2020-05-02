@@ -5,6 +5,7 @@ import Lobby from '@/views/Lobby';
 import Game from '@/views/Game';
 import EndGame from '@/views/EndGame';
 import dbManager from '@/dbManager';
+import store from '@/store';
 
 Vue.use(VueRouter);
 
@@ -14,9 +15,8 @@ const routes = [
     name: 'home',
     component: Home,
     beforeEnter: (to, from, next) => {
-      // If we're not connecting directly to the site,
-      // leave the room that we were in.
-      if(from.name !== null) dbManager.leaveRoom();
+      // If our state indicates that we are in a room, leave it.
+      if(store.state.room.roomId !== null) dbManager.leaveRoom();
       next();
     }
   },
