@@ -14,7 +14,9 @@ const routes = [
     name: 'home',
     component: Home,
     beforeEnter: (to, from, next) => {
-      if(from.name === 'lobby' || from.name === 'endgame') dbManager.leaveRoom();
+      // If we're not connecting directly to the site,
+      // leave the room that we were in.
+      if(from.name !== null) dbManager.leaveRoom();
       next();
     }
   },
