@@ -4,7 +4,7 @@ import Home from '@/views/Home';
 import Lobby from '@/views/Lobby';
 import Game from '@/views/Game';
 import EndGame from '@/views/EndGame';
-import dbManager from "@/dbManager";
+import dbManager from '@/dbManager';
 
 Vue.use(VueRouter);
 
@@ -41,7 +41,7 @@ const routes = [
     name: 'game',
     component: Game,
     beforeEnter: (to, from, next) => { // https://router.vuejs.org/guide/advanced/navigation-guards.html
-      if(from.name !== "lobby") next('/');
+      if(from.name !== 'lobby') next('/');
       else next();
     }
   },
@@ -50,7 +50,7 @@ const routes = [
     name: 'endgame',
     component: EndGame,
     beforeEnter: (to, from, next) => {
-      if(from.name !== "lobby") next('/');
+      if(from.name !== 'lobby') next('/');
       else next();
     }
   }
