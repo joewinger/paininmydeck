@@ -1,6 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import dayjs from 'dayjs';
+import router from '@/router';
 
 function initialState() {
 	return {
@@ -61,6 +62,14 @@ const actions = {
 		firebase.firestore().collection('games').doc(state.roomId).update({
 			settings: settingsObject
 		});
+	},
+	updateGameState({state, commit}, gameState) {
+		if(state.gameState !== gameState) {
+			commit('updateGameState', gameState);
+			
+			if(gameState === 'PLAYING')  router.replace({name: 'game'});
+			if(gameState === 'FINISHED') router.replace({name: 'endgame'});
+		}
 	}
 }
 

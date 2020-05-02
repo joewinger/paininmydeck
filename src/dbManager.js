@@ -1,8 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/functions";
-import router from './router';
-import store from "./store";
+import store from "@/store";
 
 let config;
 
@@ -276,10 +275,6 @@ function updateRoomData(snapshot) { // TODO tidy this up - I don't like updating
 	/* Logic */
 	if(store.state.room.gameState == "LOBBY" && newRoomData.gameState == "PLAYING") { // Game just started
 		console.log("Game has started!");
-		router.replace({name: 'game'});
-	}
-	if(store.state.room.gameState == "PLAYING" && newRoomData.gameState == "FINISHED") { // Game just finished
-		router.replace({name: 'endgame'});
 	}
 
 	if(store.state.room.currentBlackCard != newRoomData.currentBlackCard) { // This is a new turn
@@ -300,7 +295,7 @@ function updateRoomData(snapshot) { // TODO tidy this up - I don't like updating
 	// If we don't use this if, we're alerted of a new chat message any time updateRoomData() is called
 	if(newRoomData.chatMessages.length > store.state.room.chatMessages.length) store.commit('room/updateChatMessages', newRoomData.chatMessages);
 	store.commit('room/updateSettings', newRoomData.settings);
-	store.commit('room/updateGameState', newRoomData.gameState);
+	store.dispatch('room/updateGameState', newRoomData.gameState); // This action routes us depending on the supplied gameState
 	store.commit('room/updateBlackCard', newRoomData.currentBlackCard);
 	store.commit('room/updateCzar', newRoomData.currentCzar);
 	store.commit('room/updateActiveCards', newRoomData.activeCards);
