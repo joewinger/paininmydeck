@@ -16,15 +16,16 @@
 export default {
 	name: 'StatusMenuContent',
 	data() {
-		return {
-			changeCardsPerHand: null,
-			changePointsToWin: null
+		return { // -1 is the initial state, letting us know it has not been altered.
+			changeCardsPerHand: -1,
+			changePointsToWin: -1
 		}
 	},
 	computed: {
 		cardsPerHand: {
 			get() {
-				return this.$store.state.room.settings.cardsPerHand
+				if(this.changeCardsPerHand === -1) return this.$store.state.room.settings.cardsPerHand;
+				return this.changeCardsPerHand;
 			},
 			set(value) {
 				this.changeCardsPerHand = value
@@ -32,7 +33,8 @@ export default {
 		},
 		pointsToWin: {
 			get() {
-				return this.$store.state.room.settings.pointsToWin
+				if(this.changePointsToWin === -1) return this.$store.state.room.settings.pointsToWin;
+				return this.changePointsToWin;
 			},
 			set(value) {
 				this.changePointsToWin = value
@@ -42,11 +44,18 @@ export default {
 	methods: {
 		updateSettings() {
 			const settingsObject = {
-				cardsPerHand: this.changeCardsPerHand || this.cardsPerHand,
-				pointsToWin: this.changePointsToWin || this.pointsToWin
+				// Use short circuit expressions to return a setting's
+				// state value if we haven't updated it.
+				cardsPerHand: (this.changeCardsPerHand !== -1) && this.changeCardsPerHand || this.cardsPerHand,
+				pointsToWin: (this.changePointsToWin !== -1) && this.changePointsToWin || this.pointsToWin
 			}
 
+			console.log(settingsObject);
+
 			this.$store.dispatch('room/updateSettings', settingsObject);
+
+			this.changeCardsPerHand = -1;
+			this.cardsPerHand = -1;
 		}
 	}
 }
