@@ -220,7 +220,7 @@ function leaveRoom() {
 	if(userDocRef !== null) userDocRef.delete().catch(e => console.error(e));
 
 	if(roomDocRef !== null) roomDocRef.update({
-		players: firebase.firestore.FieldValue.arrayRemove(store.state.user.username) // Add to list so we can become card czar at some point
+		players: firebase.firestore.FieldValue.arrayRemove(store.state.user.username)
 	});
 	
 	roomDocRef = null;
