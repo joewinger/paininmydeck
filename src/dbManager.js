@@ -94,6 +94,18 @@ function joinRoom(roomId) {
 		console.group("dbManager.joinRoom");
 		console.debug(`Attempting to join room ${roomId}...`);
 		
+		if(store.state.room.roomId === roomId) { // If we're already in this room -- i.e. if we reload our tab while in lobby
+			console.debug("Aborting! We're already connected to this room.");
+			console.groupEnd();
+			reject('ALREADY_IN_THIS_ROOM');
+			return;
+		}
+
+		if(store.state.room.roomId !== null) {
+			console.debug(`Leaving room ${store.state.room.roomId}.`)
+			leaveRoom();
+		}
+
 		roomDocRef = db.collection("games").doc(String(roomId));
 
 		roomDocRef.get().then(function(roomDocSnapshot) {
@@ -197,6 +209,8 @@ function generateRoomId() {
 
 function leaveRoom() {
 	// TODO: Handle us leaving mid-game - Re-assign the czar if it's us, maybe add our cards back in the pile
+
+	console.debug(`Leaving room ${store.state.room.roomId}!`);
 
 	if(unsubFromRoomDoc !== null) unsubFromRoomDoc();
 	if(unsubFromUserCollection !== null) unsubFromUserCollection();
