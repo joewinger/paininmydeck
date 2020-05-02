@@ -44,10 +44,9 @@ export default {
 	methods: {
 		updateSettings() {
 			const settingsObject = {
-				// Use short circuit expressions to return a setting's
-				// state value if we haven't updated it.
-				cardsPerHand: (this.changeCardsPerHand !== -1) && this.changeCardsPerHand || this.cardsPerHand,
-				pointsToWin: (this.changePointsToWin !== -1) && this.changePointsToWin || this.pointsToWin
+				// Use the setting's state value if we haven't updated it ourselved
+				cardsPerHand: (this.changeCardsPerHand !== -1) ? this.changeCardsPerHand : this.cardsPerHand,
+				pointsToWin: (this.changePointsToWin !== -1) ? this.changePointsToWin : this.pointsToWin
 			}
 
 			console.log(settingsObject);
