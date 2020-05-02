@@ -55,7 +55,7 @@ export default {
 			this.$store.dispatch('room/updateSettings', settingsObject);
 
 			this.changeCardsPerHand = -1;
-			this.cardsPerHand = -1;
+			this.changePointsToWin = -1;
 		}
 	}
 }
