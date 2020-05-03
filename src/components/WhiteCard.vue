@@ -1,20 +1,24 @@
 <template>
-	<div class="whiteCard" @click.once="playCard">
-		{{ this.text }}
+	<div class="whiteCard" :class="{facedown: this.facedown, winner: this.isWinner }" @click="playCard">
+		<div class="card-text" v-if="!facedown">{{ this.text }}</div>
+		<div class="winner-credit" v-if="this.isWinner">
+			Played by: {{this.$store.state.room.turnWinningCard.playedBy}}
+		</div>
 	</div>
 </template>
 
 <script>
-import dbManager from '../dbManager'
+import dbManager from '@/dbManager'
 
 export default {
 	name: 'WhiteCard',
 	props: {
-		text: String
+		text: String,
+		facedown: Boolean
 	},
 	methods: {
 		playCard() {
-			if(this.text == null) return;
+			if(this.text == null || this.facedown) return;
 
 			if(this.$store.getters['user/isCzar']) {
 				dbManager.chooseCard(this.text);
@@ -25,12 +29,20 @@ export default {
 				this.$store.commit('user/setPlayedThisTurn', true);
 			}
 		}
+	},
+	computed: {
+		isWinner() {
+			if(this.$store.state.room.turnWinningCard !== null) {
+				return this.$store.state.room.turnWinningCard.text === this.text;
+			} else return false;
+		}
 	}
 }
 </script>
 
 <style scoped>
 .whiteCard {
+	position: relative;
 	display: inline-block;
 
 	/* width: 200px;
@@ -52,5 +64,29 @@ export default {
 	font-weight: bold;
 
 	cursor: pointer;
+	transition: transform 0.3s;
+	transform-style: preserve-3d;
+	-webkit-transform-style: preserve-3d;
+}
+.whiteCard .card-text {
+	backface-visibility: hidden;
+}
+
+.whiteCard.facedown {
+  transform: rotateY( 180deg );
+}
+
+.winner {
+	transform: scale(1.1);
+}
+
+.winner-credit {
+	position: absolute;
+	color: #828282;
+
+	left: 15px;
+	bottom: 15px;
+
+	font-size: 0.9em;
 }
 </style>
