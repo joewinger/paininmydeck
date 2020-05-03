@@ -1,6 +1,8 @@
 <template>
 	<div id="statusMenuContent-points">
-		Points - coming soon
+		<ol>
+			<li v-for="user in $store.getters['room/sortedUsers']" :key="user.username">{{user.username}} - {{user.points}} points</li>
+		</ol>
 	</div>
 </template>
 
