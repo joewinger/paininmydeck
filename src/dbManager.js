@@ -57,20 +57,20 @@ const defaultRoomDocument = {
 };
 
 const allColorSets = [
-	"#F36747,#F3D147",
-	"#F197A2,#fff0a0",
-	"#769cf9,#f392ff",
-	"#3CC6ED,#78ffa7",
-	"#eeaeca,#94bbe9",
-	"#ee58d1,#ffd665",
-	"#ff79a2,#c2c3ff",
-	"#5ce591,#5cd4e5"
-	// "#A18CD1,#FBC2EB",
-	// "#A6A1EE,#FBC2EB",
-	// "#F6D365,#FDA085",
-	// "#A1C4FD,#C2E9FB",
-	// "#FEE140,#FA709A",
-	// "#C471F5,#FA71CD"
+	// "#F36747,#F3D147",
+	// "#F197A2,#fff0a0",
+	// "#769cf9,#f392ff",
+	// "#3CC6ED,#78ffa7",
+	// "#eeaeca,#94bbe9",
+	// "#ee58d1,#ffd665",
+	// "#ff79a2,#c2c3ff",
+	// "#5ce591,#5cd4e5"
+	"#A18CD1,#FBC2EB",
+	"#A6A1EE,#FBC2EB",
+	"#F6D365,#FDA085",
+	"#A1C4FD,#C2E9FB",
+	"#FEE140,#FA709A",
+	"#C471F5,#FA71CD"
 ];
 
 function generateUserDocument() {
