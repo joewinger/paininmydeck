@@ -4,6 +4,7 @@
 	"private": true,
 	"scripts": {
 		"fbserve": "vue-cli-service build && firebase serve",
+		"deployhosting": "vue-cli-service build && firebase deploy --only hosting",
 		"serve": "vue-cli-service serve",
 		"build": "vue-cli-service build",
 		"lint": "vue-cli-service lint"
