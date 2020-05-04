@@ -1,5 +1,6 @@
 {
-  "name": "Pain In My Deck",
+	"name": "Pain In My Deck",
+	"shortname": "Pain In My Deck",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#fff",
