@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import App from './App';
 import router from './router';
-import firebase from 'firebase/app'; 
 import 'firebase/analytics';
 import store from './store';
 // const attachFastClick = require('fastclick');
@@ -9,8 +8,6 @@ import store from './store';
 // attachFastClick(document.body);
 
 Vue.config.productionTip = false;
-
-if(process.env.NODE_ENV === 'production') firebase.analytics();
 
 Vue.filter('blankify', (value) => {
 	if (!value) return ''

@@ -3,34 +3,38 @@ import "firebase/firestore";
 import "firebase/functions";
 import store from "@/store";
 
-let config;
+let config, db, cloudFuncs;
+let roomDocRef, userDocRef, unsubFromRoomDoc, unsubFromUserCollection;
 
-if(process.env.NODE_ENV === 'production') {
-	fetch('/__/firebase/init.json').then(response => {
-		config = response.json();
-	});
-} else {
-	config = require('./firebaseConfig').default;
+async function initializeFirebase() {
+	if(process.env.NODE_ENV === 'production') {
+		config = await fetch('/__/firebase/init.json').then(response => { return response.json(); });
+	} else {
+		config = require('./firebaseConfig').default;
+	}
+	db = firebase.initializeApp(config).firestore();
+
+	cloudFuncs = {
+		startGame: firebase.functions().httpsCallable('startGame'),
+		startNewTurn: firebase.functions().httpsCallable('startNewTurn')
+	}
+	
+	/*
+	 * The following lines are for state management. If our state is configured in such a
+	 * way that indicates we should be in a room, this will set the proper references,
+	 * listeners, and unsubscribe callbacks. If not, just set these to null.
+	 */
+	roomDocRef = (store.state.room.roomId === null) ? null : db.collection("games").doc(String(store.state.room.roomId));
+	userDocRef = (store.state.user.username === '') ? null : roomDocRef.collection('users').doc(store.state.user.username);
+	unsubFromRoomDoc =        (roomDocRef === null) ? null : roomDocRef.onSnapshot((snap) => updateRoomData(snap));
+	unsubFromUserCollection = (userDocRef === null) ? null : roomDocRef.collection('users').onSnapshot((snap) => updateUsersData(snap))
+
+	// Analytics
+	if(process.env.NODE_ENV === 'production') firebase.analytics();
 }
-
-const db = firebase.initializeApp(config).firestore();
-const functions = firebase.functions();
-
-const cloudFuncs = {
-	startGame: functions.httpsCallable('startGame'),
-	startNewTurn: functions.httpsCallable('startNewTurn')
-}
+initializeFirebase();
 
 
-/*
- * The following lines are for state management. If our state is configured in such a
- * way that indicates we should be in a room, this will set the proper references,
- * listeners, and unsubscribe callbacks. If not, just set these to null.
- */
-let roomDocRef = (store.state.room.roomId === null) ? null : db.collection("games").doc(String(store.state.room.roomId));
-let userDocRef = (store.state.user.username === '') ? null : roomDocRef.collection('users').doc(store.state.user.username);
-let unsubFromRoomDoc =        (roomDocRef === null) ? null : roomDocRef.onSnapshot((snap) => updateRoomData(snap));
-let unsubFromUserCollection = (userDocRef === null) ? null : roomDocRef.collection('users').onSnapshot((snap) => updateUsersData(snap))
 
 const defaultRoomDocument = {
 	timestamp: firebase.firestore.FieldValue.serverTimestamp(),
