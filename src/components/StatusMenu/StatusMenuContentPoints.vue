@@ -1,8 +1,13 @@
 <template>
 	<div id="statusMenuContent-points" class="statusMenuContent">
-		<ol>
-			<li v-for="user in $store.getters['room/sortedUsers']" :key="user.username">{{user.username}} - {{user.points}} points</li>
-		</ol>
+		<h1>Leaderboard</h1>
+		<table>
+			<tr v-for="(user, index) in $store.getters['room/sortedUsers']" :key="user.username">
+				<td>{{ index + 1 }}. {{ user.username }}</td>
+				<td>{{ user.points }}</td>
+			</tr>
+		</table>
+		<br> <!-- Adding padding or margin to .statusMenuContent messes with the open/close animation. -->
 	</div>
 </template>
 
@@ -12,12 +17,14 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 #statusMenuContent-points {
 	display: flex;
+	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	
-	height: 200px;
+}
+table {
+	width: 60%
 }
 </style>
