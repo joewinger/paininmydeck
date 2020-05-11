@@ -1,14 +1,28 @@
 <template>
 	<div id="statusMenuContent-settings" class="statusMenuContent">
-		Settings
+		<h1>Settings</h1>
+		<table>
+			<tr>
+				<td>Cards Per Hand</td>
+				<td><input type="number" v-model.number="cardsPerHand" /></td>
+			</tr>
+			<tr>
+				<td>Points To Win</td>
+				<td><input type="number" v-model.number="pointsToWin" /></td>
+			</tr>
+		</table>
+		<div class="accordion">
+			<div class="accordion-title" @click="toggleAccordion">
+				<span>Deck Settings</span>
+				<ion-icon name="chevron-back-circle-outline" class="accordion-toggle" ref="deckSettingsAccordianToggleButton"></ion-icon>
+			</div>
+			<div class="accordion-content" ref="deckSettingsAccordianContent">
+				Coming soon
+			</div>
+		</div>
 		<br>
-		<label>Cards per hand:
-			<input type="number" v-model.number="cardsPerHand" />
-		</label>
-		<label>Points to win:
-			<input type="number" v-model.number="pointsToWin" />
-		</label>
 		<button @click=updateSettings>Save</button>
+		<br> <!-- Adding padding or margin to .statusMenuContent messes with the open/close animation. -->
 	</div>
 </template>
 
@@ -55,6 +69,18 @@ export default {
 
 			this.changeCardsPerHand = -1;
 			this.changePointsToWin = -1;
+		},
+		toggleAccordion() {
+			const contentEl = this.$refs.deckSettingsAccordianContent;
+			const toggle = this.$refs.deckSettingsAccordianToggleButton;
+			if(contentEl.classList.contains('visible')) {
+				contentEl.classList.remove('visible');
+				toggle.classList.remove('open');
+			}
+			else {
+				contentEl.classList.add('visible');
+				toggle.classList.add('open');
+			}
 		}
 	}
 }
@@ -66,8 +92,6 @@ export default {
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
-	
-	height: 200px;
 }
 
 #statusMenuContent-settings input {
@@ -77,5 +101,37 @@ export default {
 	width: 20px;
 	border-radius: 0;
 	box-sizing: content-box;
+}
+
+.accordion {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+.accordion > .accordion-title {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: auto;
+	padding-top: 5px;
+	padding-bottom: 10px;
+}
+.accordion > .accordion-content {
+	max-height: 0;
+	overflow: hidden;
+	transition: all 0.5s ease;
+}
+.accordion > .accordion-content.visible {
+	max-height: 100px;
+}
+.accordion > .accordion-title > .accordion-toggle {
+	transition: all 0.2s ease;
+	font-size: 20pt;
+}
+.accordion > .accordion-title > .accordion-toggle.open {
+	transform: rotateZ(-90deg);
+}
+.accordion > .accordion-content > h2 {
+	font-size: 12pt;
 }
 </style>
