@@ -9,5 +9,7 @@
 
 	This file: http://humanstxt.org/
 
+	Icons: https://ionicons.com/
+
 /* SITE */
 	Tools: VS Code, Firebase, VueJS, Hyper

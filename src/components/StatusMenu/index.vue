@@ -5,10 +5,35 @@
 		</transition>
 		<div id="statusMenu" :class="{hidden: $store.state.user.username === ''}">
 			<div id="statusBar">
-				<StatusBarButton :class="{active: currentMenu === 'ROOM'}"     @click.native="toggleMenu('ROOM')"     >{{$store.state.room.roomId}}</StatusBarButton>
-				<StatusBarButton :class="{active: currentMenu === 'CHAT', alert: hasUnreadMessages }"     @click.native="toggleMenu('CHAT')"     >chat</StatusBarButton>
-				<StatusBarButton :class="{active: currentMenu === 'SETTINGS'}" @click.native="toggleMenu('SETTINGS')" v-if="$route.name === 'lobby'">settings</StatusBarButton>
-				<StatusBarButton :class="{active: currentMenu === 'POINTS'}"   @click.native="toggleMenu('POINTS')"   v-if="$route.name === 'game' || $route.name === 'endgame'">{{$store.state.user.points}} points</StatusBarButton>
+				<StatusBarButton
+					:class="{active: currentMenu === 'ROOM'}"
+					@click.native="toggleMenu('ROOM')"
+					>
+					<ion-icon name="information-circle-outline"></ion-icon>
+				</StatusBarButton>
+
+				<StatusBarButton
+					:class="{ active: currentMenu === 'CHAT' }"
+					@click.native="toggleMenu('CHAT')"
+					>
+					<ion-icon :name="hasUnreadMessages ? 'chatbubble-ellipses-outline' : 'chatbubble-outline'"></ion-icon>
+				</StatusBarButton>
+				
+				<StatusBarButton
+					:class="{active: currentMenu === 'SETTINGS'}"
+					@click.native="toggleMenu('SETTINGS')"
+					v-if="$route.name === 'lobby'"
+					>
+					<ion-icon name="settings-outline"></ion-icon>
+				</StatusBarButton>
+
+				<StatusBarButton
+					:class="{active: currentMenu === 'POINTS'}"
+					@click.native="toggleMenu('POINTS')"
+					v-if="$route.name === 'game' || $route.name === 'endgame'"
+					>
+					<ion-icon name="trophy-outline"></ion-icon>
+				</StatusBarButton>
 			</div>
 			<div id="statusMenuContent">
 				<transition name="slide" mode="out-in">
@@ -159,5 +184,10 @@ export default {
 	background: #828282;
 	top: -11px;
 	left: calc(50% - 3px);
+}
+
+ion-icon {
+	font-size: 24px;
+	--ionicon-stroke-width: 42px;
 }
 </style>
