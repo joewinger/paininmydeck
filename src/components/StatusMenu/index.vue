@@ -131,18 +131,21 @@ export default {
 	flex: 1 0 auto;
 	overflow: hidden;
 	max-height: 65vh;
+	display: flex;
+	justify-content: center;
 }
 
 
 .statusMenuContent {
 	font-size: 13pt;
 	font-weight: 500;
+	width: 80%;
 }
 .statusMenuContent h1 {
 	font-size: 14pt;
 }
 .statusMenuContent table {
-	width: 80%;
+	width: 100%;
 	border-spacing: 0 10px;
 }
 .statusMenuContent > table > tr > td:first-of-type {
