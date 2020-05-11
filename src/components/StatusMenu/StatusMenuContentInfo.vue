@@ -1,17 +1,17 @@
 <template>
-	<div id="statusMenuContent-room">
+	<div id="statusMenuContent-info">
 		<button @click="$router.replace('/')">Leave Room</button>
 	</div>
 </template>
 
 <script>
 export default {
-	name: 'StatusMenuContentRoom'
+	name: 'StatusMenuContentInfo'
 }
 </script>
 
 <style>
-#statusMenuContent-room {
+#statusMenuContent-info {
 	display: flex;
 	align-items: center;
 	justify-content: center;

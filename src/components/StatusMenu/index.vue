@@ -6,8 +6,8 @@
 		<div id="statusMenu" :class="{hidden: $store.state.user.username === ''}">
 			<div id="statusBar">
 				<StatusBarButton
-					:class="{active: currentMenu === 'ROOM'}"
-					@click.native="toggleMenu('ROOM')"
+					:class="{active: currentMenu === 'INFO'}"
+					@click.native="toggleMenu('INFO')"
 					>
 					<ion-icon name="information-circle-outline"></ion-icon>
 				</StatusBarButton>
@@ -37,7 +37,7 @@
 			</div>
 			<div id="statusMenuContent">
 				<transition name="slide" mode="out-in">
-					<StatusMenuContentRoom v-if="currentMenu === 'ROOM'"></StatusMenuContentRoom>
+					<StatusMenuContentInfo v-if="currentMenu === 'INFO'"></StatusMenuContentInfo>
 					<StatusMenuContentChat v-if="currentMenu === 'CHAT'"></StatusMenuContentChat>
 					<StatusMenuContentSettings v-if="currentMenu === 'SETTINGS'"></StatusMenuContentSettings>
 					<StatusMenuContentPoints v-if="currentMenu === 'POINTS'"></StatusMenuContentPoints>
@@ -49,7 +49,7 @@
 
 <script>
 import StatusBarButton from './StatusBarButton';
-import StatusMenuContentRoom from './StatusMenuContentRoom';
+import StatusMenuContentInfo from './StatusMenuContentInfo';
 import StatusMenuContentChat from './StatusMenuContentChat';
 import StatusMenuContentSettings from './StatusMenuContentSettings';
 import StatusMenuContentPoints from './StatusMenuContentPoints';
@@ -58,7 +58,7 @@ export default {
 	name: 'StatusMenu',
 	components: {
 		StatusBarButton,
-		StatusMenuContentRoom,
+		StatusMenuContentInfo,
 		StatusMenuContentChat,
 		StatusMenuContentSettings,
 		StatusMenuContentPoints
