@@ -1,5 +1,5 @@
 <template>
-	<div id="statusMenuContent-points">
+	<div id="statusMenuContent-points" class="statusMenuContent">
 		<ol>
 			<li v-for="user in $store.getters['room/sortedUsers']" :key="user.username">{{user.username}} - {{user.points}} points</li>
 		</ol>

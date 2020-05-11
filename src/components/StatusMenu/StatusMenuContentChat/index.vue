@@ -1,5 +1,5 @@
 <template>
-	<div id="statusMenuContent-chat">
+	<div id="statusMenuContent-chat" class="statusMenuContent">
 		<ol class="chatMessages" @scroll=scroll ref="messageContainer">
 			<li v-for="(message, index) in $store.state.room.chatMessages" :key="index">
 				<ChatMessage :chatMessage=message ref="message" />

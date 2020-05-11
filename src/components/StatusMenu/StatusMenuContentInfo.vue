@@ -1,6 +1,18 @@
 <template>
-	<div id="statusMenuContent-info">
+	<div id="statusMenuContent-info" class="statusMenuContent">
+		<h1>Information</h1>
+		<table>
+			<tr>
+				<td>Room ID</td>
+				<td>{{ $store.state.room.roomId }}</td>
+			</tr>
+			<tr v-if="$store.state.room.gameState === 'PLAYING'">
+				<td>Czar</td>
+				<td>{{ $store.state.room.currentCzar }}</td>
+			</tr>
+		</table>
 		<button @click="$router.replace('/')">Leave Room</button>
+		<br> <!-- Adding padding or margin to .statusMenuContent messes with the open/close animation. -->
 	</div>
 </template>
 
@@ -16,7 +28,5 @@ export default {
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
-	
-	height: 200px;
 }
 </style>

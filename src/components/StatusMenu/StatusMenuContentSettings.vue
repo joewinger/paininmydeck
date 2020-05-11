@@ -1,5 +1,5 @@
 <template>
-	<div id="statusMenuContent-settings">
+	<div id="statusMenuContent-settings" class="statusMenuContent">
 		Settings
 		<br>
 		<label>Cards per hand:

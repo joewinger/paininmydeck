@@ -35,7 +35,7 @@
 					<ion-icon name="trophy-outline"></ion-icon>
 				</StatusBarButton>
 			</div>
-			<div id="statusMenuContent">
+			<div id="statusMenuContent-container">
 				<transition name="slide" mode="out-in">
 					<StatusMenuContentInfo v-if="currentMenu === 'INFO'"></StatusMenuContentInfo>
 					<StatusMenuContentChat v-if="currentMenu === 'CHAT'"></StatusMenuContentChat>
@@ -91,7 +91,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 #statusMenu {
 	display: flex;
 	flex-direction: column;
@@ -104,6 +104,8 @@ export default {
 	background: #FFFFFF;
 	box-shadow: 0px 0px 10px rgba(130, 130, 130, 0.47);
 	border-radius: 25px 25px 0px 0px;
+
+	color: #828282;
 
 	-webkit-transition: all 0.3s ease;
 	-moz-transition: all 0.3s ease;
@@ -125,10 +127,29 @@ export default {
 	width: 100%;
 	
 }
-#statusMenuContent {
+#statusMenuContent-container {
 	flex: 1 0 auto;
 	overflow: hidden;
 	max-height: 65vh;
+}
+
+
+.statusMenuContent {
+	font-size: 13pt;
+	font-weight: 500;
+}
+.statusMenuContent h1 {
+	font-size: 14pt;
+}
+.statusMenuContent table {
+	width: 80%;
+	border-spacing: 0 10px;
+}
+.statusMenuContent > table > tr > td:first-of-type {
+	text-align: left;
+}
+.statusMenuContent > table > tr > td:last-of-type {
+	text-align: right;
 }
 
 .slide-enter-active,
