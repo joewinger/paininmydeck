@@ -100,10 +100,12 @@ export default {
 	left: 3vw;
 
 	width: 94vw;
+	bottom: 10px;
 
 	background: #FFFFFF;
 	box-shadow: 0px 0px 10px rgba(130, 130, 130, 0.47);
-	border-radius: 25px 25px 0px 0px;
+	/* border-radius: 25px 25px 0px 0px; */
+	border-radius: 25px;
 
 	color: #828282;
 
@@ -120,12 +122,11 @@ export default {
 
 #statusBar {
 	display: flex;
-	flex: 0 0 60px;
+	flex: 0 0 50px;
 	flex-direction: row;
 	justify-content: space-evenly;
 	align-items: center;
 	width: 100%;
-	
 }
 #statusMenuContent-container {
 	flex: 1 0 auto;
@@ -211,7 +212,7 @@ export default {
 }
 
 ion-icon {
-	font-size: 24px;
+	font-size: 20px;
 	--ionicon-stroke-width: 42px;
 }
 </style>

@@ -17,8 +17,8 @@ export default {
 	align-items: center;
 	justify-content: center;
 	
-	height: 40px;
-	width: 40px;
+	height: 36px;
+	width: 36px;
 
 	border-radius: 20px;
 	border: 3px solid #E0E0E0;
