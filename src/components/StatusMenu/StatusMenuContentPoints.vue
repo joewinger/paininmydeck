@@ -7,7 +7,6 @@
 				<td>{{ user.points }}</td>
 			</tr>
 		</table>
-		<br> <!-- Adding padding or margin to .statusMenuContent messes with the open/close animation. -->
 	</div>
 </template>
 

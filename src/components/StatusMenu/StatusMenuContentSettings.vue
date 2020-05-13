@@ -22,7 +22,6 @@
 		</div>
 		<br>
 		<button @click=updateSettings>Save</button>
-		<br> <!-- Adding padding or margin to .statusMenuContent messes with the open/close animation. -->
 	</div>
 </template>
 

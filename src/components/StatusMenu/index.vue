@@ -3,7 +3,7 @@
 		<transition name="fade">
 			<div class="backgroundEffect" v-if="currentMenu !== null" @click="currentMenu = null"></div>
 		</transition>
-		<div id="statusMenu" :class="{hidden: $store.state.user.username === ''}">
+		<div id="statusMenu" :class="{hidden: $store.state.user.username === '', open: open}">
 			<div id="statusBar">
 				<StatusBarButton
 					:class="{active: currentMenu === 'INFO'}"
@@ -69,6 +69,11 @@ export default {
 			hasUnreadMessages: false,
 		}
 	},
+	computed: {
+		open() {
+			return this.currentMenu !== null
+		}
+	},
 	methods: {
 		toggleMenu(menuName) {
 			if(menuName === 'CHAT') {
@@ -93,8 +98,8 @@ export default {
 
 <style>
 #statusMenu {
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	grid-template-rows: 50px auto;
 	position: fixed;
 	bottom: 0;
 	left: 3vw;
@@ -114,6 +119,8 @@ export default {
 	-ms-transition: all 0.3s ease;
 	-o-transition: all 0.3s ease;
 	transition: all 0.3s ease;
+
+	overflow: hidden;
 }
 
 #statusMenu.hidden {
@@ -121,26 +128,35 @@ export default {
 }
 
 #statusBar {
+	grid-row: 1;
 	display: flex;
-	flex: 0 0 50px;
 	flex-direction: row;
 	justify-content: space-evenly;
 	align-items: center;
+
 	width: 100%;
 }
 #statusMenuContent-container {
-	flex: 1 0 auto;
-	overflow: hidden;
+	grid-row: 2;
+	display: grid;
+	grid-template-columns: 10% 1fr 10%;
 	max-height: 65vh;
-	display: flex;
-	justify-content: center;
+
+	-webkit-transition: padding-bottom 0.3s ease;
+	-moz-transition: padding-bottom 0.3s ease;
+	-ms-transition: padding-bottom 0.3s ease;
+	-o-transition: padding-bottom 0.3s ease;
+	transition: padding-bottom 0.3s ease;
 }
 
+#statusMenu.open #statusMenuContent-container {
+	padding-bottom: 20px;
+}
 
 .statusMenuContent {
+	grid-column: 2;
 	font-size: 13pt;
 	font-weight: 500;
-	width: 80%;
 }
 .statusMenuContent h1 {
 	font-size: 14pt;

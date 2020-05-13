@@ -35,7 +35,7 @@ export default {
 <style>
 #statusMenuContent-chat {
 	display: grid;
-	grid-template-rows: 1fr auto 10px; /* Final row is just for spacing */
+	grid-template-rows: 1fr auto;
 	gap: 5px;
 
 	height: 50vh;
