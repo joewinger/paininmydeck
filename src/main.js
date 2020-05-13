@@ -9,6 +9,7 @@ import TextareaAutosize from 'vue-textarea-autosize';
 // attachFastClick(document.body);
 
 Vue.config.productionTip = false;
+Vue.config.ignoredElements = [/^ion-/];
 
 Vue.use(TextareaAutosize);
 
