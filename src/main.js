@@ -3,11 +3,14 @@ import App from './App';
 import router from './router';
 import 'firebase/analytics';
 import store from './store';
+import TextareaAutosize from 'vue-textarea-autosize';
 // const attachFastClick = require('fastclick');
 
 // attachFastClick(document.body);
 
 Vue.config.productionTip = false;
+
+Vue.use(TextareaAutosize);
 
 Vue.filter('blankify', (value) => {
 	if (!value) return ''
