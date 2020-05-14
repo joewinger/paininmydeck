@@ -28,8 +28,8 @@
 				</StatusBarButton>
 
 				<StatusBarButton
-					:class="{active: currentMenu === 'POINTS'}"
-					@click.native="toggleMenu('POINTS')"
+					:class="{active: currentMenu === 'LEADERBOARD'}"
+					@click.native="toggleMenu('LEADERBOARD')"
 					v-if="$route.name === 'game' || $route.name === 'endgame'"
 					>
 					<ion-icon name="trophy-outline"></ion-icon>
@@ -40,7 +40,7 @@
 					<StatusMenuContentInfo v-if="currentMenu === 'INFO'"></StatusMenuContentInfo>
 					<StatusMenuContentChat v-if="currentMenu === 'CHAT'"></StatusMenuContentChat>
 					<StatusMenuContentSettings v-if="currentMenu === 'SETTINGS'"></StatusMenuContentSettings>
-					<StatusMenuContentPoints v-if="currentMenu === 'POINTS'"></StatusMenuContentPoints>
+					<StatusMenuContentLeaderboard v-if="currentMenu === 'LEADERBOARD'"></StatusMenuContentLeaderboard>
 				</transition>
 			</div>
 		</div>
@@ -52,7 +52,7 @@ import StatusBarButton from './StatusBarButton';
 import StatusMenuContentInfo from './StatusMenuContentInfo';
 import StatusMenuContentChat from './StatusMenuContentChat';
 import StatusMenuContentSettings from './StatusMenuContentSettings';
-import StatusMenuContentPoints from './StatusMenuContentPoints';
+import StatusMenuContentLeaderboard from './StatusMenuContentLeaderboard';
 
 export default {
 	name: 'StatusMenu',
@@ -61,7 +61,7 @@ export default {
 		StatusMenuContentInfo,
 		StatusMenuContentChat,
 		StatusMenuContentSettings,
-		StatusMenuContentPoints
+		StatusMenuContentLeaderboard
 	},
 	data() {
 		return {
