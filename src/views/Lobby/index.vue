@@ -14,7 +14,6 @@
 			<br/>
 			<button @click.once="startGame" v-if="this.$store.state.user.isPrivileged">Start Game</button>
 		</div>
-		<StatusMenu></StatusMenu>
 	</div>
 </template>
 
@@ -22,14 +21,12 @@
 import dbManager from '@/dbManager';
 import SetUsernameModal from './LobbySetUsernameModal';
 import LobbyUser from './LobbyUser';
-import StatusMenu from '@/components/StatusMenu'
 
 export default {
 	name: 'Lobby',
 	components: {
 		SetUsernameModal,
-		LobbyUser,
-		StatusMenu
+		LobbyUser
 	},
 	methods: {
 		toggleReady() {

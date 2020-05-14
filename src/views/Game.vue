@@ -26,8 +26,6 @@
 		</div>
 
 		<Hand v-if="!this.$store.getters['user/isCzar'] && !this.$store.state.user.playedThisTurn" :cards="this.$store.state.user.hand"></Hand>
-
-		<StatusMenu></StatusMenu>
 	</div>
 </template>
 
@@ -36,7 +34,6 @@ import InfoBar from '@/components/InfoBar';
 import QuestionCard from '@/components/QuestionCard';
 import WhiteCard from '@/components/WhiteCard';
 import Hand from '@/components/Hand';
-import StatusMenu from '@/components/StatusMenu';
 
 export default {
 	name: 'Game',
@@ -44,8 +41,7 @@ export default {
 		InfoBar,
 		QuestionCard,
 		WhiteCard,
-		Hand,
-		StatusMenu
+		Hand
 	}
 }
 </script>

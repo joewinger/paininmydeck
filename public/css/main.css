@@ -58,11 +58,6 @@ button:focus {
 }
 
 #app {
-  display: flex;
-  justify-content: center;
-
-  height: 100%;
-
   font-family: Roboto, sans-serif;
   text-align: center;
 }
