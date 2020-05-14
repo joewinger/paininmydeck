@@ -1,21 +1,21 @@
 <template>
 	<div id="statusMenuWrapper">
 		<transition name="fade">
-			<div class="backgroundEffect" v-if="currentMenu !== null" @click="currentMenu = null"></div>
+			<div class="backgroundEffect" v-if="currentMenu !== null" @click="currentMenu = null" />
 		</transition>
 		<div id="statusMenu" :class="{hidden: $store.state.user.username === '', open: open}">
 			<div id="statusBar">
 				<StatusBarButton
 					:class="{active: currentMenu === 'INFO'}"
 					@click.native="toggleMenu('INFO')"
-					>
+				>
 					<ion-icon name="information-circle-outline"></ion-icon>
 				</StatusBarButton>
 
 				<StatusBarButton
 					:class="{ active: currentMenu === 'CHAT' }"
 					@click.native="toggleMenu('CHAT')"
-					>
+				>
 					<ion-icon :name="hasUnreadMessages ? 'chatbubble-ellipses-outline' : 'chatbubble-outline'"></ion-icon>
 				</StatusBarButton>
 				
@@ -23,7 +23,7 @@
 					:class="{active: currentMenu === 'SETTINGS'}"
 					@click.native="toggleMenu('SETTINGS')"
 					v-if="$route.name === 'lobby'"
-					>
+				>
 					<ion-icon name="settings-outline"></ion-icon>
 				</StatusBarButton>
 
@@ -31,16 +31,16 @@
 					:class="{active: currentMenu === 'LEADERBOARD'}"
 					@click.native="toggleMenu('LEADERBOARD')"
 					v-if="$route.name === 'game' || $route.name === 'endgame'"
-					>
+				>
 					<ion-icon name="trophy-outline"></ion-icon>
 				</StatusBarButton>
 			</div>
 			<div id="statusMenuContent-container">
 				<transition name="slide" mode="out-in">
-					<StatusMenuContentInfo v-if="currentMenu === 'INFO'"></StatusMenuContentInfo>
-					<StatusMenuContentChat v-if="currentMenu === 'CHAT'"></StatusMenuContentChat>
-					<StatusMenuContentSettings v-if="currentMenu === 'SETTINGS'"></StatusMenuContentSettings>
-					<StatusMenuContentLeaderboard v-if="currentMenu === 'LEADERBOARD'"></StatusMenuContentLeaderboard>
+					<StatusMenuContentInfo v-if="currentMenu === 'INFO'" />
+					<StatusMenuContentChat v-if="currentMenu === 'CHAT'" />
+					<StatusMenuContentSettings v-if="currentMenu === 'SETTINGS'" />
+					<StatusMenuContentLeaderboard v-if="currentMenu === 'LEADERBOARD'" />
 				</transition>
 			</div>
 		</div>
