@@ -1,5 +1,6 @@
 <template>
 	<div id="app">
+		<NavBar />
 		<div id="row-content">
 			<router-view/>
 		</div>
@@ -10,10 +11,12 @@
 </template>
 
 <script>
+import NavBar from '@/components/NavBar';
 import StatusMenu from '@/components/StatusMenu';
 
 export default {
 	components: {
+		NavBar,
 		StatusMenu
 	}
 }
