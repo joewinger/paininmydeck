@@ -1,7 +1,5 @@
 <template>
 	<div id="game">
-		<FriendBar></FriendBar>
-
 		<QuestionCard :text="this.$store.state.room.currentBlackCard"></QuestionCard>
 
 		<div v-if="$store.getters['user/isCzar']">
@@ -34,7 +32,6 @@
 </template>
 
 <script>
-import FriendBar from '@/components/FriendBar';
 import InfoBar from '@/components/InfoBar';
 import QuestionCard from '@/components/QuestionCard';
 import WhiteCard from '@/components/WhiteCard';
@@ -44,7 +41,6 @@ import StatusMenu from '@/components/StatusMenu';
 export default {
 	name: 'Game',
 	components: {
-		FriendBar,
 		InfoBar,
 		QuestionCard,
 		WhiteCard,
