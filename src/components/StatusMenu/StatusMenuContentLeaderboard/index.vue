@@ -1,29 +1,31 @@
 <template>
 	<div id="statusMenuContent-leaderboard" class="statusMenuContent">
 		<h1>Leaderboard</h1>
-		<table>
-			<tr v-for="(user, index) in $store.getters['room/sortedUsers']" :key="user.username">
-				<td>{{ index + 1 }}. {{ user.username }}</td>
-				<td>{{ user.points }}</td>
-			</tr>
-		</table>
+		<div id="leaderboardEntries">
+			<LeaderboardEntry
+				v-for="(user, index) in $store.getters['room/sortedUsers']"
+				:key="user.username"
+				:user-obj=user
+				:rank='index + 1'
+			/>
+		</div>
 	</div>
 </template>
 
 <script>
+import LeaderboardEntry from './LeaderboardEntry';
+
 export default {
-	name: 'StatusMenuContentLeaderboard'
+	name: 'StatusMenuContentLeaderboard',
+	components: {
+		LeaderboardEntry
+	}
 }
 </script>
 
 <style scoped>
-#statusMenuContent-points {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-}
-table {
-	width: 60%
+#leaderboardEntries {
+	display: grid;
+	gap: 5px;
 }
 </style>

@@ -5,3 +5,4 @@
 + Add navigation/title bar
 * Replace status bar button text with icons
 * Overhaul chat UI
+* Overhaul leaderboard UI
