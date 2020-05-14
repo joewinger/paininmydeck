@@ -32,7 +32,7 @@
 					@click.native="toggleMenu('LEADERBOARD')"
 					v-if="$route.name === 'game' || $route.name === 'endgame'"
 				>
-					<ion-icon name="trophy-outline"></ion-icon>
+					<ion-icon name="people-circle-outline"></ion-icon>
 				</StatusBarButton>
 			</div>
 			<div id="statusMenuContent-container">
