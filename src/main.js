@@ -4,9 +4,9 @@ import router from './router';
 import 'firebase/analytics';
 import store from './store';
 import TextareaAutosize from 'vue-textarea-autosize';
-// const attachFastClick = require('fastclick');
+import fastclick from 'fastclick';
 
-// attachFastClick(document.body);
+fastclick.attach(document.body);
 
 Vue.config.productionTip = false;
 Vue.config.ignoredElements = [/^ion-/];
