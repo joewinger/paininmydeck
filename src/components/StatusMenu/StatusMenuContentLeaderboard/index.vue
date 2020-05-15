@@ -7,6 +7,7 @@
 				:key="user.username"
 				:user-obj=user
 				:rank='index + 1'
+				:played-card="$store.getters['room/getUsernamesPlayedCard'].includes(user.username)"
 			/>
 		</div>
 	</div>

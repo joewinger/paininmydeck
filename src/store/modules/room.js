@@ -93,6 +93,9 @@ const getters = {
 	},
 	getColorSetByUsername: (state) => (username) => {
 		return state.users.find(user => user.username == username).colorSet;
+	},
+	getUsernamesPlayedCard(state) {
+		return state.activeCards.map(card => card.playedBy);
 	}
 }
 

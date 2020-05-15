@@ -7,7 +7,7 @@
 			{{ userObj.username }}
 		</div>
 		<div class="leaderboardEntry-status">
-			Status coming soon!
+			{{ status }}
 		</div>
 		<div class="leaderboardEntry-points">
 			{{ userObj.points }}
@@ -16,14 +16,26 @@
 </template>
 
 <script>
+const statusMessages = {
+	czar: "Card czar",
+	waiting: "Waiting to play a card...",
+	played: "Played a card"
+}
+
 export default {
 	name: 'LeaderboardEntry',
 	props: {
 		rank: Number,
-		userObj: Object
+		userObj: Object,
+		playedCard: Boolean
 	},
 	computed: {
-
+		status() {
+			if(this.$store.state.room.currentCzar === this.userObj.username) {
+				return statusMessages.czar
+			}
+			return this.playedCard ? statusMessages.played : statusMessages.waiting;
+		}
 	}
 }
 </script>
