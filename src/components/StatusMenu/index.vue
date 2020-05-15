@@ -102,14 +102,14 @@ export default {
 	grid-template-rows: 50px auto;
 	position: fixed;
 	bottom: 0;
-	left: 3vw;
+	left: calc( 50% - 150px );
 
-	width: 94vw;
+	width: 300px;
 	bottom: 10px;
 
 	background: #FFFFFF;
 	box-shadow: 0px 0px 10px rgba(130, 130, 130, 0.47);
-	/* border-radius: 25px 25px 0px 0px; */
+	border: solid 1px #E0E0E0;
 	border-radius: 25px;
 
 	color: #828282;
