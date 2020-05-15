@@ -43,6 +43,8 @@ export default {
 	left: 7px;
 
 	position: absolute;
+
+	cursor: pointer;
 }
 #navbar-back ion-icon {
 	grid-column: 1;
