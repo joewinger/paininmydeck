@@ -28,11 +28,10 @@ const routes = [
       dbManager.joinRoom(to.params.roomId)
       .then(() => next())
       .catch((e) => {
-        if(e === 'ROOM_DOES_NOT_EXIST') {
-          next('/');
-        } if(e === 'ALREADY_IN_THIS_ROOM') {
+        console.log(e);
+        if(e === 'ALREADY_IN_THIS_ROOM') {
           next();
-        }
+        } else next('/');
       });
     }
   },
