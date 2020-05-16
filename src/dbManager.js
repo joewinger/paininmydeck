@@ -6,8 +6,18 @@ import store from "@/store";
 let config, db, cloudFuncs;
 let roomDocRef, userDocRef, unsubFromRoomDoc, unsubFromUserCollection;
 
+let firebaseInitialized = false;
+
 async function initializeFirebase() {
+	console.debug("Initializing Firebase...");
+
+	if(firebaseInitialized) {
+		console.debug("Firebase already initialized!");
+		return;
+	}
+
 	if(process.env.NODE_ENV === 'production') {
+		console.debug("We're in production mode!");
 		config = await fetch('/__/firebase/init.json').then(response => { return response.json(); });
 	} else {
 		config = require('./firebaseConfig').default;
@@ -31,9 +41,10 @@ async function initializeFirebase() {
 
 	// Analytics
 	if(process.env.NODE_ENV === 'production') firebase.analytics();
-}
-initializeFirebase();
 
+	console.debug("Firebase initialized!");
+	firebaseInitialized = true;
+}
 
 
 const defaultRoomDocument = {
@@ -98,7 +109,8 @@ function generateUserDocument() {
  * Joining, Creating, & Leaving Rooms
  */
 
-function joinRoom(roomId) {
+async function joinRoom(roomId) {
+	await initializeFirebase();
 	return new Promise((resolve, reject) => {
 		console.group("dbManager.joinRoom");
 		console.debug(`Attempting to join room ${roomId}...`);
@@ -143,7 +155,8 @@ function joinRoom(roomId) {
 	});
 }
 
-function createRoom() {
+async function createRoom() {
+	await initializeFirebase();
 	return new Promise((resolve, reject) => {
 		console.group('dbManager.createRoom');
 		console.debug('Creating a new room...')
