@@ -24,12 +24,14 @@ export default {
 			if(this.roomId == "") return;
 			this.$router.push({ name: 'lobby', params: {roomId: this.roomId} });
 		},
-		createRoom () {
-			dbManager.createRoom().then(roomId => {
+		async createRoom () {
+			let roomId = await dbManager.createRoom();
+
+			console.log(roomId);
+
+			if(roomId !== false) {
 				this.$router.push({ name: 'lobby', params: {roomId: roomId} });
-			}).catch((err) => {
-				console.error(err);
-			});
+			}
 		}
 	}
 }

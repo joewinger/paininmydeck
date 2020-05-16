@@ -26,7 +26,8 @@ async function initializeFirebase() {
 
 	cloudFuncs = {
 		startGame: firebase.functions().httpsCallable('startGame'),
-		startNewTurn: firebase.functions().httpsCallable('startNewTurn')
+		startNewTurn: firebase.functions().httpsCallable('startNewTurn'),
+		createRoom: firebase.functions().httpsCallable('createRoom')
 	}
 	
 	/*
@@ -45,31 +46,6 @@ async function initializeFirebase() {
 	console.debug("Firebase initialized!");
 	firebaseInitialized = true;
 }
-
-
-const defaultRoomDocument = {
-	timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-	gameState: "LOBBY", // PLAYING, FINISHED
-	players: [], // Used to cycle card czar
-	settings: {
-		pointsToWin: 10,
-		cardsPerHand: 7
-	},
-	chatMessages: [],
-	// [{
-	//   timestamp: Number (Unix timestamp in millis via dayjs().valueOf())
-	//   sender: String
-	//   text: String
-	// }, ...]
-	deckBlack: [],
-	deckWhite: [],
-	currentBlackCard: null,
-	currentCzar: null,
-	activeCards: [],
-	turnStatus: null, // WAITING_FOR_CARDS, WAITING_FOR_CZAR
-	turnWinningCard: null,
-	winner: null
-};
 
 const allColorSets = [
 	// "#F36747,#F3D147",
@@ -157,73 +133,14 @@ async function joinRoom(roomId) {
 
 async function createRoom() {
 	await initializeFirebase();
-	return new Promise((resolve, reject) => {
-		console.group('dbManager.createRoom');
-		console.debug('Creating a new room...')
-		
-		generateRoomId().then((newRoomId) => {
-			db.collection("games").doc("" + newRoomId).set(defaultRoomDocument)
-			.then(() => {
-				console.debug(`Room ${newRoomId} created successfully!`);
-				console.groupEnd();
-				
-				resolve(newRoomId);
-			})
-			.catch((err) => {
-				console.error("Room could not be created :( ", err);
-				console.groupEnd();
-				
-				reject(err);
-			});
-		});
-	});
-}
 
-function fetchAllRooms() {
-	return new Promise((resolve, reject) => {
-		console.groupCollapsed('fetchAllRooms()');
-		console.debug('Fetching rooms...');
-		
-		let rooms = [];
-		db.collection('games').get().then((querySnapshot) => {
-			querySnapshot.forEach((room) => {
-				rooms.push(room.id);
-			});
-		}).then(() => {
-			console.debug(`${rooms.length} rooms found!`);
-			console.groupEnd();
-			
-			resolve(rooms);
-		}).catch((err) => {
-			reject(err);
-		});
-		
-	});
-}
+	let roomId = await cloudFuncs.createRoom();
+	
+	roomId = roomId.data;
 
-function generateRoomId() {
-	return new Promise((resolve) => {
-		console.group('generateRoomId()');
-		console.debug('Generating new roomId...');
-				
-		let min = Math.ceil(1000);
-		let max = Math.floor(9999);
-		let roomId = Math.floor(Math.random() * (max - min + 1)) + min;
-		
-		console.debug('Verifying availability...')
+	if(roomId === false) console.error('Room creation failed :( Check server logs for more info');
 
-		fetchAllRooms().then((allRooms) => {
-			while(allRooms.includes(roomId)) {
-				console.debug(`Oops! Someone's already using ${roomId}. Regenerating...`);
-				roomId = Math.floor(Math.random() * (max - min + 1)) + min;
-			}
-			
-			console.debug(`Success! RoomId ${roomId} is available :)`);
-			console.groupEnd();
-			
-			resolve(roomId);
-		});
-	});
+	return roomId;
 }
 
 function leaveRoom() {

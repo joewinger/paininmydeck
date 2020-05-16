@@ -6,3 +6,6 @@
 * Replace status bar button text with icons
 * Overhaul chat UI
 * Overhaul leaderboard UI
+
+### Beta 0.4
+* Migrate room creation logic to the server

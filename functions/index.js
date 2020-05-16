@@ -4,6 +4,30 @@ admin.initializeApp();
 
 const  db = admin.firestore();
 
+const defaultRoomDocument = {
+	timestamp: admin.firestore.FieldValue.serverTimestamp(),
+	gameState: "LOBBY", // PLAYING, FINISHED
+	players: [], // Used to cycle card czar
+	settings: {
+		pointsToWin: 10,
+		cardsPerHand: 7
+	},
+	chatMessages: [],
+	// [{
+	//   timestamp: Number (Unix timestamp in millis via dayjs().valueOf())
+	//   sender: String
+	//   text: String
+	// }, ...]
+	deckBlack: [],
+	deckWhite: [], 
+	currentBlackCard: null,
+	currentCzar: null,
+	activeCards: [],
+	turnStatus: null, // WAITING_FOR_CARDS, WAITING_FOR_CZAR
+	turnWinningCard: null,
+	winner: null
+};
+
 exports.startNewTurn = functions.https.onCall(async (data, context) => {
 	await startNewTurn(data.roomId);
 
@@ -151,8 +175,6 @@ async function generateGameDecks(roomId, settings) {
 	return;
 }
 
-
-
 exports.startGame = functions.https.onCall(async (data, context) => {
 	let roomId = data.roomId;
 
@@ -167,3 +189,57 @@ exports.startGame = functions.https.onCall(async (data, context) => {
 	
 	return true;
 });
+
+exports.createRoom = functions.https.onCall(async (data, context) => {
+	
+	const roomId = await generateRoomId();
+
+	await db.collection('games').doc(roomId).set(defaultRoomDocument)
+	.catch(err => {
+		console.error(err);
+		return false;
+	});
+
+	return roomId;
+});
+
+function fetchAllRooms() {
+	return new Promise((resolve, reject) => {
+		let rooms = [];
+
+		db.collection('games').get().then(querySnapshot => {
+			querySnapshot.forEach((room) => {
+				rooms.push(room.id);
+			});
+
+			return true;
+		}).then(() => {
+			return resolve(rooms);
+		}).catch((err) => {
+			reject(err);
+		});
+	});
+}
+
+function generateRoomId() {
+	return new Promise((resolve, reject) => {
+
+		let max = Math.floor(9999);
+		let roomId = Math.floor(Math.random() * (max + 1)).toString().padStart(4, 0); // '53' => '0053'
+
+		fetchAllRooms().then(allRooms => {
+			
+			if(allRooms.length === max) return reject(new functions.https.HttpsError('resource-exhausted', 'Every possible room ID is taken.'));
+
+			while(allRooms.includes(roomId)) { // This room ID is already in use
+				roomId = Math.floor(Math.random() * (max + 1)).toString().padStart(4, 0);
+			}
+
+			return resolve(roomId);
+
+		}).catch(err => {
+			console.error(err);
+			return reject(err);
+		});
+	});
+}
