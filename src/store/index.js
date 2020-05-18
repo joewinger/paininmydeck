@@ -8,7 +8,11 @@ Vue.use(Vuex);
 
 const persistence = new statePersistence({
 	storage: sessionStorage,
-	key: 'savedState'
+	key: 'savedState',
+	onRestoreState: async () => {
+		let dbManager = await require('@/dbManager');
+		dbManager.default.initializeFirebase();
+	}
 });
 
 const store = new Vuex.Store({
