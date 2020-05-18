@@ -4,7 +4,8 @@ import "firebase/functions";
 import store from "@/store";
 
 let config, db, cloudFuncs;
-let roomDocRef, userDocRef, unsubFromRoomDoc, unsubFromUserCollection;
+let roomDocRef, userDocRef, chatDocRef,
+		unsubFromRoomDoc, unsubFromUserDoc, unsubFromChatDoc;
 
 let firebaseInitialized = false;
 
@@ -35,10 +36,12 @@ async function initializeFirebase() {
 	 * way that indicates we should be in a room, this will set the proper references,
 	 * listeners, and unsubscribe callbacks. If not, just set these to null.
 	 */
-	roomDocRef = (store.state.room.roomId === null) ? null : db.collection("games").doc(String(store.state.room.roomId));
-	userDocRef = (store.state.user.username === '') ? null : roomDocRef.collection('users').doc(store.state.user.username);
-	unsubFromRoomDoc =        (roomDocRef === null) ? null : roomDocRef.onSnapshot((snap) => updateRoomData(snap));
-	unsubFromUserCollection = (userDocRef === null) ? null : roomDocRef.collection('users').onSnapshot((snap) => updateUsersData(snap))
+	roomDocRef = (store.state.room.roomId === null) ? null : db.doc(`games/${store.state.room.roomId}`);
+	chatDocRef = (store.state.room.roomId === null) ? null : db.doc(`games/${store.state.room.roomId}/meta/chat`);
+	userDocRef = (store.state.user.username === '') ? null : db.doc(`games/${store.state.room.roomId}/users/${store.state.user.username}`);
+	unsubFromRoomDoc =        (roomDocRef === null) ? null : roomDocRef.onSnapshot(snap => onRoomUpdate(snap));
+	unsubFromChatDoc =        (chatDocRef === null) ? null : chatDocRef.onSnapshot(snap => onChatUpdate(snap));
+	unsubFromUserDoc =        (userDocRef === null) ? null : userDocRef.onSnapshot(snap => onUserUpdate(snap));
 
 	// Analytics
 	if(process.env.NODE_ENV === 'production') firebase.analytics();
@@ -64,21 +67,22 @@ const allColorSets = [
 	"#C471F5,#FA71CD"
 ];
 
-function generateUserDocument() {
+const DEFAULT_USER_DOCUMENT = {
+	hand: [],
+	numCardsInHand: 0
+}
+
+function generateUserColorSet() {
 	const availableColorSets = allColorSets.filter(colorSet => !store.getters['room/getUsedColorSets'].includes(colorSet))
+	
 	let colorSet = null;
 	if(store.state.room.users.length >= allColorSets.length) {
 		colorSet = allColorSets[Math.floor(Math.random() * allColorSets.length)]
 	} else {
 		colorSet = availableColorSets[Math.floor(Math.random() * availableColorSets.length)]
 	}
-	return {
-		ready: 1, // odd = not ready, even = ready. This is 3x as fast as using a boolean.
-		colorSet: colorSet,
-		points: 0,
-		hand: [],
-		numCardsInHand: 0
-	}
+
+	return colorSet.split(',');
 }
 
 /*
@@ -100,26 +104,25 @@ async function joinRoom(roomId) {
 
 		if(store.state.room.roomId !== null) leaveRoom();
 
-		roomDocRef = db.collection("games").doc(String(roomId));
+		roomDocRef = db.doc(`games/${roomId}`);
 
 		roomDocRef.get().then(function(roomDocSnapshot) {
 			if (roomDocSnapshot.exists) {
-				store.commit('room/updateGameState', 'LOBBY');// Set this now, so if we join a game that's already started it'll forward us to the game view. Used for testing.
-				
-				if(roomDocSnapshot.data().players.length == 0) store.commit('user/setPrivileged');
-
 				console.debug("Success! Room document retrieved.", roomDocSnapshot.data());
+
+				if(Object.keys(roomDocSnapshot.data().users).length === 0) store.commit('user/setPrivileged');
 				store.commit('room/setRoomId', roomDocSnapshot.id);
 				
-				// Start watching this room
-				unsubFromRoomDoc = roomDocRef.onSnapshot((snap) => updateRoomData(snap));
-				// Start watching the users collection (To display other users -- using a collection makes it easier to monitor ready-ness of players)
-				unsubFromUserCollection = roomDocRef.collection('users').onSnapshot((snap) => updateUsersData(snap));
+				chatDocRef = db.doc(`games/${roomId}/meta/chat`);
+
+				// Start watching this room & save the returned unsubscribe function for later.
+				unsubFromRoomDoc = roomDocRef.onSnapshot(snap => onRoomUpdate(snap));
+				unsubFromChatDoc = chatDocRef.onSnapshot(snap => onChatUpdate(snap));
 
 				resolve();
 			} else {
-				roomDocRef = null;
 				console.debug(`Room ${roomId} doesn't exist :(`);
+				roomDocRef = null;
 				reject('ROOM_DOES_NOT_EXIST');
 			}
 			console.groupEnd();
@@ -149,13 +152,12 @@ function leaveRoom() {
 	console.debug(`Leaving room ${store.state.room.roomId}!`);
 
 	if(unsubFromRoomDoc !== null) unsubFromRoomDoc();
-	if(unsubFromUserCollection !== null) unsubFromUserCollection();
+	if(unsubFromChatDoc !== null) unsubFromChatDoc();
+	if(unsubFromUserDoc !== null) unsubFromUserDoc();
 	
 	if(userDocRef !== null) userDocRef.delete().catch(e => console.error(e));
 
-	if(roomDocRef !== null) roomDocRef.update({
-		players: firebase.firestore.FieldValue.arrayRemove(store.state.user.username)
-	});
+	if(roomDocRef !== null) roomDocRef.update(`players.${store.state.user.username}`, firebase.firestore.FieldValue.delete());
 	
 	roomDocRef = null;
 	userDocRef = null;
@@ -170,24 +172,16 @@ function leaveRoom() {
 
 // https://firebase.google.com/docs/firestore/manage-data/add-data?authuser=0#update_elements_in_an_array
 async function addUser(username) { // To be used after already joining the game
-	username = String(username);
 	
-	userDocRef = roomDocRef.collection('users').doc(username); // Create our user doc & save it for easy access
-	userDocRef.set(generateUserDocument());
-
-	roomDocRef.update({
-		players: firebase.firestore.FieldValue.arrayUnion(username) // Add to list so we can become card czar at some point
+	userDocRef = db.doc(`games/${store.state.room.roomId}/users/${username}`); // Create our user doc & save it for easy access
+	userDocRef.set(DEFAULT_USER_DOCUMENT).then(() => { // Put this inside a then to prevent a harmless error if onUserUpdate is called before the user doc is initialized
+		unsubFromUserDoc = userDocRef.onSnapshot(snap => onUserUpdate(snap));
 	});
+
+	roomDocRef.update(`users.${username}.colorSet`, generateUserColorSet(),
+										`users.${username}.points`, 0);
 
 	store.commit('user/setUsername', username); // Save so that we remember who we are
-}
-
-function toggleReady() {
-	userDocRef.update({
-		ready: firebase.firestore.FieldValue.increment(1)
-	}).catch(err => {
-		console.error(err);
-	});
 }
 
 async function startGame() {
@@ -199,66 +193,70 @@ async function startNewTurn() {
 }
 
 /*
- * Data Sync (giving the Vue object access to our data)
+ * Data Sync (passing our data to Vuex)
  */
 
-function updateRoomData(snapshot) { // TODO tidy this up - I don't like updating the entire state every time this is run
+function onRoomUpdate(snapshot) { // TODO tidy this up - I don't like updating the entire state every time this is run
 	let newRoomData = snapshot.data();
 	console.log("New room data!", newRoomData);
 
 	/* Logic */
-	if(store.state.room.gameState == "LOBBY" && newRoomData.gameState == "PLAYING") { // Game just started
+	if(store.state.room.gameState === "LOBBY" && newRoomData.gameState === "PLAYING") { // Game just started
 		console.log("Game has started!");
 	}
 
-	if(store.state.room.currentBlackCard != newRoomData.currentBlackCard) { // This is a new turn
+	if(store.state.room.turn.questionCard !== newRoomData.turn.questionCard) { // This is a new turn
 		store.commit('user/setPlayedThisTurn', false);
 	}
 
 	if(store.getters['user/isCzar']) {
-		if(store.state.room.activeCards.length < newRoomData.activeCards.length) { // If someone just played a card
-			if(newRoomData.activeCards.length == store.state.room.users.length-1) { // Everyone has played cards
+		if(store.state.room.turn.playedCards.length < newRoomData.turn.playedCards.length) { // If someone just played a card
+			if(newRoomData.turn.playedCards.length === store.state.room.users.length-1) { // Everyone has played cards
 				roomDocRef.update({
-					turnStatus: "WAITING_FOR_CZAR"
+					'turn.status': 'WAITING_FOR_CZAR'
 				});
 			}
 		}
 	}
 
+	
+	// let users = [];
+	// snapshot.forEach(userDoc => {
+	// 	users.push({
+	// 		'username': userDoc.id,
+	// 		'colorSet': userDoc.get('colorSet').split(','),
+	// 		'points': userDoc.get('points')
+	// 	});
+
+	// 	if(userDoc.id == store.state.user.username) { // This is us
+	// 		store.commit('user/updateHand', userDoc.get('hand'));
+	// 	}
+	// });
+
+	// 
+
 	/* Setting state */
-	// If we don't use this if, we're alerted of a new chat message any time updateRoomData() is called
-	if(newRoomData.chatMessages.length > store.state.room.chatMessages.length) store.commit('room/updateChatMessages', newRoomData.chatMessages);
+	store.dispatch('room/updateUsers', newRoomData.users);
 	store.commit('room/updateSettings', newRoomData.settings);
 	store.dispatch('room/updateGameState', newRoomData.gameState); // This action routes us depending on the supplied gameState
-	store.commit('room/updateBlackCard', newRoomData.currentBlackCard);
-	store.commit('room/updateCzar', newRoomData.currentCzar);
-	store.commit('room/updateActiveCards', newRoomData.activeCards);
-	store.commit('room/updateTurnStatus', newRoomData.turnStatus);
-	store.commit('room/setPointsToWin', newRoomData.settings.pointsToWin);
-	store.commit('room/updateTurnWinningCard', newRoomData.turnWinningCard);
+	store.commit('room/updateQuestionCard', newRoomData.turn.questionCard);
+	store.commit('room/updateCzar', newRoomData.turn.czar);
+	store.commit('room/updatePlayedCards', newRoomData.turn.playedCards);
+	store.commit('room/updateTurnStatus', newRoomData.turn.status);
+	store.commit('room/updateWinningCard', newRoomData.turn.winningCard);
 	store.commit('room/setGameWinner', newRoomData.winner);
 }
 
-function updateUsersData(snapshot) { // TODO: This still gets called after we detach the snapshot listener :/
-	console.debug("New users data!");
+function onChatUpdate(snapshot) {
+	console.debug("New chat data!");
 	
-	let users = [];
-	snapshot.forEach(userDoc => {
-		users.push({
-			'username': userDoc.id,
-			'ready': ((userDoc.get('ready') % 2) == 0), // true if even
-			'colorSet': userDoc.get('colorSet').split(','),
-			'points': userDoc.get('points')
-		});
+	store.commit('room/updateChatMessages', snapshot.data().chatMessages);
+}
 
-		if(userDoc.id == store.state.user.username) { // This is us
-			store.commit('user/updateReadyStatus', userDoc.get('ready'));
-			store.commit('user/updateHand', userDoc.get('hand'));
-			store.commit('user/updatePoints', userDoc.get('points'));
-		}
-	});
-
-	store.commit('room/updateUsers', users);
+function onUserUpdate(snapshot) {
+	console.debug("New user data!");
+	
+	store.commit('user/updateHand', snapshot.data().hand);
 }
 
 /*
@@ -268,8 +266,6 @@ function updateUsersData(snapshot) { // TODO: This still gets called after we de
 async function playCard(cardText) { // TODO: Move this to be a vuex action?
 	if(store.getters['user/isCzar']) return; // Just in case this somehow gets called
 
-	console.log(cardText);
-
 	const newHand = store.state.user.hand.filter(c => c != cardText); // Remove the card we just played from our hand
 
 	userDocRef.update({
@@ -278,27 +274,20 @@ async function playCard(cardText) { // TODO: Move this to be a vuex action?
 	});
 	
 	roomDocRef.update({
-		activeCards: firebase.firestore.FieldValue.arrayUnion({text: cardText, playedBy: store.state.user.username})
+		'turn.playedCards': firebase.firestore.FieldValue.arrayUnion({ text: cardText, playedBy: store.state.user.username })
 	});
-
 }
 
 async function chooseCard(cardText) {
 	if(!store.getters['user/isCzar']) return; // Just in case
 
-	const playedBy = store.state.room.activeCards.find(c => c.text == cardText).playedBy;
+	const playedBy = store.state.room.turn.playedCards.find(c => c.text == cardText).playedBy;
 
-	await roomDocRef.update({
-		turnWinningCard: {text:cardText, playedBy: playedBy}
-	});
+	await roomDocRef.update('turn.winningCard', { text: cardText, playedBy: playedBy }, `players.${playedBy}.points`, firebase.firestore.FieldValue.increment(1));
 
-	await roomDocRef.collection('users').doc(playedBy).update({
-		points: firebase.firestore.FieldValue.increment(1)
-	});
-
-	const winner = store.state.room.users.find(user => user.points >= store.state.room.pointsToWin) || null;
+	const winner = store.state.room.users.find(user => user.points >= store.state.room.settings.pointsToWin) || null;
 	
-	if(winner != null) {
+	if(winner) {
 		endGame(winner);
 		return;
 	}
@@ -313,16 +302,16 @@ async function endGame(winner) {
 
 	await roomDocRef.update({
 		winner: winner,
-		gameState: "FINISHED"
+		gameState: `FINISHED`
 	});
 }
 
 const dbManager = {
+	initializeFirebase,
 	joinRoom, // Rooms
 	createRoom,
 	leaveRoom,
 	addUser, // Lobby func
-	toggleReady,
 	startGame,
 	playCard, // Gameplay
 	chooseCard

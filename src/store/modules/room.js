@@ -7,34 +7,35 @@ function initialState() {
 	return {
 		roomId: null,
 		gameState: null,
-		users: [],
+		users: [], // This is a map in our DB, but it's easier to work with as an array on the client.
 		settings: {},
 		chatMessages: [],
-		currentBlackCard: null,
-		currentCzar: null,
-		currentTurnStatus: null,
-		activeCards: [],
-		pointsToWin: null,
-		turnStatus: null,
-		turnWinningCard: null,
+		turn: {
+			round: null,
+			status: null,
+			questionCard: null,
+			czar: null,
+			playedCards: [],
+			winningCard: null,
+		},
 		winner: null
 	}
 }
 
 const state = initialState();
 
-const mutations = {
+const mutations = { // Preceding '_' means the mutation should only be called from within an action.
 	setRoomId: (state, roomId) => state.roomId = String(roomId),
-	setPointsToWin: (state, numPointsToWin) => state.pointsToWin = numPointsToWin,
-	updateUsers: (state, users) => state.users = users,
+	_updateGameState: (state, newGameState) => state.gameState = newGameState,
+	_updateUsers: (state, users) => state.users = users,
 	updateSettings: (state, settingsObject) => state.settings = settingsObject,
 	updateChatMessages: (state, chatMessageArray) => state.chatMessages = chatMessageArray,
-	updateGameState: (state, newGameState) => state.gameState = newGameState,
-	updateBlackCard: (state, newBlackCard) => state.currentBlackCard = newBlackCard,
-	updateCzar: (state, newCzar) => state.currentCzar = newCzar,
-	updateActiveCards: (state, newActiveCards) => state.activeCards = newActiveCards,
-	updateTurnStatus: (state, newTurnStatus) => state.turnStatus = newTurnStatus,
-	updateTurnWinningCard: (state, card) => state.turnWinningCard = card,
+	updateRound: (state, round) => state.turn.round = round,
+	updateTurnStatus: (state, newTurnStatus) => state.turn.status = newTurnStatus,
+	updateQuestionCard: (state, newQuestionCard) => state.turn.questionCard = newQuestionCard,
+	updateCzar: (state, newCzar) => state.turn.czar = newCzar,
+	updatePlayedCards: (state, newPlayedCards) => state.turn.playedCards = newPlayedCards,
+	updateWinningCard: (state, card) => state.turn.winningCard = card,
 	setGameWinner: (state, username) => state.winner = username,
 	reset: (state) => {
 		const initial = initialState();
@@ -45,8 +46,17 @@ const mutations = {
 }
 
 const actions = {
-	sendMessage({state, rootState}, messageText) {
-		firebase.firestore().collection('games').doc(state.roomId).update({
+	updateUsers({ commit }, usersObj) {
+		let users = []; // Break our object down in to an array so it's easier to work with
+		for(let i = 0; i < Object.keys(usersObj).length; i++) {
+			users[i] = Object.values(usersObj)[i];
+			users[i].username = Object.keys(usersObj)[i];
+		}
+
+		commit('_updateUsers', users);
+	},
+	sendMessage({ state, rootState }, messageText) {
+		firebase.firestore().doc(`games/${state.roomId}/meta/chat`).update({
 			chatMessages: firebase.firestore.FieldValue.arrayUnion({
 				timestamp: dayjs().valueOf(),
 				sender: rootState.user.username,
@@ -54,18 +64,17 @@ const actions = {
 			})
 		});
 	},
-	updateSettings({state}, settingsObject) {
-
+	updateSettings({ state }, settingsObject) {
 		if(settingsObject.cardsPerHand < 3) settingsObject.cardsPerHand = 3;
 		if(settingsObject.pointsToWin < 1) settingsObject.pointsToWin = 1;
 
-		firebase.firestore().collection('games').doc(state.roomId).update({
+		firebase.firestore().doc(`games/${state.roomId}`).update({
 			settings: settingsObject
 		});
 	},
-	updateGameState({state, commit}, gameState) {
-		if(state.gameState !== gameState) {
-			commit('updateGameState', gameState);
+	updateGameState({ state, commit }, gameState) {
+		if(state.gameState !== gameState) { // If the state has changed
+			commit('_updateGameState', gameState);
 			
 			if(gameState === 'PLAYING')  router.replace({name: 'game'});
 			if(gameState === 'FINISHED') router.replace({name: 'endgame'});
@@ -86,16 +95,16 @@ const getters = {
 		return state.users.map(user => user.colorSet.join());
 	},
 	getCzarColor(state) {
-		return state.users.find(user => user.username == state.currentCzar).colorSet[0];
+		return state.users.find(user => user.username === state.turn.czar).colorSet[0];
 	},
 	getCzarColorSet(state) {
-		return state.users.find(user => user.username == state.currentCzar).colorSet;
+		return state.users.find(user => user.username === state.turn.czar).colorSet;
 	},
 	getColorSetByUsername: (state) => (username) => {
-		return state.users.find(user => user.username == username).colorSet;
+		return state.users.find(user => user.username === username).colorSet;
 	},
 	getUsernamesPlayedCard(state) {
-		return state.activeCards.map(card => card.playedBy);
+		return state.turn.playedCards.map(card => card.playedBy);
 	}
 }
 

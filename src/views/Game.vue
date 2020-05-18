@@ -1,27 +1,26 @@
 <template>
 	<div id="game">
-		<QuestionCard :text="this.$store.state.room.currentBlackCard"></QuestionCard>
+		<QuestionCard :text="this.$store.state.room.turn.questionCard"></QuestionCard>
 
 		<div v-if="$store.getters['user/isCzar']">
 			<InfoBar text="You are the Card Czar!"></InfoBar>
-			<div id="activeCardsContainer">
-				<WhiteCard v-for="(card, index) in this.$store.state.room.activeCards"
+			<div id="playedCardsContainer">
+				<WhiteCard v-for="(card, index) in this.$store.state.room.turn.playedCards"
 					:key=index
 					:text=card.text
-					:facedown="$store.state.room.turnStatus == 'WAITING_FOR_CARDS'"></WhiteCard>
-					<!--  -->
+					:facedown="$store.state.room.turn.status === 'WAITING_FOR_CARDS'" />
 			</div>
 		</div>
 
 		<div v-if="this.$store.state.user.playedThisTurn">
-			<InfoBar v-if="this.$store.state.room.turnStatus == 'WAITING_FOR_CARDS'" text="Waiting for everyone to play a card..."></InfoBar>
-			<InfoBar v-if="this.$store.state.room.turnStatus == 'WAITING_FOR_CZAR'" :text="`Waiting for ${this.$store.state.room.currentCzar} to pick a winner...`"></InfoBar>
+			<InfoBar v-if="this.$store.state.room.turn.status === 'WAITING_FOR_CARDS'" text="Waiting for everyone to play a card..."></InfoBar>
+			<InfoBar v-if="this.$store.state.room.turn.status === 'WAITING_FOR_CZAR'" :text="`Waiting for ${this.$store.state.room.turn.czar} to pick a winner...`"></InfoBar>
 			
-			<div id="activeCardsContainer">
-				<WhiteCard v-for="(card, index) in this.$store.state.room.activeCards"
+			<div id="playedCardsContainer">
+				<WhiteCard v-for="(card, index) in this.$store.state.room.turn.playedCards"
 					:key=index
 					:text=card.text
-					:facedown="$store.state.room.turnStatus == 'WAITING_FOR_CARDS'"></WhiteCard>
+					:facedown="$store.state.room.turn.status === 'WAITING_FOR_CARDS'" />
 			</div>
 		</div>
 
@@ -47,7 +46,7 @@ export default {
 </script>
 
 <style>
-#activeCardsContainer {
+#playedCardsContainer {
 	width: 90vw;
 	display: grid;
 	height: auto;

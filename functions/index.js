@@ -4,29 +4,36 @@ admin.initializeApp();
 
 const  db = admin.firestore();
 
-const defaultRoomDocument = {
+const DEFAULT_ROOM_DOCUMENT = {
 	timestamp: admin.firestore.FieldValue.serverTimestamp(),
-	gameState: "LOBBY", // PLAYING, FINISHED
-	players: [], // Used to cycle card czar
-	settings: {
-		pointsToWin: 10,
-		cardsPerHand: 7
+	gameState: 'LOBBY',   // 'PLAYING', 'FINISHED'
+	users: {},          // { 'username': { colorSet[], points }, ... }
+	settings: {           //
+		pointsToWin: 10,    //
+		cardsPerHand: 7     //
+	},                    //
+	turn: {               //
+		round: 0,           //
+		status: null,       // 'WAITING_FOR_CARDS', 'WAITING_FOR_CZAR', 'WAITING_FOR_NEXT_TURN'
+		questionCard: null, // Card text
+		czar: null,         // Username
+		playedCards: [],    // [ { text, playedBy }, ... ]
+		winningCard: {
+			text: null, 
+			playedBy: null
+		}
 	},
-	chatMessages: [],
-	// [{
-	//   timestamp: Number (Unix timestamp in millis via dayjs().valueOf())
-	//   sender: String
-	//   text: String
-	// }, ...]
-	deckBlack: [],
-	deckWhite: [], 
-	currentBlackCard: null,
-	currentCzar: null,
-	activeCards: [],
-	turnStatus: null, // WAITING_FOR_CARDS, WAITING_FOR_CZAR
-	turnWinningCard: null,
-	winner: null
+	winner: null           // Username
 };
+
+const DEFAULT_CHAT_DOCUMENT = {
+	chatMessages: []
+};
+
+const DEFAULT_DECKS_DOCUMENT = {
+	questionDeck: [],
+	answerDeck: []
+}
 
 exports.startNewTurn = functions.https.onCall(async (data, context) => {
 	await startNewTurn(data.roomId);
@@ -38,8 +45,10 @@ async function startNewTurn(roomId) {
 	
 	console.log(`Starting new turn for room ${roomId}`);
 	
-	const roomDoc = db.collection('games').doc(String(roomId));
+	const roomDoc = db.doc(`games/${roomId}`);
 	const roomData = (await roomDoc.get()).data();
+
+	const decks = (await db.doc(`games/${roomId}/meta/decks`).get()).data();
 	
 	// Replenish Cards
 
@@ -47,7 +56,7 @@ async function startNewTurn(roomId) {
 
 	console.log(`${inNeedOfCards.size} users are in need of cards in room ${roomId}`);
 
-	let deckWhite = roomData.deckWhite;
+	let answerDeck = decks.answerDeck;
 
 	for(let i = 0; i < inNeedOfCards.size; i++) { // Get the card text for each card we're going to give, then give the cards.
 		/* eslint-disable no-await-in-loop */
@@ -59,23 +68,15 @@ async function startNewTurn(roomId) {
 		const numCardsNeeded = roomData.settings.cardsPerHand - userData.numCardsInHand;
 		console.log(`User ${userDoc.id} needs ${numCardsNeeded} cards in room ${roomId}`);
 
-		if(deckWhite.length < numCardsNeeded) console.error("Not enough white cards left!");
+		if(answerDeck.length < numCardsNeeded) console.error("Not enough answer cards left!");
 
-		const cardIdsToGive = deckWhite.slice(0, numCardsNeeded);
-		let cardsToGive = [];
-		const getCardTextPromises = cardIdsToGive.map(id => {
-			return db.collection('cards').doc(id).get().then((snap) => {
-				cardsToGive.push(snap.get('text'))
-				return null; // To pass eslint
-			});
-		});
-		await Promise.all(getCardTextPromises);
+		const cardsToGive = answerDeck.slice(0, numCardsNeeded);
 
-		deckWhite = deckWhite.filter(id => !cardIdsToGive.includes(id));
+		answerDeck = answerDeck.filter(card => !cardsToGive.includes(card));
 		
 		try {
 			await userDocRef.update({
-				hand: admin.firestore.FieldValue.arrayUnion.apply(null, cardsToGive),
+				hand: admin.firestore.FieldValue.arrayUnion(...cardsToGive),
 				numCardsInHand: admin.firestore.FieldValue.increment(cardsToGive.length)
 			});
 		} catch (error) {
@@ -83,32 +84,32 @@ async function startNewTurn(roomId) {
 		}
 	}
 
-	// Pick new black card
+	// Pick new question card
 
-	let availableBlackCards = roomData.deckBlack;
-	if(availableBlackCards.length < 1) throw new Error("No black cards left!");
+	let questionDeck = decks.questionDeck;
 
-	let blackCardId = availableBlackCards[Math.floor(Math.random() * availableBlackCards.length)];
+	if(questionDeck.length < 1) throw new Error("No question cards left!");
 
-	const newBlackCard = await db.collection('cards').doc(blackCardId).get().then((snap) => {return snap.data().text});
+	const newQuestionCard = questionDeck[Math.floor(Math.random() * questionDeck.length)];
 
 	// Pick new czar
-	let oldCzar = roomData.currentCzar;
-	let allPlayers = roomData.players;
+	let oldCzar = roomData.turn.czar;
+	let allUsers = Object.keys(roomData.users);
 
-	let newCzar = findNextCzar(oldCzar, allPlayers);
+	let newCzar = findNextCzar(oldCzar, allUsers);
+
+	await db.doc(`games/${roomId}/meta/decks`).update({		
+		'answerDeck': answerDeck, // Update the deck to remove the cards we've just dealt
+		'questionDeck': admin.firestore.FieldValue.arrayRemove(newQuestionCard),
+	});
 
 	await roomDoc.update({
-		"deckWhite": deckWhite, // Update the deck to remove the cards we've just dealt
-		"deckBlack": admin.firestore.FieldValue.arrayRemove(blackCardId), // Remove the black card we chose
-
-		"currentBlackCard": newBlackCard, // Set the new black card
-		"currentCzar": newCzar, // Set the new Czar
-
-		"activeCards": [], // Remove the cards from the previous hand
-
-		"turnStatus": "WAITING_FOR_CARDS", // So the users know what's going on
-		"turnWinningCard": null // Reset the winning card
+		'turn.round': admin.firestore.FieldValue.increment(1),
+		'turn.status': 'WAITING_FOR_CARDS',
+		'turn.questionCard': newQuestionCard,
+		'turn.czar': newCzar,
+		'turn.playedCards': [],
+		'turn.winningCard': null
 	}).catch(e => console.error(e));
 
 	console.log(`New turn started successfully for room ${roomId}`);
@@ -116,14 +117,14 @@ async function startNewTurn(roomId) {
 	return;
 }
 
-function findNextCzar(currentCzar, allPlayers) {
-  let currentCzarIndex = allPlayers.findIndex(user => user === currentCzar);
+function findNextCzar(currentCzar, allUsers) {
+  let currentCzarIndex = allUsers.findIndex(user => user === currentCzar);
 
-  if(currentCzarIndex === allPlayers.length-1 || currentCzar === null) {
+  if(currentCzarIndex === allUsers.length-1 || currentCzar === null) {
   	currentCzarIndex = -1;
   }
   
-  let newCzar = allPlayers[currentCzarIndex+1];
+  let newCzar = allUsers[currentCzarIndex+1];
   
   return newCzar;
 }
@@ -135,15 +136,15 @@ async function generateGameDecks(roomId, settings) {
 		console.log(`No settings. Using all cards for room ${roomId}`);
 	}
 	
-	let deckBlack = [];
-	let deckWhite = [];
+	let questionDeck = [];
+	let answerDeck = [];
 		
 	await db.collection('cards').get().then(querySnapshot => {
 		querySnapshot.forEach(cardDocSnapshot => {
 			let cardType = cardDocSnapshot.data().cardType;
 
-			if(cardType === "Q") deckBlack.push(cardDocSnapshot.id);
-			if(cardType === "A") deckWhite.push(cardDocSnapshot.id);
+			if(cardType === "Q") questionDeck.push(cardDocSnapshot.get('text'));
+			if(cardType === "A") answerDeck.push(cardDocSnapshot.get('text'));
 		});
 
 		return null; //
@@ -153,18 +154,18 @@ async function generateGameDecks(roomId, settings) {
 	});
 
 	/* Shuffle the decks using Fisher-Yates shuffle algo */
-	for (let i = deckBlack.length - 1; i > 0; i--) {
+	for (let i = questionDeck.length - 1; i > 0; i--) {
 		let j = Math.floor(Math.random() * (i + 1));
-		[deckBlack[i], deckBlack[j]] = [deckBlack[j], deckBlack[i]];
+		[questionDeck[i], questionDeck[j]] = [questionDeck[j], questionDeck[i]];
   }
-	for (let i = deckWhite.length - 1; i > 0; i--) {
+	for (let i = answerDeck.length - 1; i > 0; i--) {
 		let j = Math.floor(Math.random() * (i + 1));
-		[deckWhite[i], deckWhite[j]] = [deckWhite[j], deckWhite[i]];
+		[answerDeck[i], answerDeck[j]] = [answerDeck[j], answerDeck[i]];
   }
 
-	await db.collection('games').doc(String(roomId)).update({
-		deckBlack: deckBlack,
-		deckWhite: deckWhite
+	await db.doc(`games/${roomId}/meta/decks`).update({
+		questionDeck: questionDeck,
+		answerDeck: answerDeck
 	})
 	.catch(err => {
 		console.error(`Error while writing decks for room ${roomId} :(`, err);
@@ -183,7 +184,7 @@ exports.startGame = functions.https.onCall(async (data, context) => {
 	await generateGameDecks(roomId, null);
 	await startNewTurn(roomId);
 	
-	await db.collection('games').doc(String(roomId)).update({
+	await db.doc(`games/${roomId}`).update({
 		gameState: "PLAYING"
 	}).catch(err => console.log(err));
 	
@@ -192,13 +193,16 @@ exports.startGame = functions.https.onCall(async (data, context) => {
 
 exports.createRoom = functions.https.onCall(async (data, context) => {
 	
-	const roomId = await generateRoomId();
-
-	await db.collection('games').doc(roomId).set(defaultRoomDocument)
-	.catch(err => {
+	let handleError = (err) => {
 		console.error(err);
 		return false;
-	});
+	};
+
+	const roomId = await generateRoomId();
+
+	await db.doc(`games/${roomId}`).set(DEFAULT_ROOM_DOCUMENT).catch(err => handleError(err));
+	await db.doc(`games/${roomId}/meta/chat`).set(DEFAULT_CHAT_DOCUMENT).catch(err => handleError(err));
+	await db.doc(`games/${roomId}/meta/decks`).set(DEFAULT_DECKS_DOCUMENT).catch(err => handleError(err));
 
 	return roomId;
 });

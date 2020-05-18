@@ -2,7 +2,7 @@
 	<div class="whiteCard" :class="{facedown: this.facedown, winner: this.isWinner }" @click="playCard">
 		<div class="card-text" v-if="!facedown">{{ this.text }}</div>
 		<div class="winner-credit" v-if="this.isWinner">
-			Played by: {{this.$store.state.room.turnWinningCard.playedBy}}
+			Played by: {{this.$store.state.room.turn.winningCard.playedBy}}
 		</div>
 	</div>
 </template>
@@ -32,8 +32,8 @@ export default {
 	},
 	computed: {
 		isWinner() {
-			if(this.$store.state.room.turnWinningCard !== null) {
-				return this.$store.state.room.turnWinningCard.text === this.text;
+			if(this.$store.state.room.turn.winningCard !== null) {
+				return this.$store.state.room.turn.winningCard.text === this.text;
 			} else return false;
 		}
 	}

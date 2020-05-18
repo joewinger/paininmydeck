@@ -8,7 +8,7 @@
 			</tr>
 			<tr v-if="$store.state.room.gameState === 'PLAYING'">
 				<td>Czar</td>
-				<td>{{ $store.state.room.currentCzar }}</td>
+				<td>{{ $store.state.room.turn.czar }}</td>
 			</tr>
 		</table>
 		<button @click="$router.replace('/')">Leave Room</button>
