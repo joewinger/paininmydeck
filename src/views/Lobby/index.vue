@@ -10,8 +10,6 @@
 		</ul>
 		
 		<div v-if="this.$store.state.user.username != ''">
-			<button @click="toggleReady"><span v-if="this.$store.state.user.isReady">Not Ready</span><span v-else>Ready!</span></button>
-			<br/>
 			<button @click.once="startGame" v-if="this.$store.state.user.isPrivileged">Start Game</button>
 		</div>
 	</div>
@@ -29,9 +27,6 @@ export default {
 		LobbyUser
 	},
 	methods: {
-		toggleReady() {
-			dbManager.toggleReady();
-		},
 		startGame() {
 			// if(this.$store.state.room.users.length < 3) {
 			//   console.log("Not enough users to start game!");

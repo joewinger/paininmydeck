@@ -10,3 +10,4 @@
 ### Beta 0.4
 * Migrate room creation logic to the server
 * Redesign database schema to promote less data being sent to the client
+- Remove 'ready up' feature in lobby

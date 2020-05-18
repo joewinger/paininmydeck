@@ -1,6 +1,6 @@
 <template>
 	<div class="lobbyUser" :style="`background-image: linear-gradient(to right, ${user.colorSet[0]} 0%, ${user.colorSet[1]} 100%)`">
-		{{user.username}}{{user.ready ? "!": ""}}
+		{{user.username}}
 	</div>
 </template>
 
