@@ -27,8 +27,6 @@ export default {
 		async createRoom () {
 			let roomId = await dbManager.createRoom();
 
-			console.log(roomId);
-
 			if(roomId !== false) {
 				this.$router.push({ name: 'lobby', params: {roomId: roomId} });
 			}

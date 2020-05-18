@@ -62,8 +62,6 @@ export default {
 				pointsToWin: (this.changePointsToWin !== -1) ? this.changePointsToWin : this.pointsToWin
 			}
 
-			console.log(settingsObject);
-
 			this.$store.dispatch('room/updateSettings', settingsObject);
 
 			this.changeCardsPerHand = -1;
