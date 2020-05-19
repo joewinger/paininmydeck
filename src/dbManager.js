@@ -283,7 +283,8 @@ async function chooseCard(cardText) {
 
 	const playedBy = store.state.room.turn.playedCards.find(c => c.text == cardText).playedBy;
 
-	await roomDocRef.update('turn.winningCard', { text: cardText, playedBy: playedBy }, `players.${playedBy}.points`, firebase.firestore.FieldValue.increment(1));
+	await roomDocRef.update('turn.winningCard', { text: cardText, playedBy: playedBy },
+													`users.${playedBy}.points`, firebase.firestore.FieldValue.increment(1));
 
 	const winner = store.state.room.users.find(user => user.points >= store.state.room.settings.pointsToWin) || null;
 	
