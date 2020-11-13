@@ -166,9 +166,7 @@ function leaveRoom() {
 	store.commit('room/reset');
 }
 
-/*
- * Lobby Functionality
- */
+// Lobby Functionality /////////////////////////////////////////////////////////////
 
 // https://firebase.google.com/docs/firestore/manage-data/add-data?authuser=0#update_elements_in_an_array
 async function addUser(username) { // To be used after already joining the game
@@ -217,23 +215,7 @@ function onRoomUpdate(snapshot) { // TODO tidy this up - I don't like updating t
 				});
 			}
 		}
-	}
-
-	
-	// let users = [];
-	// snapshot.forEach(userDoc => {
-	// 	users.push({
-	// 		'username': userDoc.id,
-	// 		'colorSet': userDoc.get('colorSet').split(','),
-	// 		'points': userDoc.get('points')
-	// 	});
-
-	// 	if(userDoc.id == store.state.user.username) { // This is us
-	// 		store.commit('user/updateHand', userDoc.get('hand'));
-	// 	}
-	// });
-
-	// 
+	} 
 
 	/* Setting state */
 	store.dispatch('room/updateUsers', newRoomData.users);
@@ -259,40 +241,47 @@ function onUserUpdate(snapshot) {
 	store.commit('user/updateHand', snapshot.data().hand);
 }
 
-/*
- * Gameplay mechanics
- */
+
+// Gameplay mechanics //////////////////////////////////////////////////////////////
 
 async function playCard(cardText) { // TODO: Move this to be a vuex action?
 	if(store.getters['user/isCzar']) return; // Just in case this somehow gets called
 
-	const newHand = store.state.user.hand.filter(c => c != cardText); // Remove the card we just played from our hand
-
+	// Remove the card we just played from our hand
+	const newHand = store.state.user.hand.filter(c => c != cardText);
+	// And update our user document to reflect the change
 	userDocRef.update({
-		hand: newHand, // Remove this card from the array
+		hand: newHand,
 		numCardsInHand: newHand.length
 	});
 	
+	// Update the room document to add our card in to play
 	roomDocRef.update({
 		'turn.playedCards': firebase.firestore.FieldValue.arrayUnion({ text: cardText, playedBy: store.state.user.username })
 	});
 }
 
 async function chooseCard(cardText) {
-	if(!store.getters['user/isCzar']) return; // Just in case
+	// Kick anyone who's not a czar out of this function (just in case)
+	if(!store.getters['user/isCzar']) return;
 
+	// Figure out who played the card we selected
 	const playedBy = store.state.room.turn.playedCards.find(c => c.text == cardText).playedBy;
 
+	// Update the room document:
+	//		A) Let everyone know which card was chosen
+	//		B) Grant the winner their points
 	await roomDocRef.update('turn.winningCard', { text: cardText, playedBy: playedBy },
 													`users.${playedBy}.points`, firebase.firestore.FieldValue.increment(1));
 
+	// Figure out if somebody has reached the threshold to win the game
 	const winner = store.state.room.users.find(user => user.points >= store.state.room.settings.pointsToWin) || null;
-	
 	if(winner) {
 		endGame(winner);
 		return;
 	}
 
+	// Wait 3 seconds then start the next turn. This will eventually be replaced with something cooler, like an animation.
 	setTimeout(async () => {
 		await startNewTurn();
 	}, 3000);

@@ -45,35 +45,43 @@ async function startNewTurn(roomId) {
 	
 	console.log(`Starting new turn for room ${roomId}`);
 	
+	// Set our references
 	const roomDoc = db.doc(`games/${roomId}`);
 	const roomData = (await roomDoc.get()).data();
-
 	const decks = (await db.doc(`games/${roomId}/meta/decks`).get()).data();
 	
-	// Replenish Cards
+	// Replenish Cards ///////////////////////////////////////////////////////////////
 
-	const inNeedOfCards = await roomDoc.collection('users').where('numCardsInHand', '<', roomData.settings.cardsPerHand).get();
+	// Find everyone who's missing cards
+	const usersInNeedOfCards = await roomDoc.collection('users').where('numCardsInHand', '<', roomData.settings.cardsPerHand).get();
+	console.log(`${usersInNeedOfCards.size} users are in need of cards in room ${roomId}`);
 
-	console.log(`${inNeedOfCards.size} users are in need of cards in room ${roomId}`);
-
+	// Set our reference to use later
 	let answerDeck = decks.answerDeck;
 
-	for(let i = 0; i < inNeedOfCards.size; i++) { // Get the card text for each card we're going to give, then give the cards.
+	// Loop through each user in need of cards & give them cards
+	for(let i = 0; i < usersInNeedOfCards.size; i++) {
 		/* eslint-disable no-await-in-loop */
 
-		const userDoc = inNeedOfCards.docs[i];
+		// Set our references to make things easy
+		const userDoc = usersInNeedOfCards.docs[i];
 		const userDocRef = roomDoc.collection('users').doc(userDoc.id);
 		const userData = userDoc.data();
 		
+		// Figure out how many cards this user needs
 		const numCardsNeeded = roomData.settings.cardsPerHand - userData.numCardsInHand;
 		console.log(`User ${userDoc.id} needs ${numCardsNeeded} cards in room ${roomId}`);
 
+		// Make sure we have enough cards left - TODO: handle this better/let the user know what's happening
 		if(answerDeck.length < numCardsNeeded) console.error("Not enough answer cards left!");
 
+		// Take the cards we need off the top of the deck
 		const cardsToGive = answerDeck.slice(0, numCardsNeeded);
 
+		// Remove the cards we took from the deck
 		answerDeck = answerDeck.filter(card => !cardsToGive.includes(card));
 		
+		// Update the user document to reflect the cards being in our hand
 		try {
 			await userDocRef.update({
 				hand: admin.firestore.FieldValue.arrayUnion(...cardsToGive),
@@ -84,22 +92,36 @@ async function startNewTurn(roomId) {
 		}
 	}
 
-	// Pick new question card
+	// End Card Replenishment ////////////////////////////////////////////////////////
 
+	// Select a New Question Card ////////////////////////////////////////////////////
+
+	// Set our reference
 	let questionDeck = decks.questionDeck;
 
+	// Make sure we have question cards left
 	if(questionDeck.length < 1) throw new Error("No question cards left!");
 
+	// Randomly select a new question card
 	const newQuestionCard = questionDeck[Math.floor(Math.random() * questionDeck.length)];
 
-	// Pick new czar
+	// End Question Card Selection ///////////////////////////////////////////////////
+
+	// Select New Czar ///////////////////////////////////////////////////////////////
+
 	let oldCzar = roomData.turn.czar;
 	let allUsers = Object.keys(roomData.users);
 
 	let newCzar = findNextCzar(oldCzar, allUsers);
 
-	await db.doc(`games/${roomId}/meta/decks`).update({		
-		'answerDeck': answerDeck, // Update the deck to remove the cards we've just dealt
+	// End Selection of New Car //////////////////////////////////////////////////////
+
+	// Commit All of Our Updates /////////////////////////////////////////////////////
+
+	// Update decks document to reflect the cards we've just dealt
+	await db.doc(`games/${roomId}/meta/decks`).update({
+		'answerDeck': answerDeck,
+		// Remove the question card we selected from the deck
 		'questionDeck': admin.firestore.FieldValue.arrayRemove(newQuestionCard),
 	});
 
@@ -117,13 +139,24 @@ async function startNewTurn(roomId) {
 	return;
 }
 
+/**
+ * Select the next czar in line
+ * @param {string} currentCzar - username of current czar
+ * @param {array} allUsers - list of every user in the game
+ * 
+ * @returns {string} username of the next czar in line
+ */
 function findNextCzar(currentCzar, allUsers) {
+	// Find the index of the current czar in the list of all users
   let currentCzarIndex = allUsers.findIndex(user => user === currentCzar);
 
+	// If our current czar is at the end of the list (or if we don't have a czar
+	// yet), reset the index so we select the first user in the array
   if(currentCzarIndex === allUsers.length-1 || currentCzar === null) {
   	currentCzarIndex = -1;
   }
-  
+	
+	// Select the next czar
   let newCzar = allUsers[currentCzarIndex+1];
   
   return newCzar;
