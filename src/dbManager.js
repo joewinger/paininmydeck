@@ -21,7 +21,7 @@ async function initializeFirebase() {
 		console.debug("We're in production mode!");
 		config = await fetch('/__/firebase/init.json').then(response => { return response.json(); });
 	} else {
-		config = require('./firebaseConfig').default;
+		config = require('../firebase-config.json');
 	}
 	db = firebase.initializeApp(config).firestore();
 
