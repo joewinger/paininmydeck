@@ -42,6 +42,7 @@ async function initializeFirebase() {
 	unsubFromRoomDoc =        (roomDocRef === null) ? null : roomDocRef.onSnapshot(snap => onRoomUpdate(snap));
 	unsubFromChatDoc =        (chatDocRef === null) ? null : chatDocRef.onSnapshot(snap => onChatUpdate(snap));
 	unsubFromUserDoc =        (userDocRef === null) ? null : userDocRef.onSnapshot(snap => onUserUpdate(snap));
+	console.log(typeof unsubFromRoomDoc);
 
 	// Analytics
 	if(process.env.NODE_ENV === 'production') firebase.analytics();
@@ -151,16 +152,18 @@ function leaveRoom() {
 
 	console.debug(`Leaving room ${store.state.room.roomId}!`);
 
-	if(unsubFromRoomDoc !== null) unsubFromRoomDoc();
-	if(unsubFromChatDoc !== null) unsubFromChatDoc();
-	if(unsubFromUserDoc !== null) unsubFromUserDoc();
+	initializeFirebase().then(() => {
+		if(unsubFromRoomDoc !== null) unsubFromRoomDoc();
+		if(unsubFromChatDoc !== null) unsubFromChatDoc();
+		if(unsubFromUserDoc !== null) unsubFromUserDoc();
+		
+		if(userDocRef !== null) userDocRef.delete().catch(e => console.error(e));
 	
-	if(userDocRef !== null) userDocRef.delete().catch(e => console.error(e));
+		if(roomDocRef !== null) roomDocRef.update(`players.${store.state.user.username}`, firebase.firestore.FieldValue.delete());
 
-	if(roomDocRef !== null) roomDocRef.update(`players.${store.state.user.username}`, firebase.firestore.FieldValue.delete());
-	
-	roomDocRef = null;
-	userDocRef = null;
+		roomDocRef = null;
+		userDocRef = null;
+	});
 
 	store.commit('user/reset');
 	store.commit('room/reset');
