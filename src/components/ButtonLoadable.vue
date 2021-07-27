@@ -18,7 +18,6 @@ export default {
       this.$emit('click', this.callback)
     },
     callback: function() {
-      console.log("Called BAck");
       this.isLoading = false;
     }
   }
