@@ -10,7 +10,7 @@
 		</ul>
 		
 		<div v-if="this.$store.state.user.username != ''">
-			<button @click.once="startGame" v-if="this.$store.state.user.isPrivileged">Start Game</button>
+			<button-loadable @click.once="startGame" v-if="this.$store.state.user.isPrivileged">Start Game</button-loadable>
 		</div>
 	</div>
 </template>
@@ -19,21 +19,24 @@
 import dbManager from '@/dbManager';
 import SetUsernameModal from './LobbySetUsernameModal';
 import LobbyUser from './LobbyUser';
+import ButtonLoadable from '@/components/ButtonLoadable.vue';
 
 export default {
 	name: 'Lobby',
 	components: {
 		SetUsernameModal,
-		LobbyUser
+		LobbyUser,
+		ButtonLoadable
 	},
 	methods: {
-		startGame() {
+		async startGame(btnCallback) {
 			// if(this.$store.state.room.users.length < 3) {
 			//   console.log("Not enough users to start game!");
 			//   return;
 			// }
 			console.log("Starting the game!")
-			dbManager.startGame();
+			await dbManager.startGame();
+			btnCallback();
 		}
 	}
 }
