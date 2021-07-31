@@ -1,0 +1,29 @@
+:root {
+  --ui-border-width: 2px;
+  --ui-font-weight: 500;
+
+  --_gray-hue: 215;
+  --gray-500: hsl(var(--_gray-hue), 5%, 15%);
+  --gray-400: hsl(var(--_gray-hue), 5%, 28%);
+  --gray-300: hsl(var(--_gray-hue), 5%, 55%);
+  --gray-200: hsl(var(--_gray-hue), 5%, 85%);
+  --gray-100: hsl(var(--_gray-hue), 5%, 95%);
+
+  /* Old primary: hsl(42, 70%, 62%) or #F9C545 */
+  --_primary-hue: 45;
+  --primary: hsl(32, 100%, 80%);
+  --primary-500: hsl(var(--_primary-hue), 100%, 15%);
+  --primary-400: hsl(var(--_primary-hue), 100%, 28%);
+  --primary-300: hsl(var(--_primary-hue), 100%, 60%);
+  --primary-200: hsl(var(--_primary-hue), 90%, 85%);
+  --primary-100: hsl(var(--_primary-hue), 90%, 97%);
+
+  --_accent-hue: calc(var(--_primary-hue) - 60);
+  --accent-500: hsl(var(--_accent-hue), 85%, 15%);
+  --accent-400: hsl(var(--_accent-hue), 85%, 28%);
+  --accent-300: hsl(var(--_accent-hue), 85%, 60%);
+  --accent-200: hsl(var(--_accent-hue), 80%, 85%);
+  --accent-100: hsl(var(--_accent-hue), 80%, 97%);
+
+  --white: hsl(0, 0, 100%);
+}
