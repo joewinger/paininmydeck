@@ -1,12 +1,19 @@
 html {
   overflow: hidden;
   height: 100%;
+
+  color: var(--gray-400);
 }
 body {
   height: 100%;
   overflow: auto;
   margin: 0;
 }
+
+h1, h2, h3, h4, h5 {
+  color: var(--gray-500);
+}
+
 div {
   box-sizing: border-box;
 }
@@ -20,11 +27,11 @@ input, button {
   box-sizing: border-box;
   
   height: 42px;
-  margin: 100px;
   padding: 15px;
   margin: 0;
 
-  border-radius: 21px;
+  font-weight: var(--ui-font-weight);
+  font-size: 1rem;
 }
 input:hover, input:active, input:focus,
 button:hover, button:active, button:focus {
@@ -32,43 +39,60 @@ button:hover, button:active, button:focus {
 }
 
 input {
-  border: none;
-  /* background: rgba(0, 0, 0, 0.1 ); */
-  background: #E5E5E5;
+  background: var(--gray-100);
+  border: var(--ui-border-width) solid var(--gray-200);
+  border-radius: 20px;
 
+  color: var(--gray-400);
   text-align: center;
 }
 
 button {
   margin: 2px;
 
-  border: none;
-  background: #F9C545;
-
-  color: #fff;
-
+  border: 2px solid var(--gray-300);
+  background-color: #ffffff;
+  
   cursor: pointer;
-
-  font-weight: 500;
+  border-radius: 10px;
+  
+  color: var(--gray-300);
   line-height: 0;
+  font-weight: 600;
 
-  transition: transform 0.2s ease;
+  transition: all 0.2s ease;
 }
-
 button:focus {
   outline: none;
 }
-
 button:hover {
-  transform: scale(1.02);
+  transform: scale(1.08);
+  background-color: var(--gray-300);
+  color: #ffffff;
 }
-
 button:active {
   transform: scale(0.98);
+  background-color: var(--gray-400);
+  border-color: var(--gray-400);
 }
-
 button:disabled {
   transform: scale(1);
+  background-color: var(--gray-300);
+  border-color: var(--gray-300);
+}
+
+button.primary {
+  background-color: var(--primary-300);
+  border-color: var(--primary-300);
+  color: #ffffff;
+}
+button.primary:hover {
+  background-color: #ffffff;
+  color: var(--primary-300);
+}
+button.primary:active {
+  background-color: var(--primary-400);
+  border-color: var(--primary-400);
 }
 
 #app {
