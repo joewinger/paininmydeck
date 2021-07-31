@@ -59,8 +59,7 @@ export default {
 	color: var(--gray-500);
   font-family: aktiv-grotesk, Helvetica, sans-serif;
 	text-align: left;
-	/* font-size: 16pt; */
-	font-size: 13pt;
+	font-size: 1.25rem;
 	font-weight: bold;
 
 	cursor: pointer;
