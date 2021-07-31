@@ -46,6 +46,12 @@ export default {
 </script>
 
 <style>
+#game {
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 #playedCardsContainer {
 	width: 90vw;
 	display: grid;

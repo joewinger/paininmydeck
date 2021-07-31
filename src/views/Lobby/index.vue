@@ -42,8 +42,11 @@ export default {
 }
 </script>
 
-<style scoped>
-.blur {
+<style>
+#lobby {
+  color: inherit;
+}
+#lobby .blur {
 	filter: blur(1px);
 }
 </style>
