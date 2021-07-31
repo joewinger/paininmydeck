@@ -45,6 +45,11 @@ export default {
 	position: absolute;
 
 	cursor: pointer;
+
+	transition: transform 0.2s ease;
+}
+#navbar-back:hover {
+	transform: scale(1.2);
 }
 #navbar-back ion-icon {
 	grid-column: 1;
