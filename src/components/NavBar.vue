@@ -25,7 +25,7 @@ export default {
 	width: 100%;
 	height: 100%;
 
-	background: #454545;
+	background: var(--gray-400);
 
 	color: #fff;
 	-webkit-user-select: none;

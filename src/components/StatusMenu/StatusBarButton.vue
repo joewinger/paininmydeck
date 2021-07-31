@@ -21,14 +21,14 @@ export default {
 	width: 36px;
 
 	border-radius: 20px;
-	border: 3px solid #E0E0E0;
+	border: var(--ui-border-width) solid var(--gray-200);
 
-	color: #828282;
+	color: var(--gray-300);
 
 	transition: all 0.2s;
 }
 .statusBarButton.active {
-	background-color: #E0E0E0;
-	color: #777;
+	border: var(--ui-border-width) solid var(--gray-200);
+	background-color: var(--gray-100);
 }
 </style>

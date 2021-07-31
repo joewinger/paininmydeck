@@ -109,10 +109,8 @@ export default {
 
 	background: #FFFFFF;
 	box-shadow: 0px 0px 10px rgba(130, 130, 130, 0.47);
-	border: solid 1px #E0E0E0;
+	border: 1px solid var(--gray-200);
 	border-radius: 25px;
-
-	color: #828282;
 
 	-webkit-transition: all 0.3s ease;
 	-moz-transition: all 0.3s ease;

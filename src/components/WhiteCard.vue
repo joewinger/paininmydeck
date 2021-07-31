@@ -53,10 +53,10 @@ export default {
 
 	background: #fff;
 	border-radius: 15px;
-	border: 2px solid #E0E0E0;
+	border: var(--ui-border-width) solid var(--gray-200);
 	box-shadow: 0px 4px 4px rgba(177, 177, 177, 0.25);
 
-	color: #000;
+	color: var(--gray-500);
   font-family: aktiv-grotesk, Helvetica, sans-serif;
 	text-align: left;
 	/* font-size: 16pt; */
