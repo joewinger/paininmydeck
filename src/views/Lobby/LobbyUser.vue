@@ -28,7 +28,6 @@ export default {
   background-origin: border-box;
 
 	color: #FFF;
-	font-weight: 500;
-	font-size: 18px;
+	font-weight: 600;
 }
 </style>
