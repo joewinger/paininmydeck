@@ -1,5 +1,6 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
+import "firebase/auth";
 import "firebase/functions";
 import store from "@/store";
 
@@ -118,6 +119,14 @@ async function joinRoom(roomId) {
 				// Start watching this room & save the returned unsubscribe function for later.
 				unsubFromRoomDoc = roomDocRef.onSnapshot(snap => onRoomUpdate(snap));
 				unsubFromChatDoc = chatDocRef.onSnapshot(snap => onChatUpdate(snap));
+
+				console.debug("Authenticating anonymously...");
+				firebase.auth().signInAnonymously().then(() => {
+					console.debug("Auth successful :)");
+				})
+				.catch((e) => {
+					console.error(`Auth unsuccessful :( More info below:\n${e.code}: ${e.message}`);
+				});
 
 				resolve();
 			} else {
