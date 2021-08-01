@@ -155,26 +155,37 @@ async function createRoom() {
 	return roomId;
 }
 
-function leaveRoom() {
+async function leaveRoom() {
 	// TODO: Handle us leaving mid-game - Re-assign the czar if it's us, maybe add our cards back in the pile
-
-	console.debug(`Leaving room ${store.state.room.roomId}!`);
-
+	console.debug(`Leaving room ${store.state.room.roomId}...`);
+	
 	initializeFirebase().then(() => {
+		// Unsubscribe so we stop recieving updates
 		if(unsubFromRoomDoc !== null) unsubFromRoomDoc();
 		if(unsubFromChatDoc !== null) unsubFromChatDoc();
 		if(unsubFromUserDoc !== null) unsubFromUserDoc();
 		
-		if(userDocRef !== null) userDocRef.delete().catch(e => console.error(e));
-	
-		if(roomDocRef !== null) roomDocRef.update(`players.${store.state.user.username}`, firebase.firestore.FieldValue.delete());
+		// Get rid of our individual document
+		if(userDocRef !== null) userDocRef.delete()
+		.catch(e => console.error(`${e.code}: ${e.message}`));
 
+		// Remove us from the list of players
+		if(roomDocRef !== null) roomDocRef.update(`users.${store.state.user.username}`, firebase.firestore.FieldValue.delete())
+		.catch(e => console.error(`${e.code}: ${e.message}`));
+
+		// Reset our references
 		roomDocRef = null;
 		userDocRef = null;
-	});
 
-	store.commit('user/reset');
-	store.commit('room/reset');
+		// Reset our state
+		store.commit('user/reset');
+		store.commit('room/reset');
+
+		console.debug(`Room left.`)
+	})
+	.catch(e => {
+		console.error(`${e.code}: ${e.message}`);
+	});
 }
 
 // Lobby Functionality /////////////////////////////////////////////////////////////
