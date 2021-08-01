@@ -42,7 +42,6 @@ async function initializeFirebase() {
 	unsubFromRoomDoc =        (roomDocRef === null) ? null : roomDocRef.onSnapshot(snap => onRoomUpdate(snap));
 	unsubFromChatDoc =        (chatDocRef === null) ? null : chatDocRef.onSnapshot(snap => onChatUpdate(snap));
 	unsubFromUserDoc =        (userDocRef === null) ? null : userDocRef.onSnapshot(snap => onUserUpdate(snap));
-	console.log(typeof unsubFromRoomDoc);
 
 	// Analytics
 	if(process.env.NODE_ENV === 'production') firebase.analytics();
