@@ -3,26 +3,24 @@ import 'firebase/firestore';
 import dayjs from 'dayjs';
 import router from '@/router';
 
-function initialState() {
-	return {
-		roomId: null,
-		gameState: null,
-		users: [], // This is a map in our DB, but it's easier to work with as an array on the client.
-		settings: {},
-		chatMessages: [],
-		turn: {
-			round: null,
-			status: null,
-			questionCard: null,
-			czar: null,
-			playedCards: [],
-			winningCard: null,
-		},
-		winner: null
-	}
-}
+const initialState = {
+	roomId: null, 
+	gameState: null,
+	users: [], // This is a map in our DB, but it's easier to work with as an array on the client.
+	settings: {},
+	chatMessages: [],
+	turn: {
+		round: null,
+		status: null,
+		questionCard: null,
+		czar: null,
+		playedCards: [],
+		winningCard: null,
+	},
+	winner: null
+};
 
-const state = initialState();
+let state = initialState;
 
 const mutations = { // Preceding '_' means the mutation should only be called from within an action.
 	setRoomId: (state, roomId) => state.roomId = String(roomId),
@@ -37,12 +35,7 @@ const mutations = { // Preceding '_' means the mutation should only be called fr
 	updatePlayedCards: (state, newPlayedCards) => state.turn.playedCards = newPlayedCards,
 	updateWinningCard: (state, card) => state.turn.winningCard = card,
 	setGameWinner: (state, username) => state.winner = username,
-	reset: (state) => {
-		const initial = initialState();
-		Object.keys(initial).forEach(key => {
-			state[key] = initial[key]
-		});
-	}
+	reset: (state) => Object.keys(initialState).forEach(key => state[key] = initialState[key])
 }
 
 const actions = {

@@ -1,13 +1,11 @@
-function initialState() {
-	return {
-		username: "",
-		hand: {},
-		isPrivileged: false,
-		playedThisTurn: false
-	}
-}
+const initialState = {
+	username: "",
+	hand: {},
+	isPrivileged: false,
+	playedThisTurn: false
+};
 
-const state = initialState();
+let state = initialState;
 
 const mutations = {
 	setUsername: (state, username) => state.username = String(username),
@@ -15,12 +13,7 @@ const mutations = {
 	setPlayedThisTurn: (state, playedThisTurn) => state.playedThisTurn = playedThisTurn,
 	updateHand: (state, newHand) => state.hand = newHand,
 	updatePoints: (state, numPoints) => state.points = numPoints,
-	reset: (state) => {
-		const initial = initialState();
-		Object.keys(initial).forEach(key => {
-			state[key] = initial[key]
-		});
-	}
+	reset: (state) => Object.keys(initialState).forEach(key => state[key] = initialState[key])
 }
 
 const	actions = {}
