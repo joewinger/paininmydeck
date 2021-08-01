@@ -2,6 +2,11 @@
   --ui-border-width: 2px;
   --ui-font-weight: 500;
 
+  /* Used to define margin-top when an element bumps up
+   * against the nav bar. Not defined on the #row-content
+   * element because not every view will require the margin. */
+  --content-gutter-top: 10px;
+
   --_gray-hue: 215;
   --gray-500: hsl(var(--_gray-hue), 5%, 15%);
   --gray-400: hsl(var(--_gray-hue), 5%, 28%);
