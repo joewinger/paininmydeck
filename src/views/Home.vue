@@ -2,7 +2,7 @@
 	<div id="home">
 		<h1>Pain in my Deck!</h1>
 
-		<input type="text" v-model="roomId" @keyup.enter="joinRoom" placeholder="Room ID">
+		<input type="text" v-model="roomId" @keyup.enter="joinRoom()" placeholder="Room ID">
 		<br>
 		<button-loadable @click="joinRoom">Join Game</button-loadable>
 		<button-loadable @click="createRoom">Start a new Game!</button-loadable>
@@ -24,15 +24,15 @@ export default {
 		}
 	},
 	methods: {
-		joinRoom (btnCallback) {
-			if(this.roomId == "") return;
+		joinRoom (btnCallback = () => {}) {
+			if (this.roomId == "") return;
 			btnCallback();
 			this.$router.push({ name: 'lobby', params: {roomId: this.roomId} });
 		},
-		async createRoom (btnCallback) {
+		async createRoom (btnCallback = () => {}) {
 			let roomId = await dbManager.createRoom();
 
-			if(roomId !== false) {
+			if (roomId !== false) {
 				this.$router.push({ name: 'lobby', params: {roomId: roomId} });
 			}
 			
