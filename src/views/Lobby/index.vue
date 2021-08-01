@@ -1,16 +1,16 @@
 <template>
 	<div id="lobby">
-		<SetUsernameModal v-if="this.$store.state.user.username == ''"></SetUsernameModal>
+		<SetUsernameModal v-if="username == ''"></SetUsernameModal>
 		
 		<h3>Players</h3>
-		<ul :class="{blur: this.$store.state.user.username == ''}">
-			<li v-for="user in this.$store.state.room.users" :key="user.username">
+		<ul :class="{blur: username == ''}">
+			<li v-for="user in allUsers" :key="user.username">
 				<LobbyUser :user="user"></LobbyUser>
 			</li>
 		</ul>
 		
-		<div v-if="this.$store.state.user.username != ''">
-			<button-loadable @click.once="startGame" v-if="this.$store.state.user.isPrivileged">Start Game</button-loadable>
+		<div v-if="username != ''">
+			<button-loadable @click.once="startGame" v-if="isPrivileged">Start Game</button-loadable>
 		</div>
 	</div>
 </template>
@@ -20,6 +20,7 @@ import dbManager from '@/dbManager';
 import SetUsernameModal from './LobbySetUsernameModal';
 import LobbyUser from './LobbyUser';
 import ButtonLoadable from '@/components/ButtonLoadable.vue';
+import { mapState } from 'vuex';
 
 export default {
 	name: 'Lobby',
@@ -27,6 +28,10 @@ export default {
 		SetUsernameModal,
 		LobbyUser,
 		ButtonLoadable
+	},
+	computed: {
+		...mapState('user', [ 'username', 'isPrivileged' ]),
+		...mapState('room', { allUsers: state => state.users })
 	},
 	methods: {
 		async startGame(btnCallback) {

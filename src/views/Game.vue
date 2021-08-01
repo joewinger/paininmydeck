@@ -1,19 +1,19 @@
 <template>
 	<div id="game">
-		<QuestionCard :text="$store.state.room.turn.questionCard"></QuestionCard>
+		<QuestionCard :text="questionText"></QuestionCard>
 
-		<InfoBar text="You are the Card Czar!" v-if="$store.getters['user/isCzar']"></InfoBar>
-		<InfoBar text="Waiting for everyone to play a card..." v-if="$store.state.user.playedThisTurn && $store.state.room.turn.status === 'WAITING_FOR_CARDS'" ></InfoBar>
-		<InfoBar :text="`Waiting for ${$store.state.room.turn.czar} to pick a winner...`" v-if="$store.state.user.playedThisTurn && $store.state.room.turn.status === 'WAITING_FOR_CZAR'"></InfoBar>
+		<InfoBar text="You are the Card Czar!" v-if="isCzar"></InfoBar>
+		<InfoBar text="Waiting for everyone to play a card..." v-if="playedThisTurn && turnStatus === 'WAITING_FOR_CARDS'" ></InfoBar>
+		<InfoBar :text="`Waiting for ${czar} to pick a winner...`" v-if="playedThisTurn && turnStatus === 'WAITING_FOR_CZAR'"></InfoBar>
 
-		<div id="playedCardsContainer" v-if="$store.getters['user/isCzar'] || $store.state.user.playedThisTurn">
-			<WhiteCard v-for="(card, index) in $store.state.room.turn.playedCards"
+		<div id="playedCardsContainer" v-if="isCzar || playedThisTurn">
+			<WhiteCard v-for="(card, index) in playedCards"
 				:key=index
 				:text=card.text
-				:facedown="$store.state.room.turn.status === 'WAITING_FOR_CARDS'" />
+				:facedown="turnStatus === 'WAITING_FOR_CARDS'" />
 		</div>
 
-		<Hand v-if="!$store.getters['user/isCzar'] && !$store.state.user.playedThisTurn" :cards="$store.state.user.hand"></Hand>
+		<Hand v-if="!isCzar && !playedThisTurn" :cards="hand"></Hand>
 	</div>
 </template>
 
@@ -22,6 +22,7 @@ import InfoBar from '@/components/InfoBar';
 import QuestionCard from '@/components/QuestionCard';
 import WhiteCard from '@/components/WhiteCard';
 import Hand from '@/components/Hand';
+import { mapState, mapGetters } from 'vuex';
 
 export default {
 	name: 'Game',
@@ -30,6 +31,21 @@ export default {
 		QuestionCard,
 		WhiteCard,
 		Hand
+	},
+	computed: {
+		...mapState('room', {
+			questionText: state => state.turn.questionCard,
+			turnStatus: state => state.turn.status,
+			playedCards: state => state.turn.playedCards,
+			czar: state => state.turn.czar
+		}),
+		...mapState('user', [
+			'playedThisTurn',
+			'hand'
+		]),
+		...mapGetters('user', {
+			isCzar: 'isCzar'
+		})
 	}
 }
 </script>
