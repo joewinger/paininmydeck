@@ -2,8 +2,8 @@
 	<div id="lobby">
 		<SetUsernameModal v-if="this.$store.state.user.username == ''"></SetUsernameModal>
 		
+		<h3>Players</h3>
 		<ul :class="{blur: this.$store.state.user.username == ''}">
-			Users:
 			<li v-for="user in this.$store.state.room.users" :key="user.username">
 				<LobbyUser :user="user"></LobbyUser>
 			</li>
@@ -44,9 +44,26 @@ export default {
 
 <style>
 #lobby {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 10px;
+
+	padding-top: var(--content-gutter-top);
   color: inherit;
 }
 #lobby .blur {
 	filter: blur(1px);
+}
+
+#lobby h3 {
+	margin: 0;
+}
+#lobby ul {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 0;
 }
 </style>
