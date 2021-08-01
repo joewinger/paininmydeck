@@ -4,7 +4,7 @@
     '--gradient-from': $store.getters['room/getCzarColorSet'][0],
     '--gradient-to': $store.getters['room/getCzarColorSet'][1]
   }">
-    {{ this.text | blankify }}
+    {{ text | blankify }}
   </div>
 </template>
 
