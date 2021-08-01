@@ -1,19 +1,19 @@
 <template>
 	<div id="game">
-		<QuestionCard :text="this.$store.state.room.turn.questionCard"></QuestionCard>
+		<QuestionCard :text="$store.state.room.turn.questionCard"></QuestionCard>
 
 		<InfoBar text="You are the Card Czar!" v-if="$store.getters['user/isCzar']"></InfoBar>
-		<InfoBar text="Waiting for everyone to play a card..." v-if="this.$store.state.user.playedThisTurn && this.$store.state.room.turn.status === 'WAITING_FOR_CARDS'" ></InfoBar>
-		<InfoBar :text="`Waiting for ${this.$store.state.room.turn.czar} to pick a winner...`" v-if="this.$store.state.user.playedThisTurn && this.$store.state.room.turn.status === 'WAITING_FOR_CZAR'"></InfoBar>
+		<InfoBar text="Waiting for everyone to play a card..." v-if="$store.state.user.playedThisTurn && $store.state.room.turn.status === 'WAITING_FOR_CARDS'" ></InfoBar>
+		<InfoBar :text="`Waiting for ${$store.state.room.turn.czar} to pick a winner...`" v-if="$store.state.user.playedThisTurn && $store.state.room.turn.status === 'WAITING_FOR_CZAR'"></InfoBar>
 
-		<div id="playedCardsContainer" v-if="$store.getters['user/isCzar'] || this.$store.state.user.playedThisTurn">
-			<WhiteCard v-for="(card, index) in this.$store.state.room.turn.playedCards"
+		<div id="playedCardsContainer" v-if="$store.getters['user/isCzar'] || $store.state.user.playedThisTurn">
+			<WhiteCard v-for="(card, index) in $store.state.room.turn.playedCards"
 				:key=index
 				:text=card.text
 				:facedown="$store.state.room.turn.status === 'WAITING_FOR_CARDS'" />
 		</div>
 
-		<Hand v-if="!this.$store.getters['user/isCzar'] && !this.$store.state.user.playedThisTurn" :cards="this.$store.state.user.hand"></Hand>
+		<Hand v-if="!$store.getters['user/isCzar'] && !$store.state.user.playedThisTurn" :cards="$store.state.user.hand"></Hand>
 	</div>
 </template>
 
