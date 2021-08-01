@@ -10,7 +10,7 @@
 		</ul>
 		
 		<div v-if="username != ''">
-			<button-loadable @click.once="startGame" v-if="isPrivileged">Start Game</button-loadable>
+			<button-loadable @click="startGame" v-if="isPrivileged">Start Game</button-loadable>
 		</div>
 	</div>
 </template>
@@ -29,18 +29,29 @@ export default {
 		LobbyUser,
 		ButtonLoadable
 	},
+	data() {
+		return {
+			minPlayers: 3,
+			starting: false
+		}
+	},
 	computed: {
 		...mapState('user', [ 'username', 'isPrivileged' ]),
 		...mapState('room', { allUsers: state => state.users })
 	},
 	methods: {
 		async startGame(btnCallback) {
-			// if(this.$store.state.room.users.length < 3) {
-			//   console.log("Not enough users to start game!");
-			//   return;
-			// }
-			console.log("Starting the game!")
+			if(this.starting) return;
+			if(this.$store.state.room.users.length < this.minPlayers) {
+				this.$store.dispatch('error', `At least ${this.minPlayers} players are needed to start a game!`);
+				btnCallback();
+				return;
+			}
+
+			console.log("Starting the game!");
+			this.starting = true;
 			await dbManager.startGame();
+			this.starting = false;
 			btnCallback();
 		}
 	}
