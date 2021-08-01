@@ -17,13 +17,27 @@ const persistence = new statePersistence({
 
 const store = new Vuex.Store({
 	strict: process.env.NODE_ENV !== 'production',
-
+	state: {
+		error: ''
+	},
 	modules: {
 		room,
 		user
 	},
 	mutations: {
-		RESTORE_STATE_MUTATION: persistence.RESTORE_STATE_MUTATION
+		RESTORE_STATE_MUTATION: persistence.RESTORE_STATE_MUTATION,
+		SET_ERROR: (state, message) => state.error = message
+	},
+	actions: {
+		error: ({ commit }, message) => {
+			commit('SET_ERROR', message);
+
+			if (message != '') console.debug(`[Error Toast] ${message}`);
+
+			setTimeout(() => {
+				commit('SET_ERROR', '');
+			}, 5000)
+		}
 	},
 	plugins: [persistence.plugin]
 });
