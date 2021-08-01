@@ -5,42 +5,42 @@
 		</transition>
 		<div id="statusMenu" :class="{hidden: $store.state.user.username === '', open: open}">
 			<div id="statusBar">
-				<StatusBarButton
+				<status-bar-button
 					:class="{active: currentMenu === 'INFO'}"
 					@click.native="toggleMenu('INFO')"
 				>
 					<ion-icon name="information-circle-outline"></ion-icon>
-				</StatusBarButton>
+				</status-bar-button>
 
-				<StatusBarButton
+				<status-bar-button
 					:class="{ active: currentMenu === 'CHAT' }"
 					@click.native="toggleMenu('CHAT')"
 				>
 					<ion-icon :name="hasUnreadMessages ? 'chatbubble-ellipses-outline' : 'chatbubble-outline'"></ion-icon>
-				</StatusBarButton>
+				</status-bar-button>
 				
-				<StatusBarButton
+				<status-bar-button
 					:class="{active: currentMenu === 'SETTINGS'}"
 					@click.native="toggleMenu('SETTINGS')"
 					v-if="$route.name === 'lobby'"
 				>
 					<ion-icon name="settings-outline"></ion-icon>
-				</StatusBarButton>
+				</status-bar-button>
 
-				<StatusBarButton
+				<status-bar-button
 					:class="{active: currentMenu === 'LEADERBOARD'}"
 					@click.native="toggleMenu('LEADERBOARD')"
 					v-if="$route.name === 'game' || $route.name === 'endgame'"
 				>
 					<ion-icon name="people-circle-outline"></ion-icon>
-				</StatusBarButton>
+				</status-bar-button>
 			</div>
 			<div id="statusMenuContent-container">
 				<transition name="slide" mode="out-in">
-					<StatusMenuContentInfo v-if="currentMenu === 'INFO'" />
-					<StatusMenuContentChat v-if="currentMenu === 'CHAT'" />
-					<StatusMenuContentSettings v-if="currentMenu === 'SETTINGS'" />
-					<StatusMenuContentLeaderboard v-if="currentMenu === 'LEADERBOARD'" />
+					<status-menu-content-info v-if="currentMenu === 'INFO'" />
+					<status-menu-content-chat v-if="currentMenu === 'CHAT'" />
+					<status-menu-content-settings v-if="currentMenu === 'SETTINGS'" />
+					<status-menu-content-leaderboard v-if="currentMenu === 'LEADERBOARD'" />
 				</transition>
 			</div>
 		</div>

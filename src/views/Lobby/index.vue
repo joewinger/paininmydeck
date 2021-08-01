@@ -1,11 +1,11 @@
 <template>
 	<div id="lobby">
-		<SetUsernameModal v-if="username == ''"></SetUsernameModal>
+		<set-username-modal v-if="username == ''" />
 		
 		<h3>Players</h3>
 		<ul :class="{blur: username == ''}">
 			<li v-for="user in allUsers" :key="user.username">
-				<LobbyUser :user="user"></LobbyUser>
+				<lobby-user :user="user" />
 			</li>
 		</ul>
 		

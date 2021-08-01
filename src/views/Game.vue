@@ -1,19 +1,19 @@
 <template>
 	<div id="game">
-		<QuestionCard :text="questionText"></QuestionCard>
+		<question-card :text="questionText"></question-card>
 
-		<InfoBar text="You are the Card Czar!" v-if="isCzar"></InfoBar>
-		<InfoBar text="Waiting for everyone to play a card..." v-if="playedThisTurn && turnStatus === 'WAITING_FOR_CARDS'" ></InfoBar>
-		<InfoBar :text="`Waiting for ${czar} to pick a winner...`" v-if="playedThisTurn && turnStatus === 'WAITING_FOR_CZAR'"></InfoBar>
+		<info-bar text="You are the Card Czar!" v-if="isCzar"></info-bar>
+		<info-bar text="Waiting for everyone to play a card..." v-if="playedThisTurn && turnStatus === 'WAITING_FOR_CARDS'" ></info-bar>
+		<info-bar :text="`Waiting for ${czar} to pick a winner...`" v-if="playedThisTurn && turnStatus === 'WAITING_FOR_CZAR'"></info-bar>
 
 		<div id="playedCardsContainer" v-if="isCzar || playedThisTurn">
-			<WhiteCard v-for="(card, index) in playedCards"
+			<white-card v-for="(card, index) in playedCards"
 				:key=index
 				:text=card.text
 				:facedown="turnStatus === 'WAITING_FOR_CARDS'" />
 		</div>
 
-		<Hand v-if="!isCzar && !playedThisTurn" :cards="hand"></Hand>
+		<hand v-if="!isCzar && !playedThisTurn" :cards="hand"></hand>
 	</div>
 </template>
 
