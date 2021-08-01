@@ -31,7 +31,10 @@ const routes = [
         console.log(e);
         if(e === 'ALREADY_IN_THIS_ROOM') {
           next();
-        } else next('/');
+        } else {
+          store.dispatch('error', `${e.code}: ${e.message}`);
+          next('/');
+        }
       });
     }
   },
