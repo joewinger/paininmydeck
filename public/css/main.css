@@ -47,6 +47,9 @@ input {
   color: var(--gray-400);
   text-align: center;
 }
+input[type='text'] {
+  -webkit-appearance: none;
+}
 
 button {
   margin: 2px;
