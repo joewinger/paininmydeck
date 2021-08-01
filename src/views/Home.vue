@@ -1,11 +1,14 @@
 <template>
 	<div id="home">
-		<h1>Pain in my Deck!</h1>
+		<h1>Pain in my Deck</h1>
 
-		<input type="text" v-model="roomId" @keyup.enter="joinRoom()" placeholder="Room ID">
-		<br>
-		<button-loadable @click="joinRoom">Join Game</button-loadable>
-		<button-loadable @click="createRoom">Start a new Game!</button-loadable>
+		<h3>Join a game</h3>
+			<input type="text" v-model="roomId" @keyup.enter="joinRoom()" placeholder="Room ID">
+			<button-loadable @click="joinRoom" class="primary" style="margin-top: -5px;">Join Game</button-loadable>
+		<h3>Or start your own</h3>
+		<div style="display: flex; gap: 5px;">
+			<button-loadable @click="createRoom">Start a new Game</button-loadable>
+		</div>
 	</div>
 </template>
 
@@ -48,7 +51,15 @@ export default {
   flex-direction: column;
   align-items: center;
 	justify-content: center;
+	gap: 15px;
 
 	height: 100%;
+}
+#home h1 {
+	font-size: 10vmin;
+	/* font-weight: 800; */
+}
+#home h3 {
+	margin-bottom: 0;
 }
 </style>
