@@ -23,8 +23,12 @@ export default {
 	},
 	methods: {
 		addUser() {
+			if(this.username == '') {
+				this.$store.dispatch('error', 'Username can not be blank!');
+				return;
+			}
 			if(this.$store.state.room.users.some((user) => user.username == this.username)) { // Is there already a user with this name?
-				console.log(`Username ${this.username} already in use :(`);
+				this.$store.dispatch('error', `The username ${this.username} has already been taken!`);
 				this.username = '';
 				return;
 			}
