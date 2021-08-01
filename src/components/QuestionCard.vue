@@ -1,6 +1,9 @@
 <template>
   <div class="questionCard"
-  :style="`background-image: linear-gradient(135deg, ${$store.getters['room/getCzarColorSet'][0]} 0%, ${$store.getters['room/getCzarColorSet'][1]} 100%)`">
+  :style="{
+    '--gradient-from': $store.getters['room/getCzarColorSet'][0],
+    '--gradient-to': $store.getters['room/getCzarColorSet'][1]
+  }">
     {{ this.text | blankify }}
   </div>
 </template>
@@ -25,6 +28,7 @@ export default {
 	padding: 50px 15px 15px 15px;
 	margin: 10px 0;
   
+  background-image: linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-to) 100%);
   border-radius: 15px;
   border: 4px solid #0E0E0E22;
   background-origin: border-box;
