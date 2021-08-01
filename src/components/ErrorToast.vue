@@ -41,10 +41,11 @@ export default {
   background-color: var(--error-100);
   border: var(--ui-border-width) solid var(--error-200);
   color: var(--error-500);
-  border-radius: 5px;
+  border-radius: 7px;
 
   cursor: pointer;
   transition: transform 0.3s, opacity 0.3s;
+  z-index: 99999;
 }
 
 #errorToast .title {
