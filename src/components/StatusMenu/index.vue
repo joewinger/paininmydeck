@@ -13,10 +13,10 @@
 				</status-bar-button>
 
 				<status-bar-button
-					:class="{ active: currentMenu === 'CHAT' }"
+					:class="{ active: currentMenu === 'CHAT', notification: hasUnreadMessages }"
 					@click.native="toggleMenu('CHAT')"
 				>
-					<ion-icon :name="hasUnreadMessages ? 'chatbubble-ellipses-outline' : 'chatbubble-outline'"></ion-icon>
+					<ion-icon name="chatbubble-outline"></ion-icon>
 				</status-bar-button>
 				
 				<status-bar-button
