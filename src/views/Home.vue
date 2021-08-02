@@ -28,16 +28,16 @@ export default {
 	},
 	methods: {
 		joinRoom (btnCallback = () => {}) {
-			if (this.roomId == "") return;
+			if (this.roomId != "") this.$router.push({ name: 'lobby', params: {roomId: this.roomId} });
+			else this.$store.dispatch('error', 'Please enter a valid room number! 🤡');
+			
 			btnCallback();
-			this.$router.push({ name: 'lobby', params: {roomId: this.roomId} });
 		},
 		async createRoom (btnCallback = () => {}) {
 			let roomId = await dbManager.createRoom();
 
-			if (roomId !== false) {
-				this.$router.push({ name: 'lobby', params: {roomId: roomId} });
-			}
+			if (roomId !== false) this.$router.push({ name: 'lobby', params: {roomId: roomId} });
+			else this.$store.dispatch('error', 'Error creating room :( Try again in a little while.')
 			
 			btnCallback();
 		}
