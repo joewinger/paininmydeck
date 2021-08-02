@@ -92,55 +92,55 @@ function generateUserColorSet() {
 
 async function joinRoom(roomId) {
 	await initializeFirebase();
-	return new Promise((resolve, reject) => {
+
 		console.group("dbManager.joinRoom");
 		console.debug(`Attempting to join room ${roomId}...`);
 		
 		if(store.state.room.roomId === roomId) { // If we're already in this room -- i.e. if we reload our tab while in lobby
 			console.debug("Aborting! We're already connected to this room.");
 			console.groupEnd();
-			reject('ALREADY_IN_THIS_ROOM');
 			return;
 		}
 
-		if(store.state.room.roomId !== null) leaveRoom();
+	if(store.state.room.roomId !== null) await leaveRoom();
 
 		roomDocRef = db.doc(`games/${roomId}`);
+	const roomDocSnapshot = await roomDocRef.get()
+	.catch(function(err) {
+		console.debug("Error getting document: ", err);
+		console.groupEnd();
+		throw err;
+	});
 
-		roomDocRef.get().then(function(roomDocSnapshot) {
-			if (roomDocSnapshot.exists) {
+	if (!roomDocSnapshot.exists) {
+		console.debug(`Room ${roomId} doesn't exist :(`);
+		roomDocRef = null;
+		throw 'ROOM_DOES_NOT_EXIST';
+	}
+	
 				console.debug("Success! Room document retrieved.", roomDocSnapshot.data());
-
+	// Grant us privileges if we're the first player
 				if(Object.keys(roomDocSnapshot.data().users).length === 0) store.commit('user/setPrivileged');
+	// Save this roomId so we know we should be connected here
 				store.commit('room/setRoomId', roomDocSnapshot.id);
-				
+	// Save our chat document for reference later
 				chatDocRef = db.doc(`games/${roomId}/meta/chat`);
-
-				// Start watching this room & save the returned unsubscribe function for later.
+	// Start watching the documents & save the returned unsubscribe functions for later.
 				unsubFromRoomDoc = roomDocRef.onSnapshot(snap => onRoomUpdate(snap));
 				unsubFromChatDoc = chatDocRef.onSnapshot(snap => onChatUpdate(snap));
 
+	// Authenticate us while we join.
+	// Don't use await here, as this can finish in the background.
 				console.debug("Authenticating anonymously...");
-				firebase.auth().signInAnonymously().then(() => {
+	firebase.auth().signInAnonymously()
+	.then(() => {
 					console.debug("Auth successful :)");
-				})
-				.catch((e) => {
-					console.error(`Auth unsuccessful :( More info below:\n${e.code}: ${e.message}`);
+	}).catch((e) => {
+		console.error("Auth unsuccessful :( More info below:", `${e.code}: ${e.message}`);
 				});
 
-				resolve();
-			} else {
-				console.debug(`Room ${roomId} doesn't exist :(`);
-				roomDocRef = null;
-				reject('ROOM_DOES_NOT_EXIST');
-			}
 			console.groupEnd();
-		}).catch(function(err) {
-			console.debug("Error getting document: ", err);
-			console.groupEnd();
-			reject(err)
-		});
-	});
+	return;
 }
 
 async function createRoom() {
