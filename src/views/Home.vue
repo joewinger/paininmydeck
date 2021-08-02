@@ -29,7 +29,7 @@ export default {
 	methods: {
 		joinRoom (btnCallback = () => {}) {
 			if (this.roomId != "") this.$router.push({ name: 'lobby', params: {roomId: this.roomId} });
-			else this.$store.dispatch('error', 'Please enter a valid room number! 🤡');
+			else this.$store.dispatch('error', { message: 'Please enter a valid room number! 🤡' });
 			
 			btnCallback();
 		},
@@ -37,7 +37,7 @@ export default {
 			let roomId = await dbManager.createRoom();
 
 			if (roomId !== false) this.$router.push({ name: 'lobby', params: {roomId: roomId} });
-			else this.$store.dispatch('error', 'Error creating room :( Try again in a little while.')
+			else this.$store.dispatch('error', { message: 'Error creating room :( Try again in a little while.' });
 			
 			btnCallback();
 		}

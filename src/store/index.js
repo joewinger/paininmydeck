@@ -18,7 +18,7 @@ const persistence = new statePersistence({
 const store = new Vuex.Store({
 	strict: process.env.NODE_ENV !== 'production',
 	state: {
-		error: ''
+		error: {}
 	},
 	modules: {
 		room,
@@ -26,17 +26,22 @@ const store = new Vuex.Store({
 	},
 	mutations: {
 		RESTORE_STATE_MUTATION: persistence.RESTORE_STATE_MUTATION,
-		SET_ERROR: (state, message) => state.error = message
+		SET_ERROR: (state, options) => state.error = options
 	},
 	actions: {
-		error: ({ commit }, message) => {
-			commit('SET_ERROR', message);
+		error: ({ commit }, { title = 'Error', message = '', type = 'ERROR', durationMs = 5000 } = {}) => {
+			// If there's no message, reset the error (i.e. if the user
+			// taps the error toast we call $store.dispatch('error', {}) to close it)
+			if (!message) commit('SET_ERROR', {});
+			else {
+				commit('SET_ERROR', { title, message, type }); // No reason to pass along durationMs, only used here. 
+				console.debug(`[Notification] ${title}: ${message}`);
+			}
 
-			if (message != '') console.debug(`[Error Toast] ${message}`);
-
+			// Close the toast after durationMs millis
 			setTimeout(() => {
-				commit('SET_ERROR', '');
-			}, 5000)
+				commit('SET_ERROR', {});
+			}, durationMs)
 		}
 	},
 	plugins: [persistence.plugin]

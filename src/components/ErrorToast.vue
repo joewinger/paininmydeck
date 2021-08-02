@@ -1,9 +1,9 @@
 <template>
 	<transition appear name="toast">
-		<div id="errorToast" @click="close" v-if="$store.state.error">
-			<span class="title">Error</span>
+		<div id="errorToast" @click="close" v-if="$store.state.error.message">
+			<span class="title">{{ $store.state.error.title }}</span>
       <span class="errorMessage">
-        {{ $store.state.error }}
+        {{ $store.state.error.message }}
       </span>
       <div class="close">&times;</div>
 		</div>
@@ -15,7 +15,7 @@ export default {
 	name: 'ErrorToast',
   methods: {
     close() {
-      this.$store.dispatch('error', '');
+      this.$store.dispatch('error', {});
     }
   }
 }
