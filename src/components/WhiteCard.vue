@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import dbManager from '@/dbManager'
+// import { chooseCard, playCard } from '@/dbManager'
 
 export default {
 	name: 'WhiteCard',
@@ -21,12 +21,11 @@ export default {
 			if(this.text == null || this.facedown) return;
 
 			if(this.$store.getters['user/isCzar']) {
-				dbManager.chooseCard(this.text);
+				this.$game.chooseCard(this.text);
 			} else {
 				if(this.$store.state.user.playedThisTurn) return;
 
-				dbManager.playCard(this.text);
-				this.$store.commit('user/setPlayedThisTurn', true);
+				this.$game.playCard(this.text);
 			}
 		}
 	},

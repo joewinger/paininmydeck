@@ -16,7 +16,6 @@
 </template>
 
 <script>
-import dbManager from '@/dbManager';
 import SetUsernameModal from './LobbySetUsernameModal';
 import LobbyUser from './LobbyUser';
 import ButtonLoadable from '@/components/ButtonLoadable.vue';
@@ -50,7 +49,7 @@ export default {
 
 			console.log("Starting the game!");
 			this.starting = true;
-			await dbManager.startGame();
+			await this.$game.startGame();
 			this.starting = false;
 			btnCallback();
 		}

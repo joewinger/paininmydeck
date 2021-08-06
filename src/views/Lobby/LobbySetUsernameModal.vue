@@ -11,8 +11,6 @@
 </template>
 
 <script>
-import dbManager from '@/dbManager';
-
 export default {
 	name: 'SetUsernameModal',
 	data () {
@@ -35,7 +33,7 @@ export default {
 
 			sessionStorage.setItem('username', this.username);
 			localStorage.setItem('username', this.username);
-			dbManager.addUser(this.username);
+			this.$game.addUser(this.username);
 		}
 	}
 }

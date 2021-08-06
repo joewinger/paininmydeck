@@ -13,7 +13,6 @@
 </template>
 
 <script>
-import dbManager from '@/dbManager';
 import ButtonLoadable from '@/components/ButtonLoadable';
 
 export default {
@@ -34,7 +33,7 @@ export default {
 			btnCallback();
 		},
 		async createRoom (btnCallback = () => {}) {
-			let roomId = await dbManager.createRoom();
+			let roomId = await this.$game.createRoom();
 
 			if (roomId !== false) this.$router.push({ name: 'lobby', params: {roomId: roomId} });
 			else this.$store.dispatch('error', { message: 'Error creating room :( Try again in a little while.' });
