@@ -28,13 +28,14 @@ const routes = [
       dbManager.joinRoom(to.params.roomId)
       .then(() => next())
       .catch((e) => {
-        console.log(e);
-        if(e === 'ALREADY_IN_THIS_ROOM') {
-          next();
-        } else {
-          store.dispatch('error', `${e.code}: ${e.message}`);
+        if(e === 'ROOM_DOES_NOT_EXIST') {
+          store.dispatch('error', { title: 'Invalid Room ID', message: `No room exists with the ID ${to.params.roomId}` })
           next('/');
+          return;
         }
+        console.error(e);
+        store.dispatch('error', { message: `${e.code}: ${e.message}` });
+        next('/');
       });
     }
   },
