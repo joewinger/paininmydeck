@@ -1,10 +1,8 @@
 <template>
 	<div id="game">
-		<question-card :text="questionText"></question-card>
+		<question-card :text="questionText" />
 
-		<info-bar text="You are the Card Czar!" v-if="isCzar"></info-bar>
-		<info-bar text="Waiting for everyone to play a card..." v-if="playedThisTurn && turnStatus === 'WAITING_FOR_CARDS'" ></info-bar>
-		<info-bar :text="`Waiting for ${czar} to pick a winner...`" v-if="playedThisTurn && turnStatus === 'WAITING_FOR_CZAR'"></info-bar>
+		<info-bar :text=infoText v-if=infoText />
 
 		<div id="playedCardsContainer" v-if="isCzar || playedThisTurn">
 			<white-card v-for="(card, index) in playedCards"
@@ -13,7 +11,7 @@
 				:facedown="turnStatus === 'WAITING_FOR_CARDS'" />
 		</div>
 
-		<hand v-if="!isCzar && !playedThisTurn" :cards="hand"></hand>
+		<hand v-if="!isCzar && !playedThisTurn" :cards="hand" />
 	</div>
 </template>
 
@@ -33,6 +31,17 @@ export default {
 		Hand
 	},
 	computed: {
+		infoText() {
+			if (this.isCzar) {
+				return this.turnStatus === 'WAITING_FOR_CZAR' ? 'Select the winning card!' : 'You are the Card Czar!'
+			}
+			else if (this.playedThisTurn) {
+				if(this.turnStatus === 'WAITING_FOR_CARDS') return 'Waiting for everyone to play a card!'
+				if(this.turnStatus === 'WAITING_FOR_CZAR') return `Waiting for ${this.czar} to pick a winner...`
+			}
+			
+			return false;
+		},
 		...mapState('room', {
 			questionText: state => state.turn.questionCard,
 			turnStatus: state => state.turn.status,
@@ -60,14 +69,15 @@ export default {
 #playedCardsContainer {
 	width: 90vw;
 	display: grid;
-	height: auto;
 	grid-template-columns: repeat(auto-fill, minmax(150px, auto)); /* 150 = width of white card */
 	gap: 10px;
+	padding: 10px;
 
 	justify-items: center;
 
 	perspective: 800px;
 	
 	overflow-y: scroll;
+	overflow-x: visible;
 }
 </style>
