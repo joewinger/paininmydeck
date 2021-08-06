@@ -4,7 +4,7 @@ import Home from '@/views/Home';
 import Lobby from '@/views/Lobby';
 import Game from '@/views/Game';
 import EndGame from '@/views/EndGame';
-import dbManager from '@/dbManager';
+import GameManager from '@/gameManager';
 import store from '@/store';
 
 Vue.use(VueRouter);
@@ -16,7 +16,7 @@ const routes = [
     component: Home,
     beforeEnter: (to, from, next) => {
       // If our state indicates that we are in a room, leave it.
-      if(store.state.room.roomId !== null) dbManager.leaveRoom();
+      if(store.state.room.roomId !== null) GameManager.leaveRoom();
       next();
     }
   },
@@ -25,7 +25,7 @@ const routes = [
     name: 'lobby',
     component: Lobby,
     beforeEnter: (to, from, next) => {
-      dbManager.joinRoom(to.params.roomId)
+      GameManager.joinRoom(to.params.roomId)
       .then(() => next())
       .catch((e) => {
         console.log(e);
