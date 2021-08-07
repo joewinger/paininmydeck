@@ -4,6 +4,14 @@
 
 		<info-bar :text=infoText v-if=infoText />
 
+
+		<!-- <div id="cardArea">
+			<white-card v-for="(card, index) in playedCards"
+				:key=index
+				:text=card.text
+				:facedown="turnStatus === 'WAITING_FOR_CARDS'" />
+		</div> -->
+
 		<div id="playedCardsContainer" v-if="isCzar || playedThisTurn">
 			<white-card v-for="(card, index) in playedCards"
 				:key=index
@@ -52,9 +60,9 @@ export default {
 			'playedThisTurn',
 			'hand'
 		]),
-		...mapGetters('user', {
-			isCzar: 'isCzar'
-		})
+		...mapGetters('user', [
+			'isCzar'
+		])
 	}
 }
 </script>
