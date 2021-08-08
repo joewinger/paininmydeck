@@ -1,5 +1,5 @@
 <template>
-	<div class="whiteCard" :class="{facedown: this.facedown, winner: this.isWinner }" @click="playCard">
+	<div class="whiteCard" :class="{facedown: this.facedown, winner: this.isWinner }" @click="onClick">
 		<div class="card-text" v-if="!facedown">{{ this.text }}</div>
 		<div class="winner-credit" v-if="this.isWinner">
 			Played by: {{this.$store.state.room.turn.winningCard.playedBy}}
@@ -15,7 +15,7 @@ export default {
 		facedown: Boolean
 	},
 	methods: {
-		playCard() {
+		onClick() {
 			if(this.text == null || this.facedown) return;
 
 			if(this.$store.getters['user/isCzar']) {
