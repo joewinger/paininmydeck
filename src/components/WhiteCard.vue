@@ -8,8 +8,6 @@
 </template>
 
 <script>
-// import { chooseCard, playCard } from '@/dbManager'
-
 export default {
 	name: 'WhiteCard',
 	props: {
