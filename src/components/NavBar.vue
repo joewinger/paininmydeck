@@ -6,9 +6,11 @@
 		<div id="navbar-title">
 			Pain In My Deck!
 		</div>
+		<transition name="navbar-info">
 		<div id="navbar-info" v-if="$store.state.user.username !== ''">
 			Room<br/>{{ $store.state.room.roomId }}
 		</div>
+		</transition>
 	</div>
 </template>
 
@@ -77,5 +79,11 @@ export default {
 	height: 100%;
 	
 	font-size: 0.8em;
+
+	transition: transform 0.2s ease-out;
+}
+
+.navbar-info-enter, .navbar-info-leave-to {
+	transform: translateX(200%);
 }
 </style>
