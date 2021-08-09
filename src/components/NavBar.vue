@@ -7,9 +7,9 @@
 			Pain In My Deck!
 		</div>
 		<transition name="navbar-info">
-		<div id="navbar-info" v-if="$store.state.user.username !== ''">
-			Room<br/>{{ $store.state.room.roomId }}
-		</div>
+			<div id="navbar-info" v-if="$store.state.user.username !== ''">
+				Room<br/>{{ $store.state.room.roomId }}
+			</div>
 		</transition>
 	</div>
 </template>
@@ -22,7 +22,8 @@ export default {
 
 <style>
 #navbar {
-	position: relative;
+	position: sticky;
+	top: 0;
 
 	width: 100%;
 	height: 100%;

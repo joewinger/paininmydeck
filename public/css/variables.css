@@ -1,4 +1,6 @@
 :root {
+  --navbar-height: 42px;
+
   --ui-border-width: 2px;
   --ui-font-weight: 500;
 
@@ -7,6 +9,8 @@
    * element because not every view will require the margin. */
   --content-gutter-top: 10px;
 
+  /** Colors **/
+  
   --_gray-hue: 215;
   --gray-500: hsl(var(--_gray-hue), 5%, 15%);
   --gray-400: hsl(var(--_gray-hue), 5%, 28%);

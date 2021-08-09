@@ -28,7 +28,7 @@ export default {
 <style>
 #app {
 	display: grid;
-	grid-template-rows: [row-nav] 42px [row-content] 1fr [row-status] 70px;
+	grid-template-rows: [row-nav] var(--navbar-height) [row-content] 1fr [row-status] 70px;
 	width: 100%;
 	height: 100%;
 }

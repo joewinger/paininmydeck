@@ -20,13 +20,17 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .questionCard {
+  position: -webkit-sticky;
+  position: sticky;
+  top: calc( var(--navbar-height) + var(--content-gutter-top));
   display: flex;
   align-items: flex-end;
   
   width: 350px;
   min-height: 210px;
 	padding: 50px 15px 15px 15px;
-	margin: 10px 0;
+  margin-top: var(--content-gutter-top);
+	margin-bottom: 10px;
   
   background-image: linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-to) 100%);
   border-radius: 15px;
