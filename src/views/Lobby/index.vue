@@ -16,8 +16,8 @@
 </template>
 
 <script>
-import SetUsernameModal from './LobbySetUsernameModal';
-import LobbyUser from './LobbyUser';
+import SetUsernameModal from './Lobby_SetUsernameModal';
+import LobbyUser from './Lobby_User';
 import ButtonLoadable from '@/components/ButtonLoadable.vue';
 import { mapState } from 'vuex';
 
