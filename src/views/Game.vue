@@ -4,22 +4,13 @@
 
 		<info-bar :text=infoText v-if=infoText />
 
-
-		<!-- <div id="cardArea">
-			<white-card v-for="(card, index) in playedCards"
-				:key=index
-				:text=card.text
-				:facedown="turnStatus === 'WAITING_FOR_CARDS'" />
-		</div> -->
-
-		<div id="playedCardsContainer" v-if="isCzar || playedThisTurn">
-			<white-card v-for="(card, index) in playedCards"
-				:key=index
-				:text=card.text
-				:facedown="turnStatus === 'WAITING_FOR_CARDS'" />
+		<div id="cardContainer">
+			<white-card v-for="card in cardSet"
+				:key='card.text || card'
+				:text='card.text || card'
+				:facedown="playedThisTurn && turnStatus === 'WAITING_FOR_CARDS'" />
 		</div>
 
-		<hand v-if="!isCzar && !playedThisTurn" :cards="hand" />
 	</div>
 </template>
 
@@ -27,7 +18,6 @@
 import InfoBar from '@/components/InfoBar';
 import QuestionCard from '@/components/QuestionCard';
 import WhiteCard from '@/components/WhiteCard';
-import Hand from '@/components/Hand';
 import { mapState, mapGetters } from 'vuex';
 
 export default {
@@ -36,7 +26,6 @@ export default {
 		InfoBar,
 		QuestionCard,
 		WhiteCard,
-		Hand
 	},
 	computed: {
 		infoText() {
@@ -44,11 +33,16 @@ export default {
 				return this.turnStatus === 'WAITING_FOR_CZAR' ? 'Select the winning card!' : 'You are the Card Czar!'
 			}
 			else if (this.playedThisTurn) {
-				if(this.turnStatus === 'WAITING_FOR_CARDS') return 'Waiting for everyone to play a card!'
-				if(this.turnStatus === 'WAITING_FOR_CZAR') return `Waiting for ${this.czar} to pick a winner...`
+				if (this.turnStatus === 'WAITING_FOR_CARDS') return 'Waiting for everyone to play a card!'
+				if (this.turnStatus === 'WAITING_FOR_CZAR') return `Waiting for ${this.czar} to pick a winner...`
 			}
 			
 			return false;
+		},
+		cardSet() {
+			if (this.isCzar || this.playedThisTurn) return this.playedCards
+			if (!this.isCzar && !this.playedThisTurn) return this.hand
+			return null;
 		},
 		...mapState('room', {
 			questionText: state => state.turn.questionCard,
@@ -74,7 +68,7 @@ export default {
   flex-direction: column;
   align-items: center;
 }
-#playedCardsContainer {
+#cardContainer {
 	width: 90vw;
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(150px, auto)); /* 150 = width of white card */
