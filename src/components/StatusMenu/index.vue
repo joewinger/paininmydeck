@@ -97,6 +97,10 @@ export default {
 </script>
 
 <style>
+#statusMenuWrapper {
+	position: relative;
+	z-index: 2400;
+}
 #statusMenu {
 	display: grid;
 	grid-template-rows: 50px auto;
