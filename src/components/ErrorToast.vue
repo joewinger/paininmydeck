@@ -45,7 +45,7 @@ export default {
 
   cursor: pointer;
   transition: transform 0.3s, opacity 0.3s;
-  z-index: 99999;
+  z-index: 2900;
 }
 
 #errorToast .title {

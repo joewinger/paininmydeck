@@ -34,6 +34,8 @@ export default {
      -moz-user-select: none;
 			-ms-user-select: none;
 					user-select: none;
+	
+	z-index: 2400;
 }
 
 #navbar-back {

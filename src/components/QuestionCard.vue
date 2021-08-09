@@ -40,5 +40,7 @@ export default {
   font-size: 20pt;
 	font-weight: 700;
 	text-align: left;
+
+  z-index: 1800;
 }
 </style>

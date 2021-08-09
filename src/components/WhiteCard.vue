@@ -63,6 +63,8 @@ export default {
 	transition: transform 0.3s;
 	transform-style: preserve-3d;
 	-webkit-transform-style: preserve-3d;
+
+	z-index: 1200;
 }
 .whiteCard .card-text {
 	backface-visibility: hidden;

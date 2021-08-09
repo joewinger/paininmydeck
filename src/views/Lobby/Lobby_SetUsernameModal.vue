@@ -45,7 +45,7 @@ export default {
 	align-items: center;
 	justify-content: center;
 	position: fixed;
-	z-index: 9998;
+	z-index: 2500;
 	top: 0;
 	left: 0;
 	backdrop-filter: blur(1.4px);
@@ -66,7 +66,7 @@ export default {
 	flex-direction: column;
 	align-items: center;
 	justify-content: space-evenly;
-	z-index: 9999;
+	z-index: 2501;
 
 	width: 300px;
 	height: 250px;
