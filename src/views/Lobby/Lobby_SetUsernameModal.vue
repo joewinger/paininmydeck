@@ -48,11 +48,12 @@ export default {
 	z-index: 9998;
 	top: 0;
 	left: 0;
+	backdrop-filter: blur(1.4px);
 
 	width: 100%;
 	height: 100%;
 
-	background-color: #4F4F4F64;
+	background-color: #45474B64;
 	
 	-webkit-transition: all 0.3s ease;
 	-moz-transition: all 0.3s ease;
@@ -69,6 +70,7 @@ export default {
 
 	width: 300px;
 	height: 250px;
+
 	border-radius: 15px;
 	border: 3px solid #E0E0E0;
 	background: #FFFFFF;

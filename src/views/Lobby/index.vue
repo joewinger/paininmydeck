@@ -3,7 +3,7 @@
 		<set-username-modal v-if="username == ''" />
 		
 		<h3>Players</h3>
-		<ul :class="{blur: username == ''}">
+		<ul>
 			<li v-for="user in allUsers" :key="user.username">
 				<lobby-user :user="user" />
 			</li>
@@ -67,9 +67,6 @@ export default {
 
 	padding-top: var(--content-gutter-top);
   color: inherit;
-}
-#lobby .blur {
-	filter: blur(1px);
 }
 
 #lobby h3 {
