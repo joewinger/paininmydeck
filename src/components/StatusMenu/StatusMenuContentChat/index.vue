@@ -44,6 +44,7 @@ export default {
 #chatMessages {
 	display: flex;
 	flex-direction: column-reverse;
+	gap: 5px;
 
 	width: 100%;
 
