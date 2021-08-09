@@ -1,14 +1,14 @@
 <template>
 	<div id="statusMenuContent-chat" class="statusMenuContent">
 		<div id="chatMessages" ref="messageContainer">
-			<ChatMessage
+			<chat-message
 				v-for="(message, index) in messages"
 				:key=index
 				:message-obj=message
 				:last-in-thread="index === 0 ? true : messages[index-1].sender !== message.sender"
 			/>
 		</div>
-		<ChatInput />
+		<chat-input />
 	</div>
 </template>
 
