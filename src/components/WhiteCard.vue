@@ -66,6 +66,10 @@ export default {
 
 	z-index: 1200;
 }
+.whiteCard:hover {
+	transform: scale(1.03);
+}
+
 .whiteCard .card-text {
 	backface-visibility: hidden;
 }
