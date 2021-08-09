@@ -4,13 +4,13 @@
 
 		<info-bar :text=infoText v-if=infoText />
 
-		<div id="cardContainer">
-			<white-card v-for="card in cardSet"
+		<transition-group id="cardContainer" tag="div" name="cards">
+			<white-card v-for="(card, index) in cardSet"
 				:key='card.text || card'
+				:style="{'--delay': index*0.2+'s'}"
 				:text='card.text || card'
 				:facedown="playedThisTurn && turnStatus === 'WAITING_FOR_CARDS'" />
-		</div>
-
+		</transition-group>
 	</div>
 </template>
 
@@ -81,5 +81,20 @@ export default {
 	
 	overflow-y: scroll;
 	overflow-x: visible;
+	
+	z-index: 1200;
+}
+
+/* Animation */
+/* <transition-group> doesn't have a mode prop like <transtion> does,
+ * so we add the 0.3s buffer to let the other cards get fully removed
+ * before we come in 
+ * Also note to self I haven't seen anyone else doing staggered animations
+ * with css variables like this online but I didn't look too hard */
+.whiteCard.cards-enter-active {
+	transition-delay: calc(0.3s + var(--delay));
+}
+.cards-enter, .cards-leave-to {
+  opacity: 0;
 }
 </style>

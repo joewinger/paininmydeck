@@ -37,7 +37,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .whiteCard {
 	position: relative;
 	display: inline-block;
@@ -60,7 +60,7 @@ export default {
 	font-weight: bold;
 
 	cursor: pointer;
-	transition: transform 0.3s;
+	transition: transform 0.3s, opacity 0.2s;
 	transform-style: preserve-3d;
 	-webkit-transform-style: preserve-3d;
 
@@ -78,7 +78,7 @@ export default {
   transform: rotateY( 180deg );
 }
 
-.winner {
+.winner, .winner:hover {
 	transform: scale(1.1);
 }
 
