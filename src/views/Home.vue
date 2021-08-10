@@ -1,6 +1,10 @@
 <template>
 	<div id="home">
-		<h1>Pain in my Deck</h1>
+		<h1 class="logo">
+			<span>Pain</span>
+			<span>in my</span>
+			<span>Deck</span>
+		</h1>
 
 		<h3>Join a game</h3>
 			<input type="text" v-model="roomId" @keyup.enter="joinRoom()" placeholder="Room ID">
@@ -54,9 +58,23 @@ export default {
 
 	height: 100%;
 }
-#home h1 {
-	font-size: 10vmin;
-	/* font-weight: 800; */
+#home h1.logo {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+
+	width: 25vmin;
+	height: 25vmin;
+	padding: 3vmin;
+	
+	border: solid 0.8vmin var(--primary-300);
+	border-radius: 15px;
+
+	color: var(--primary-300);
+  font-family: 'Inter', sans-serif;
+	font-size: 6vmin;
+	font-weight: 800; 
+	text-transform: uppercase;
 }
 #home h3 {
 	margin-bottom: 0;
