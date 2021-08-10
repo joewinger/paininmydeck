@@ -157,15 +157,14 @@ export default {
 
 .statusMenuContent {
 	grid-column: 2;
-	font-size: 13pt;
+	font-size: 1rem;
 	font-weight: 500;
 }
 .statusMenuContent h1 {
-	font-size: 14pt;
+	font-size: 1.2rem;
 }
 .statusMenuContent table {
 	width: 100%;
-	border-spacing: 0 10px;
 }
 .statusMenuContent > table > tr > td:first-of-type {
 	text-align: left;

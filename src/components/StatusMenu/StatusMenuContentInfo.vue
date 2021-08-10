@@ -11,6 +11,7 @@
 				<td>{{ $store.state.room.turn.czar }}</td>
 			</tr>
 		</table>
+		<br>
 		<button @click="$router.replace('/')">Leave Room</button>
 	</div>
 </template>
