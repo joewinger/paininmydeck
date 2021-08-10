@@ -91,13 +91,19 @@ export default {
 	flex-direction: column;
 }
 
-#statusMenuContent-settings input {
+#statusMenuContent-settings input[type="number"] {
 	padding: 7px;
 	margin: 0;
 	height: auto;
 	width: 20px;
 	border-radius: 0;
 	box-sizing: content-box;
+  -moz-appearance: textfield;
+}
+#statusMenuContent-settings input[type="number"]::-webkit-outer-spin-button,
+#statusMenuContent-settings input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .accordion {
