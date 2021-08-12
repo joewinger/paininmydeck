@@ -9,7 +9,7 @@
 				:key='card.text || card'
 				:style="{'--delay': index*0.2+'s'}"
 				:text='card.text || card'
-				:facedown="playedThisTurn && turnStatus === 'WAITING_FOR_CARDS'" />
+				:facedown="(playedThisTurn || isCzar) && turnStatus === 'WAITING_FOR_CARDS'" />
 		</transition-group>
 	</div>
 </template>
