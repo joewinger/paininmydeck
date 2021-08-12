@@ -97,4 +97,7 @@ export default {
 .cards-enter, .cards-leave-to {
   opacity: 0;
 }
+.whiteCard.cards-move {
+	transition: all 0s;
+}
 </style>

@@ -7,13 +7,15 @@ const  db = admin.firestore();
 const DEFAULT_ROOM_DOCUMENT = {
 	timestamp: admin.firestore.FieldValue.serverTimestamp(),
 	gameState: 'LOBBY',   // 'PLAYING', 'FINISHED'
-	users: {},          // { 'username': { colorSet[], points }, ... }
-	settings: {           //
-		pointsToWin: 10,    //
-		cardsPerHand: 7     //
-	},                    //
-	turn: {               //
-		round: 0,           //
+	users: {},            // { 'username': { colorSet[], points }, ... }
+	settings: {
+		pointsToWin: 10,
+		cardsPerHand: 7,
+		numBlankCards: 0,
+		allBlanks: false,
+	},
+	turn: {
+		round: 0,
 		status: null,       // 'WAITING_FOR_CARDS', 'WAITING_FOR_CZAR', 'WAITING_FOR_NEXT_TURN'
 		questionCard: null, // Card text
 		czar: null,         // Username
@@ -23,7 +25,7 @@ const DEFAULT_ROOM_DOCUMENT = {
 			playedBy: null
 		}
 	},
-	winner: null           // Username
+	winner: null          // Username
 };
 
 const DEFAULT_CHAT_DOCUMENT = {
@@ -162,22 +164,27 @@ function findNextCzar(currentCzar, allUsers) {
   return newCzar;
 }
 
-async function generateGameDecks(roomId, settings) {
+async function generateGameDecks(roomId, settings = { numBlankCards: 0, allBlanks: false }) {
 	console.log(`Generating decks for room ${roomId}`);
 	
 	if(settings === null) {
 		console.log(`No settings. Using all cards for room ${roomId}`);
 	}
-	
+
 	let questionDeck = [];
 	let answerDeck = [];
-		
+	
+	// Make the text '%BLANK% #' to make them each unique,
+	// because firestore.FieldValue.arrayUnion() removes dups
+	let numBlanks = settings.allBlanks ? 500 : settings.numBlankCards
+	for (let i = 0; i < numBlanks; i++) answerDeck.push(`%BLANK% ${i+1}`);
+
 	await db.collection('cards').get().then(querySnapshot => {
 		querySnapshot.forEach(cardDocSnapshot => {
 			let cardType = cardDocSnapshot.data().cardType;
 
 			if(cardType === "Q") questionDeck.push(cardDocSnapshot.get('text'));
-			if(cardType === "A") answerDeck.push(cardDocSnapshot.get('text'));
+			if(cardType === "A" && !settings.allBlanks) answerDeck.push(cardDocSnapshot.get('text'));
 		});
 
 		return null; //
@@ -191,10 +198,12 @@ async function generateGameDecks(roomId, settings) {
 		let j = Math.floor(Math.random() * (i + 1));
 		[questionDeck[i], questionDeck[j]] = [questionDeck[j], questionDeck[i]];
   }
-	for (let i = answerDeck.length - 1; i > 0; i--) {
-		let j = Math.floor(Math.random() * (i + 1));
-		[answerDeck[i], answerDeck[j]] = [answerDeck[j], answerDeck[i]];
-  }
+	if (!settings.allBlanks) { // No need to shuffle if they're all blank
+		for (let i = answerDeck.length - 1; i > 0; i--) {
+			let j = Math.floor(Math.random() * (i + 1));
+			[answerDeck[i], answerDeck[j]] = [answerDeck[j], answerDeck[i]];
+		}
+	}
 
 	await db.doc(`games/${roomId}/meta/decks`).update({
 		questionDeck: questionDeck,
@@ -214,7 +223,9 @@ exports.startGame = functions.https.onCall(async (data, context) => {
 
 	console.log(`Starting game for room ${roomId}`);
 
-	await generateGameDecks(roomId, null);
+	let settings = await (await db.doc(`games/${roomId}`).get()).get('settings');
+
+	await generateGameDecks(roomId, settings);
 	await startNewTurn(roomId);
 	
 	await db.doc(`games/${roomId}`).update({
