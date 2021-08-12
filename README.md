@@ -1,31 +1,18 @@
 # Pain in my Deck
-## A Cards Against Humanity clone using Vue and Firebase
+## An Online Cards Against Humanity clone built with Vue and Firebase.
 
-## Yarn stuff:
-### Project setup
-```
-yarn install
-```
+Grab some friends, start a game, have some fun! [PaininmyDeck.com](https://paininmydeck.com/)
 
-### Compiles and hot-reloads for development
-```
-yarn run serve
-```
+![Mockup](mockup-1_8-12-21.png)
 
-### Compiles and minifies for production
-```
-yarn run build
-```
+## About
+This is my own take on an online, mobile-first [Cards Against Humanity](https://www.cardsagainsthumanity.com/) clone. It's designed specifically with mobile in mind, allowing anyone with access to the internet to join & play. I used to play online clones like this in high school but none of them were great, so here we are.
 
-### Run your tests
-```
-yarn run test
-```
+## Contact
+Email me with questions, suggestions, or complaints: [josephwinger1@gmail.com](mailto:josephwinger1@gmail.com)
 
-### Lints and fixes files
+## Developer notes:
+#### Running a Development Server:  
 ```
-yarn run lint
+yarn serve
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
