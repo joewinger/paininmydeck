@@ -203,10 +203,11 @@ class GameManager {
 		// If the game just started
 		if(store.state.room.gameState === "LOBBY" && newRoomData.gameState === "PLAYING") {
 			console.log("Game has started!");
+			store.dispatch('showInterstitial', {title: 'Round 1', subtitle: 'Good luck'});
 		}
 
 		// If a new turn has begun
-		if(store.state.room.turn.questionCard !== newRoomData.turn.questionCard) {
+		if(newRoomData.gameState === "PLAYING" && store.state.room.turn.questionCard !== newRoomData.turn.questionCard) {
 			store.commit('room/updateRound', newRoomData.turn.round);
 			store.commit('user/setPlayedThisTurn', false);
 			store.dispatch('showInterstitial');
