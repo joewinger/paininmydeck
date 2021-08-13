@@ -59,13 +59,19 @@ export default {
 
 <style>
 #lobby {
+	position: absolute;
+	top: 0;
+	left: 0;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
 	align-items: center;
 	gap: 10px;
-
+	
+	width: 100%;
+	height: 100%;
 	padding-top: var(--content-gutter-top);
+
   color: inherit;
 }
 

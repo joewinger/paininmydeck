@@ -50,6 +50,9 @@ export default {
 
 <style>
 #home {
+	position: absolute;
+	top: 0;
+	left: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -57,6 +60,7 @@ export default {
 	gap: 15px;
 
 	height: 100%;
+	width: 100%;
 }
 #home h1.logo {
 	display: flex;

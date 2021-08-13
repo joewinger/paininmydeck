@@ -63,10 +63,16 @@ export default {
 
 <style>
 #game {
-  color: inherit;
-  display: flex;
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: flex;
   flex-direction: column;
   align-items: center;
+
+	width: 100%;
+
+  color: inherit;
 }
 #cardContainer {
 	width: 90vw;
