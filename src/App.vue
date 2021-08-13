@@ -7,7 +7,7 @@
 			</transition>
 		</div>
 		<div id="row-status">
-			<StatusMenu v-if="$store.state.room.roomId !== null" />
+			<status-menu v-if="$store.state.room.roomId !== null" />
 		</div>
 		<error-toast />
 		<interstitial />
