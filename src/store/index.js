@@ -43,11 +43,23 @@ const store = new Vuex.Store({
 				commit('SET_ERROR', {});
 			}, durationMs)
 		},
-		showInterstitial: ({ commit }, { title = '', subtitle = '' }) => {
-			if (title) {
-				commit('SET_INTERSTITIAL', { title, subtitle });
-				console.debug(`[Interstitial] ${title}: ${subtitle}`);
+		showInterstitial: ({ state, commit }, options) => {
+			let title, subtitle;
+
+			if(!options) {
+				let round = state.room.turn.round;
+				if (!round) round = 1;
+				title = `Round ${round}`;
+
+				let users = store.getters['room/sortedUsers'];
+				if(users[0].points === 0) subtitle = 'Good Luck!'; // First turn
+				else if(users[0].points === users[1].points) subtitle = 'First place is tied.'
+				else subtitle = `${users[0].username} is in the lead.`
 			}
+			else ({ title, subtitle } = options);
+
+			commit('SET_INTERSTITIAL', { title, subtitle });
+			console.debug(`[Interstitial] ${title}: ${subtitle}`);
 
 			setTimeout(() => {
 				commit('SET_INTERSTITIAL', {});
