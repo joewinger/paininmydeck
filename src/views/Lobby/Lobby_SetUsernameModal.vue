@@ -4,6 +4,19 @@
 			<div id="setUsernameModal">
 				<h3>What should we call you?</h3>
 				<input type="text" v-model="username" @keyup.enter="addUser" placeholder="Your username" autofocus>
+				<div id="colorSelector">
+					<div
+						v-for="colorSet in colorSets"
+						:key="colorSet"
+						@click="selectColor(colorSet)"
+						:style="{ '--color': colorSet.split(',')[0] }"
+						:class="{
+							'swatch': true,
+							'taken': $store.getters['room/getUsedColorSets'].includes(colorSet),
+							'selected': myColorSet === colorSet
+						}">
+					</div>
+				</div>
 				<button @click="addUser">Set Username</button>
 			</div>
 		</div>
@@ -16,10 +29,26 @@ export default {
 	data () {
 		return {
 			// Prioritize session store, useful for testing in different tabs
-			username: sessionStorage.getItem('username') || localStorage.getItem('username') || ''
+			username: sessionStorage.getItem('username') || localStorage.getItem('username') || '',
+			colorSets: [
+				'#EE796E,#FAB4AD',
+				'#F2A971,#FCD4B5',
+				'#F4C876,#FDE6B9',
+				'#ADD787,#CAEBAD',
+				'#65C294,#96DFBB',
+				'#5E87C5,#8FAFE0',
+				'#5561AF,#808BD0',
+				'#7E67AF,#A793D2',
+				'#BE7CB5,#DEABD7'
+			],
+			myColorSet: null
 		}
 	},
 	methods: {
+		selectColor(colorSet) {
+			if (this.$store.getters['room/getUsedColorSets'].includes(colorSet)) return;
+			this.myColorSet = colorSet;
+		},
 		addUser() {
 			if(this.username == '') {
 				this.$store.dispatch('error', { message: 'Username can not be blank!', title: 'Invalid Username' });
@@ -33,7 +62,11 @@ export default {
 
 			sessionStorage.setItem('username', this.username);
 			localStorage.setItem('username', this.username);
-			this.$game.addUser(this.username);
+			if (this.myColorSet == null) {
+				let availableColorSets = this.colorSets.filter(colorSet => !this.$store.getters['room/getUsedColorSets'].includes(colorSet))
+				this.myColorSet = availableColorSets[Math.floor(Math.random() * availableColorSets.length)];
+			}
+			this.$game.addUser(this.username, this.myColorSet);
 		}
 	}
 }
@@ -87,5 +120,54 @@ export default {
 .modal-leave-to #setUsernameModal {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
+}
+
+#colorSelector {
+	--swatchSize: 20px;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 5px;
+
+	width: calc((var(--swatchSize) + 5px) * 5);
+}
+#colorSelector .swatch {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	width: var(--swatchSize);
+	height: var(--swatchSize);
+
+	background-color: var(--color);
+	border: solid 0px var(--color);
+	border-radius: 40%;
+	cursor: pointer;
+	transition: border-radius 0.3s, transform 0.3s, background-color 0.3s, border-color 0.3s;
+}
+#colorSelector .swatch.taken {
+	position: relative;
+	opacity: 0.3;
+	cursor: default;
+}
+#colorSelector .swatch.taken::after {
+	content: "";
+
+	position: absolute;
+	left: calc((var(--swatchSize) / 2 ) - 1px);
+	
+	width: 2px;
+	height: calc(var(--swatchSize) * 1.5);
+	
+	transform: rotate(45deg);
+	background-color: #ffffff;
+}
+#colorSelector .swatch.selected {
+	background-color: transparent;
+	border-radius: 100%;
+	border-width: 6px;
+	transform: scale(1.1)
 }
 </style>

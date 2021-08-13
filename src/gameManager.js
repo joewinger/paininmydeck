@@ -4,41 +4,6 @@ import "firebase/auth";
 import "firebase/functions";
 import store from "@/store";
 
-const allColorSets = [
-	// "#F36747,#F3D147",
-	// "#F197A2,#fff0a0",
-	// "#769cf9,#f392ff",
-	// "#3CC6ED,#78ffa7",
-	// "#eeaeca,#94bbe9",
-	// "#ee58d1,#ffd665",
-	// "#ff79a2,#c2c3ff",
-	// "#5ce591,#5cd4e5"
-	"#A18CD1,#FBC2EB",
-	"#A6A1EE,#FBC2EB",
-	"#F6D365,#FDA085",
-	"#A1C4FD,#C2E9FB",
-	"#FEE140,#FA709A",
-	"#C471F5,#FA71CD"
-];
-
-/**
- * Finds a color set that's not been used yet, otherwise returnd a random color set. Strings are intentionally
- * chosen here becasue they're easy to compare & easy to split up.
- * @returns {string[2]} colorSet - array of strings, 1st is the primary hex, 2nd is the accent for gradients
- */
-function selectColorSet() {
-	const availableColorSets = allColorSets.filter(colorSet => !store.getters['room/getUsedColorSets'].includes(colorSet))
-	
-	let colorSet = null;
-	if(store.state.room.users.length >= allColorSets.length) {
-		colorSet = allColorSets[Math.floor(Math.random() * allColorSets.length)]
-	} else {
-		colorSet = availableColorSets[Math.floor(Math.random() * availableColorSets.length)]
-	}
-
-	return colorSet.split(',');
-}
-
 const DEFAULT_USER_DOCUMENT = {
 	hand: [],
 	numCardsInHand: 0
@@ -198,15 +163,15 @@ class GameManager {
 	/**
 	 * Creates our user document, adds us to the room's user list, and saves our username to state.
 	 * @param {String} username
+	 * @param {String} colorSet - colorSet as a string (e.g. '#FFFFFF,#000000')
 	 */
-	addUser(username) { // To be used after already joining the game
+	addUser(username, colorSet) { // To be used after already joining the game
 		this.userDocRef = this.db.doc(`games/${store.state.room.roomId}/users/${username}`); // Create our user doc & save it for easy access
 		this.userDocRef.set(DEFAULT_USER_DOCUMENT).then(() => { // Put this inside a then to prevent a harmless error if onUserUpdate is called before the user doc is initialized
 			this.unsubFromUserDoc = this.userDocRef.onSnapshot(snap => this.onUserUpdate(snap));
 		});
-	
-		this.roomDocRef.update(`users.${username}.colorSet`, selectColorSet(),
-														`users.${username}.points`, 0);
+		
+		this.roomDocRef.update(`users.${username}.colorSet`, colorSet.split(','), `users.${username}.points`, 0);
 	
 		store.commit('user/setUsername', username); // Save so that we remember who we are
 	}
