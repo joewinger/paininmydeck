@@ -27,6 +27,11 @@ export default {
 		ErrorToast,
 		Interstitial
 	},
+	data() {
+		return {
+			transitionName: 'default'
+		}
+	},
 	watch: {
 		'$route' (to, from) {
 			const routes = ['home', 'lobby', 'game', 'endgame'];
@@ -52,7 +57,8 @@ export default {
 }
 
 .slide-left-enter-active, .slide-left-leave-active,
-.slide-right-enter-active, .slide-right-leave-active {
+.slide-right-enter-active, .slide-right-leave-active,
+.default-enter-active, .default-leave-active {
 	transition: opacity 0.3s, transform 0.3s;
 }
 .slide-left-enter {
@@ -70,5 +76,11 @@ export default {
 .slide-right-leave-to {
 	opacity: 0;
 	transform: translateX(100vw);
+}
+.slide-right-enter {
+	opacity: 0;
+}
+.slide-right-leave-to {
+	opacity: 0;
 }
 </style>
