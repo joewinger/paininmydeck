@@ -242,7 +242,9 @@ class GameManager {
 
 		// If a new turn has begun
 		if(store.state.room.turn.questionCard !== newRoomData.turn.questionCard) {
+			store.commit('room/updateRound', newRoomData.turn.round);
 			store.commit('user/setPlayedThisTurn', false);
+			store.dispatch('showInterstitial');
 		}
 		
 		/** @todo stop relying on czar for game updates like this */
