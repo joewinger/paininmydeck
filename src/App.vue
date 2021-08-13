@@ -8,6 +8,7 @@
 			<StatusMenu v-if="$store.state.room.roomId !== null" />
 		</div>
 		<error-toast />
+		<interstitial />
 	</div>
 </template>
 
@@ -15,12 +16,14 @@
 import NavBar from '@/components/NavBar';
 import StatusMenu from '@/components/StatusMenu';
 import ErrorToast from '@/components/ErrorToast';
+import Interstitial from '@/components/Interstitial.vue';
 
 export default {
 	components: {
 		NavBar,
 		StatusMenu,
-		ErrorToast
+		ErrorToast,
+		Interstitial
 	}
 }
 </script>

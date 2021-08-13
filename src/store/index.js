@@ -16,7 +16,8 @@ const persistence = new statePersistence({
 const store = new Vuex.Store({
 	strict: process.env.NODE_ENV !== 'production',
 	state: {
-		error: {}
+		error: {},
+		interstitial: {}
 	},
 	modules: {
 		room,
@@ -24,7 +25,8 @@ const store = new Vuex.Store({
 	},
 	mutations: {
 		RESTORE_STATE_MUTATION: persistence.RESTORE_STATE_MUTATION,
-		SET_ERROR: (state, options) => state.error = options
+		SET_ERROR: (state, options) => state.error = options,
+		SET_INTERSTITIAL: (state, options) => state.interstitial = options
 	},
 	actions: {
 		error: ({ commit }, { title = 'Error', message = '', type = 'ERROR', durationMs = 5000 } = {}) => {
@@ -40,6 +42,16 @@ const store = new Vuex.Store({
 			setTimeout(() => {
 				commit('SET_ERROR', {});
 			}, durationMs)
+		},
+		showInterstitial: ({ commit }, { title = '', subtitle = '' }) => {
+			if (title) {
+				commit('SET_INTERSTITIAL', { title, subtitle });
+				console.debug(`[Interstitial] ${title}: ${subtitle}`);
+			}
+
+			setTimeout(() => {
+				commit('SET_INTERSTITIAL', {});
+			}, 5000);
 		}
 	},
 	plugins: [persistence.plugin]
