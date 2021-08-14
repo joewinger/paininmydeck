@@ -139,9 +139,10 @@ export default {
 	width: 100%;
 }
 #statusMenuContent-container {
+	--gutter: 10px;
 	grid-row: 2;
 	display: grid;
-	grid-template-columns: 10% 1fr 10%;
+	grid-template-columns: var(--gutter) 1fr var(--gutter);
 	max-height: 65vh;
 
 	-webkit-transition: padding-bottom 0.3s ease;
@@ -152,7 +153,7 @@ export default {
 }
 
 #statusMenu.open #statusMenuContent-container {
-	padding-bottom: 20px;
+	padding-bottom: var(--gutter);
 }
 
 .statusMenuContent {

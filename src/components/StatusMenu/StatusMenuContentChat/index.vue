@@ -37,7 +37,7 @@ export default {
 	display: grid;
 	grid-template-rows: 1fr auto;
 	gap: 5px;
-
+	
 	height: 50vh;
 }
 
@@ -47,6 +47,7 @@ export default {
 	gap: 5px;
 
 	width: 100%;
+	margin-bottom: 10px;
 
 	overflow-y: scroll;
 }
