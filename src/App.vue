@@ -34,7 +34,7 @@ export default {
 	},
 	watch: {
 		'$route' (to, from) {
-			const routes = ['home', 'lobby', 'game', 'endgame'];
+			const routes = ['home', 'lobby', 'game', 'gameover'];
 			this.transitionName = routes.indexOf(to.name) > routes.indexOf(from.name) ? 'slide-left' : 'slide-right';
 		}
 	}

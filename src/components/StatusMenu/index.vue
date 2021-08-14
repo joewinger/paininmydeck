@@ -30,7 +30,7 @@
 				<status-bar-button
 					:class="{active: currentMenu === 'LEADERBOARD'}"
 					@click.native="toggleMenu('LEADERBOARD')"
-					v-if="$route.name === 'game' || $route.name === 'endgame'"
+					v-if="$route.name === 'game' || $route.name === 'gameover'"
 				>
 					<ion-icon name="people-circle-outline"></ion-icon>
 				</status-bar-button>

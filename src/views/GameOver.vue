@@ -15,6 +15,6 @@
 
 <script>
 export default {
-	name: 'EndGame'
+	name: 'GameOver'
 }
 </script>

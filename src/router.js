@@ -3,7 +3,7 @@ import VueRouter from 'vue-router';
 import Home from '@/views/Home';
 import Lobby from '@/views/Lobby';
 import Game from '@/views/Game';
-import EndGame from '@/views/EndGame';
+import GameOver from '@/views/GameOver';
 import GameManager from '@/gameManager';
 import store from '@/store';
 
@@ -51,9 +51,9 @@ const routes = [
     }
   },
   {
-    path: '/endgame',
-    name: 'endgame',
-    component: EndGame,
+    path: '/gameover',
+    name: 'gameover',
+    component: GameOver,
     beforeEnter: (to, from, next) => {
       if(store.state.room.roomId !== null && store.state.room.gameState === 'FINISHED') {
         // Verify that our state dictates we should be here

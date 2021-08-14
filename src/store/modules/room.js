@@ -70,7 +70,7 @@ const actions = {
 			commit('_updateGameState', gameState);
 			
 			if(gameState === 'PLAYING')  router.replace({name: 'game'});
-			if(gameState === 'FINISHED') router.replace({name: 'endgame'});
+			if(gameState === 'FINISHED') router.replace({name: 'gameover'});
 		}
 	}
 }
