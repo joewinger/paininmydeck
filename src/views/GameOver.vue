@@ -1,5 +1,5 @@
 <template>
-  <div id="home">
+  <div id="gameover">
 		<h1>Room {{this.$store.state.room.roomId}}</h1>
 
 		<h1>{{this.$store.state.room.winner.username}} won!</h1>
