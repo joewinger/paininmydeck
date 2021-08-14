@@ -34,6 +34,7 @@ export default {
 
 <style>
 #statusMenuContent-chat {
+	--font-size: 0.9rem;
 	display: grid;
 	grid-template-rows: 1fr auto;
 	gap: 5px;

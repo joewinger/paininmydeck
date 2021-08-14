@@ -3,12 +3,12 @@
 		<div class="chatInput-content">
 			<textarea-autosize
 				v-model="messageText"
-				@keyup.ctrl.enter.native=sendMessage
+				@keydown.enter.native=sendMessage
 				:max-height=80
 				maxlength=280
 				rows=1
 			/>
-			<button @click=sendMessage><ion-icon name="send"></ion-icon></button>
+			<button @click=sendMessage :style="{'--color': $store.getters['user/getColorSet'][0], '--color-2': $store.getters['user/getColorSet'][1] }"><ion-icon name="send"></ion-icon></button>
 		</div>
 	</div>
 </template>
@@ -22,7 +22,12 @@ export default {
 		}
 	},
 	methods: {
-		sendMessage() {
+		// NOTE: If we're doing this to prevent new lines, we should just
+		// remove the textarea-autosize plugin and use an <input>, but I'm
+		// not sure if this change is permenant. 8/13/21
+		sendMessage(event) {
+			event.preventDefault();
+
 			if(this.messageText === '') return;
 
 			this.$store.dispatch('room/sendMessage', this.messageText);
@@ -34,16 +39,16 @@ export default {
 
 <style scoped>
 .chatInput {
-	--button-size: 30px;
-	--border-radius: 20px;
+	--button-size: 25px;
+	--border-radius: 10px;
 
 	display: flex;
 	flex-direction: column-reverse;
 
-	min-height: 40px;
+	min-height: 20px;
 	max-height: 80px;
 	
-	border: solid #bbb 1px;
+	border: solid var(--gray-200) var(--ui-border-width);
 	border-radius: var(--border-radius);
 
 	overflow-y: hidden;
@@ -56,7 +61,7 @@ export default {
 }
 
 .chatInput-content textarea {
-	padding: 10px;
+	padding: 8px;
 	margin: 1px 0;
 	box-sizing: border-box;
 
@@ -64,7 +69,7 @@ export default {
 	border-radius: var(--border-radius) 0 0 var(--border-radius);
 
 	text-align: left;
-	font-size: 11pt;
+	font-size: var(--font-size);
 	font-weight: normal;
 	color: #555;
 
@@ -85,10 +90,18 @@ export default {
 	margin: 5px;
 	padding: 0;
 
+	color: var(--color);
+
+	border-color: var(--color);
 	border-radius: 100%;
+}
+.chatInput-content button:hover {
+	background-color: var(--color);
+	border-color: var(--color);
+	color: var(--color-2);
 }
 
 .chatInput-content button ion-icon {
-	font-size: 10pt;
+	font-size: var(--font-size);
 }
 </style>

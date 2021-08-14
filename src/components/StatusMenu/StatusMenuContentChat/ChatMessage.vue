@@ -27,7 +27,7 @@ export default {
 
 <style>
 .chatMessage {
-	font-size: 0.9rem;
+	font-size: var(--font-size);
 }
 .chatMessage .sender {
 	margin-right: 10px;
