@@ -83,16 +83,21 @@ export default {
 	left: 0;
 	backdrop-filter: blur(1.4px);
 
-	width: 100%;
-	height: 100%;
+	width: 100vw;
+	height: 100vh;
 
 	background-color: #45474B64;
 	
-	-webkit-transition: all 0.3s ease;
-	-moz-transition: all 0.3s ease;
-	-ms-transition: all 0.3s ease;
-	-o-transition: all 0.3s ease;
-	transition: all 0.3s ease;
+	-webkit-transition: opacity 0.3s ease;
+	-moz-transition: opacity 0.3s ease;
+	-ms-transition: opacity 0.3s ease;
+	-o-transition: opacity 0.3s ease;
+	transition: opacity 0.3s ease;
+}
+.slide-right-enter-active #modalWrapper, .slide-left-enter-active #modalWrapper {
+	/* Without this, the modal is only drawn in the content row of our main grid during a route transition.
+	This adjusts it so the spacing remains the same, stopping the modal from jumping when the transition stops. */
+	margin-top: calc(var(--navbar-height) * -1);
 }
 #setUsernameModal {
 	display: flex;
