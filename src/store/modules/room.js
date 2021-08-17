@@ -48,7 +48,7 @@ const actions = {
 
 		commit('_updateUsers', users);
 	},
-	sendChatMessage({ state, rootState }, messageText) {
+	sendMessage({ state, rootState }, messageText) {
 		firebase.firestore().doc(`games/${state.roomId}/meta/chat`).update({
 			chatMessages: firebase.firestore.FieldValue.arrayUnion({
 				timestamp: dayjs().valueOf(),
