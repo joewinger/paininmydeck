@@ -30,7 +30,7 @@ export default {
 
 			if(this.messageText === '') return;
 
-			this.$store.dispatch('room/sendMessage', this.messageText);
+			this.$store.dispatch('room/sendChatMessage', this.messageText);
 			this.messageText = '';
 		}
 	}
