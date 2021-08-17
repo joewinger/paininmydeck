@@ -3,10 +3,10 @@
 		<h1>Leaderboard</h1>
 		<div id="leaderboardEntries">
 			<leaderboard-entry
-				v-for="(user, index) in $store.getters['room/sortedUsers']"
+				v-for="user in $store.getters['room/sortedUsers']"
 				:key="user.username"
 				:user-obj=user
-				:rank='index + 1'
+				:rank='calculateRank(user)'
 				:played-card="$store.getters['room/getUsernamesPlayedCard'].includes(user.username)"
 			/>
 		</div>
@@ -20,6 +20,14 @@ export default {
 	name: 'StatusMenuContentLeaderboard',
 	components: {
 		LeaderboardEntry
+	},
+	methods: {
+		calculateRank(user) {
+			let possiblePointValues = [...new Set(this.$store.getters['room/sortedUsers'].map(user => user.points))];
+			possiblePointValues.sort((a, b) => b - a);
+
+			return possiblePointValues.indexOf(user.points)+1;
+		}
 	}
 }
 </script>
