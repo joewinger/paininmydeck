@@ -207,7 +207,7 @@ class GameManager {
 		// If the game just started
 		if(store.state.room.gameState === "LOBBY" && newRoomData.gameState === "PLAYING") {
 			console.log("Game has started!");
-			store.dispatch('showInterstitial', {title: 'Round 1', subtitle: 'Good luck'});
+			store.dispatch('showInterstitial', {title: 'Round 1', subtitle: `${store.state.room.turn.czar} is the Czar.`});
 		}
 
 		// If a new turn has begun
