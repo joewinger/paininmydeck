@@ -7,7 +7,7 @@ const  db = admin.firestore();
 const DEFAULT_ROOM_DOCUMENT = {
 	timestamp: admin.firestore.FieldValue.serverTimestamp(),
 	gameState: 'LOBBY',   // 'PLAYING', 'FINISHED'
-	users: {},            // { 'username': { colorSet[], points }, ... }
+	users: {},            // { <username>: { colorSet[], points, czarOrder }, ... }
 	settings: {
 		pointsToWin: 10,
 		cardsPerHand: 7,
@@ -111,10 +111,14 @@ async function startNewTurn(roomId) {
 
 	// Select New Czar ///////////////////////////////////////////////////////////////
 
-	let oldCzar = roomData.turn.czar;
-	let allUsers = Object.keys(roomData.users);
-
-	let newCzar = findNextCzar(oldCzar, allUsers);
+	// Note: we jump through the hoop of creating a new array and sorting it by czarOrder
+	// rather than just directly accessing the entry with the correct czarOrder to ensure
+	// that it works when people leave mid-game.
+	let possibleCzars = [];
+	// Add username to each entry so we can easily access
+	for (user in roomData.users) possibleCzars.push(Object.assign(roomData.users[user], { 'username': user }));
+	possibleCzars.sort((a, b) => a.czarOrder - b.czarOrder);
+	let newCzar = possibleCzars[roomData.turn.round % possibleCzars.length].username;
 
 	// End Selection of New Car //////////////////////////////////////////////////////
 
@@ -139,29 +143,6 @@ async function startNewTurn(roomId) {
 	console.log(`New turn started successfully for room ${roomId}`);
 
 	return;
-}
-
-/**
- * Select the next czar in line
- * @param {string} currentCzar - username of current czar
- * @param {array} allUsers - list of every user in the game
- * 
- * @returns {string} username of the next czar in line
- */
-function findNextCzar(currentCzar, allUsers) {
-	// Find the index of the current czar in the list of all users
-  let currentCzarIndex = allUsers.findIndex(user => user === currentCzar);
-
-	// If our current czar is at the end of the list (or if we don't have a czar
-	// yet), reset the index so we select the first user in the array
-  if(currentCzarIndex === allUsers.length-1 || currentCzar === null) {
-  	currentCzarIndex = -1;
-  }
-	
-	// Select the next czar
-  let newCzar = allUsers[currentCzarIndex+1];
-  
-  return newCzar;
 }
 
 async function generateGameDecks(roomId, settings = { numBlankCards: 0, allBlanks: false }) {

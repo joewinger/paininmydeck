@@ -171,7 +171,11 @@ class GameManager {
 			this.unsubFromUserDoc = this.userDocRef.onSnapshot(snap => this.onUserUpdate(snap));
 		});
 		
-		this.roomDocRef.update(`users.${username}.colorSet`, colorSet.split(','), `users.${username}.points`, 0);
+		this.roomDocRef.update(
+			`users.${username}.colorSet`, colorSet.split(','),
+			`users.${username}.points`, 0,
+			`users.${username}.czarOrder`, store.state.room.users.length
+		);
 	
 		store.commit('user/setUsername', username); // Save so that we remember who we are
 	}
