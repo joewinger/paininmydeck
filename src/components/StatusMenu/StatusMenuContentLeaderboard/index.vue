@@ -2,7 +2,7 @@
 	<div id="statusMenuContent-leaderboard" class="statusMenuContent">
 		<h1>Leaderboard</h1>
 		<div id="leaderboardEntries">
-			<LeaderboardEntry
+			<leaderboard-entry
 				v-for="(user, index) in $store.getters['room/sortedUsers']"
 				:key="user.username"
 				:user-obj=user
