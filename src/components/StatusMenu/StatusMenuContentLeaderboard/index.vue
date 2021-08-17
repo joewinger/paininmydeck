@@ -25,6 +25,9 @@ export default {
 </script>
 
 <style scoped>
+#statusMenuContent-leaderboard {
+	text-align: center;
+}
 #leaderboardEntries {
 	display: grid;
 	gap: 5px;
