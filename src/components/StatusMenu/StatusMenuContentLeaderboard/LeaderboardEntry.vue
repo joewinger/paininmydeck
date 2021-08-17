@@ -18,7 +18,7 @@
 <script>
 const statusMessages = {
 	czar: "Card czar",
-	waiting: "Waiting to play a card...",
+	waiting: "Choosing a card...",
 	played: "Played a card"
 }
 
@@ -51,6 +51,8 @@ export default {
   border: solid 1px #E0E0E0;
 	border-radius: 7px;
 
+	font-size: 1.1rem;
+
 	-webkit-user-select: none;
      -moz-user-select: none;
 			-ms-user-select: none;
@@ -65,14 +67,14 @@ export default {
 	align-items: center;
 	justify-content: center;
 
-	font-size: 2rem;
+	font-size: 2em;
 	font-weight: bold;
   color: white;
   text-shadow:
-    1px  1px 0 #777,
-    -1px -1px 0 #777,
-    -1px  1px 0 #777,
-    1px -1px 0 #777;
+    1px  1px 0 var(--gray-400),
+    -1px -1px 0 var(--gray-400),
+    -1px  1px 0 var(--gray-400),
+    1px -1px 0 var(--gray-400);
 }
 
 .leaderboardEntry-username {
@@ -90,6 +92,7 @@ export default {
 	font-style: italic;
 	font-size: 0.7em;
 	text-align: left;
+	color: var(--gray-300);
 }
 
 .leaderboardEntry-points {
