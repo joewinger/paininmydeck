@@ -81,12 +81,11 @@ export default {
 	position: relative;
 	display: inline-block;
 
-	/* width: 200px;
-	height: 260px; */
+	/* OG size: 200 x 260 */
 	max-width: 150px;
 	min-width: 120px;
 	height: 195px;
-	padding: 15px;
+	padding: 0;
 
 	background: #fff;
 	border-radius: 15px;
@@ -111,7 +110,17 @@ export default {
 }
 
 .whiteCard .card-text {
+	max-height: 100%;
+	overflow-y: scroll;
+	padding: 15px;
+	border-radius: 15px;
+}
+
+.whiteCard.facedown .card-text {
 	backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+	-moz-backface-visibility: hidden;
+	-moz-backface-visibility: hidden;
 }
 
 .whiteCard.facedown {
@@ -127,10 +136,15 @@ export default {
 }
 .whiteCard.blank textarea {
 	width: 100%;
-	height: 100%;
-	padding: 0;
+	/* I have no idea where these 4px are coming from, but without
+	this there's a teensy bit of overscroll. */
+	height: calc( 100% - 4px );
+	padding: 15px;
+	box-sizing: border-box;
 	border: none;
 	
+	border-radius: 15px;
+
 	font: inherit;
 	text-align: inherit;
 	
