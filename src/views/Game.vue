@@ -86,7 +86,7 @@ export default {
 	/* Mainly to leave room so the status bar doesn't cover up our cards */
 	margin-bottom: 70px;
 
-	justify-items: center;
+	justify-content: center;
 
 	perspective: 800px;
 	
