@@ -10,6 +10,10 @@
 				<td>Czar</td>
 				<td>{{ $store.state.room.turn.czar }}</td>
 			</tr>
+			<tr v-if="$store.state.room.gameState === 'PLAYING'">
+				<td>Round</td>
+				<td>{{ $store.state.room.turn.round }}</td>
+			</tr>
 		</table>
 		<br>
 		<button @click="$router.replace('/')">Leave Room</button>
