@@ -78,7 +78,8 @@ export default {
 
 	/* width: 200px;
 	height: 260px; */
-	width: 150px;
+	max-width: 150px;
+	min-width: 120px;
 	height: 195px;
 	padding: 15px;
 
@@ -90,7 +91,7 @@ export default {
 	color: var(--gray-500);
   font-family: aktiv-grotesk, Helvetica, sans-serif;
 	text-align: left;
-	font-size: 1.25rem;
+	font-size: clamp(1rem, 5.2vw, 1.25rem);
 	font-weight: bold;
 
 	cursor: pointer;
