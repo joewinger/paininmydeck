@@ -1,7 +1,10 @@
 <template>
-	<div class="chatMessage">
-		<span class="sender"
-			:style="`color: ${$store.getters['room/getColorSetByUsername'](messageObj.sender)[0]}`">
+	<div :class="{ chatMessage: true, system: messageObj.type === 'system' }">
+		<span
+			v-if="messageObj.type != 'system'"
+			class="sender"
+			:style="`color: ${$store.getters['room/getColorSetByUsername'](messageObj.sender)[0]}`"
+			>
 			{{ messageObj.sender }}
 		</span>
 		<span class="message">{{ messageObj.text }}</span>
@@ -34,5 +37,14 @@ export default {
 }
 .chatMessage .message {
 	font-weight: 400;
+}
+.chatMessage.system .message {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	
+	font-weight: bold;
+	text-align: center;
+	padding: 5px 0;
 }
 </style>

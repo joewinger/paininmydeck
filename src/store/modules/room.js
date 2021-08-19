@@ -48,12 +48,33 @@ const actions = {
 
 		commit('_updateUsers', users);
 	},
-	sendMessage({ state, rootState }, messageText) {
+	sendChatMessage({ state, rootState, dispatch }, message) {
+		if(message.charAt(0) !== '!') {
+			firebase.firestore().doc(`games/${state.roomId}/meta/chat`).update({
+				chatMessages: firebase.firestore.FieldValue.arrayUnion({
+					timestamp: dayjs().valueOf(),
+					sender: rootState.user.username,
+					text: message,
+					type: 'chat'
+				})
+			});
+		} else {
+			let command = message.split(' ')[0].substring(1);
+			let args = message.split(' ').slice(1);
+			switch (command.toLowerCase()) {
+				case 'system':
+					dispatch('sendSystemMessage', args.join(' '));
+					break;
+			}
+		}
+	},
+	sendSystemMessage({ state }, message) {
 		firebase.firestore().doc(`games/${state.roomId}/meta/chat`).update({
 			chatMessages: firebase.firestore.FieldValue.arrayUnion({
 				timestamp: dayjs().valueOf(),
-				sender: rootState.user.username,
-				text: messageText
+				sender: 'System',
+				text: message,
+				type: 'system'
 			})
 		});
 	},
