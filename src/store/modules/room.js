@@ -65,6 +65,9 @@ const actions = {
 				case 'system':
 					dispatch('sendSystemMessage', args.join(' '));
 					break;
+				case 'startnewturn':
+					firebase.functions().httpsCallable('startNewTurn')({roomId: state.roomId});
+					break;
 			}
 		}
 	},
