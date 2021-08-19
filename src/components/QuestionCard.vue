@@ -1,5 +1,6 @@
 <template>
-  <div class="questionCard"
+  <div :class="{'questionCard': true, 'sticky': sticky }"
+  @click="toggleSticky()"
   :style="{
     '--gradient-from': $store.getters['room/getCzarColorSet'][0],
     '--gradient-to': $store.getters['room/getCzarColorSet'][1]
@@ -13,16 +14,23 @@ export default {
 	name: 'QuestionCard',
 	props: {
 		text: String
-	}
+	},
+  data() {
+    return {
+      sticky: true
+    };
+  },
+  methods: {
+    toggleSticky() {
+      this.sticky = !this.sticky;
+    }
+  }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .questionCard {
-  position: -webkit-sticky;
-  position: sticky;
-  top: calc( var(--navbar-height) + var(--content-gutter-top));
   display: flex;
   align-items: flex-end;
   
@@ -46,5 +54,11 @@ export default {
 	text-align: left;
 
   z-index: 1800;
+}
+
+.questionCard.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+  top: calc( var(--navbar-height) + var(--content-gutter-top));
 }
 </style>
