@@ -34,7 +34,7 @@ export default {
   display: flex;
   align-items: flex-end;
   
-  width: 350px;
+  max-width: 350px;
   min-height: 210px;
 	padding: 50px 15px 15px 15px;
   margin-top: var(--content-gutter-top);
