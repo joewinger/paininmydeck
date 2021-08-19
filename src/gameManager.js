@@ -201,12 +201,12 @@ class GameManager {
 	 */
 	onRoomUpdate(snapshot) {
 		let newRoomData = snapshot.data();
-		console.log("Room update recieved");
+		console.debug("Room update recieved");
 	
 		/* Logic */
 		// If the game just started
 		if(store.state.room.gameState === "LOBBY" && newRoomData.gameState === "PLAYING") {
-			console.log("Game has started!");
+			console.debug("Game has started!");
 			store.dispatch('showInterstitial', {title: 'Round 1', subtitle: `${store.state.room.turn.czar} is the Czar.`});
 		}
 
@@ -324,7 +324,7 @@ class GameManager {
 	 * @param {string} winner - Username of the winner
 	 */
 	async endGame(winner) {
-		console.log(`${winner} wins!`);
+		console.debug(`${winner} wins!`);
 
 		await this.roomDocRef.update({
 			winner: winner,
