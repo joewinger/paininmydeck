@@ -71,13 +71,16 @@ export default {
   align-items: center;
 
 	width: 100%;
+	padding: 0 5vw;
+	box-sizing: border-box;
 
+	scroll-behavior: smooth;
   color: inherit;
 }
 #cardContainer {
-	width: 90vw;
+	width: 100%;
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(150px, auto)); /* 150 = width of white card */
+	grid-template-columns: repeat(auto-fill, min(150px, 48%)); /* 150 = width of white card */
 	gap: 10px;
 	padding: 10px;
 
