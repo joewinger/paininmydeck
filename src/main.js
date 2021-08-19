@@ -6,6 +6,8 @@ import GameManager from './gameManager';
 import 'firebase/analytics';
 import TextareaAutosize from 'vue-textarea-autosize';
 import fastclick from 'fastclick';
+import '@/assets/variables.css';
+import '@/assets/global.css';
 
 fastclick.attach(document.body);
 
