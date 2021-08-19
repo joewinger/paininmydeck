@@ -61,8 +61,13 @@ export default {
 		},
 		saveBlankCard() {
 			this.editing = false;
-			if(this.blanktext == '') {
-				this.$store.dispatch('error', {message: "Blank cards can't be blank!"})
+			if (this.blanktext == '') {
+				this.$store.dispatch('error', {message: "Blank cards can't be blank!"});
+				return;
+			}
+			if (this.blanktext.startsWith('%BLANK%')) {
+				this.$store.dispatch('error', {message: "Blank cards can't begin like that!"});
+				this.blanktext = '';
 				return;
 			}
 			this.$store.dispatch('user/updateBlankCard', {blankText: this.text, newText: this.blanktext});
