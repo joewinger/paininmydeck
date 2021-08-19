@@ -80,7 +80,7 @@ export default {
 #cardContainer {
 	width: 100%;
 	display: grid;
-	grid-template-columns: repeat(auto-fill, min(150px, 48%)); /* 150 = width of white card */
+	grid-template-columns: repeat(auto-fit, min(150px, 48%)); /* 150 = width of white card */
 	gap: 10px;
 	padding: 10px;
 	/* Mainly to leave room so the status bar doesn't cover up our cards */
