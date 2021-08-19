@@ -47,7 +47,7 @@ export default {
 			// 	return;
 			// }
 
-			console.log("Starting the game!");
+			console.debug("Starting the game!");
 			this.starting = true;
 			await this.$game.startGame();
 			this.starting = false;
