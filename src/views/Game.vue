@@ -83,6 +83,8 @@ export default {
 	grid-template-columns: repeat(auto-fill, min(150px, 48%)); /* 150 = width of white card */
 	gap: 10px;
 	padding: 10px;
+	/* Mainly to leave room so the status bar doesn't cover up our cards */
+	margin-bottom: 70px;
 
 	justify-items: center;
 
