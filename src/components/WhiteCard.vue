@@ -21,7 +21,8 @@ export default {
 	data() {
 		return {
 			blanktext: '',
-			editing: false
+			editing: false,
+			disableClicks: false
 		}
 	},
 	computed: {
@@ -45,7 +46,8 @@ export default {
 				return;
 			}
 
-			if(this.$store.getters['user/isCzar']) {
+			if(this.$store.getters['user/isCzar'] && !this.disableClicks && this.$store.state.room.turn.winningCard == null) {
+				this.disableClicks = true;
 				this.$game.chooseCard(this.text);
 			} else {
 				if(this.$store.state.user.playedThisTurn) return;
