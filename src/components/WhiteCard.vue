@@ -5,8 +5,11 @@
 		<transition name="save-btn">
 			<button v-if="isBlank && editing" class="save" @click="saveBlankCard"><ion-icon name="save" size="small" /></button>
 		</transition>
-		<div class="winner-credit" v-if="this.isWinner">
-			Played by: {{this.$store.state.room.turn.winningCard.playedBy}}
+		<div class="ribbon" v-if="this.isWinner">
+			<div class="ribbon-content">
+				<small>Played by</small>
+				{{ this.$store.state.room.turn.winningCard.playedBy }}
+			</div>
 		</div>
 	</div>
 </template>
@@ -137,6 +140,7 @@ export default {
 
 .winner, .winner:hover {
 	transform: scale(1.1);
+	z-index: 1250;
 }
 
 .whiteCard.blank {
@@ -202,13 +206,73 @@ export default {
 .save-btn-enter-to {
 	transform: scale(1.1);
 }
-.winner-credit {
+.ribbon {
+	--overhang: calc(1em + var(--ui-border-width));
+	--color: var(--primary-300);
+	--color-2: var(--primary-400);
 	position: absolute;
 	color: #828282;
 
-	left: 15px;
-	bottom: 15px;
+	top: 60%;
+	/* offset by 1em + the border, so when we come back -1em we hit the outside of the card */
+	left: calc(var(--overhang) * -1);
+	width: calc(100% + (var(--overhang) * 2));
+	height: 2.2em;
 
-	font-size: 0.9em;
+	background-color: var(--color);
+
+	text-align: center;
+}
+.ribbon::before, .ribbon::after {
+	--length: 1.5em;
+	content: "";
+	position: absolute;
+	bottom: -1em;
+
+	border: 1em solid var(--color);
+
+	z-index: -1;
+}
+.ribbon::before {
+	left: calc(var(--length) * -1);
+	border-right-width: var(--length);
+	border-left-color: transparent;
+}
+.ribbon::after {
+	right: calc(var(--length) * -1);
+	border-left-width: var(--length);
+	border-right-color: transparent;
+}
+
+.ribbon-content {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+
+	height: 100%;
+
+	color: white;
+}
+.ribbon-content small {
+	font-size: 0.5em;
+}
+.ribbon-content small::before, .ribbon-content small::after {
+	content: " - ";
+}
+.ribbon-content::before, .ribbon-content::after {
+	content: "";
+	position: absolute;
+	bottom: -1em;
+	border-color: var(--color-2) transparent transparent transparent;
+	border-style: solid;
+}
+.ribbon-content::before {
+	left: 0;
+	border-width: 1em 0 0 1em;
+}
+.ribbon-content::after {
+	right: 0;
+	border-width: 1em 1em 0 0;
 }
 </style>
