@@ -40,6 +40,7 @@ export default {
 			return false;
 		},
 		cardSet() {
+			if (this.$store.state.room.turn.winningCard) return [this.$store.state.room.turn.winningCard]
 			if (this.isCzar || this.playedThisTurn) return this.playedCards
 			if (!this.isCzar && !this.playedThisTurn) return this.hand
 			return null;
