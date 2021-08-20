@@ -135,10 +135,12 @@ class GameManager {
 		// TODO: Handle us leaving mid-game - Re-assign the czar if it's us, maybe add our cards back in the pile
 		console.debug(`Leaving room ${store.state.room.roomId}...`);
 		
-
 		if(this.unsubFromRoomDoc != null) this.unsubFromRoomDoc();
-		if(this.unsubFromChatDoc != null) this.unsubFromChatDoc();
 		if(this.unsubFromUserDoc != null) this.unsubFromUserDoc();
+		if(this.unsubFromChatDoc != null) {
+			if(store.state.user.username) store.dispatch('room/sendSystemMessage', `${store.state.user.username} has left the game.`);
+			this.unsubFromChatDoc();
+		}
 			
 		// Get rid of our individual document
 		if(this.userDocRef !== null) this.userDocRef.delete()
@@ -176,6 +178,8 @@ class GameManager {
 			`users.${username}.points`, 0,
 			`users.${username}.czarOrder`, store.state.room.users.length
 		);
+
+		store.dispatch('room/sendSystemMessage', `${username} has joined this bitch.`);
 	
 		store.commit('user/setUsername', username); // Save so that we remember who we are
 	}
