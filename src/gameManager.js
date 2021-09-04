@@ -146,11 +146,11 @@ class GameManager {
 		}
 			
 		// Get rid of our individual document
-		if(this.userDocRef !== null) this.userDocRef.delete()
+		if(this.userDocRef != null) this.userDocRef.delete()
 		.catch(e => console.error(`${e.code}: ${e.message}`));
 	
 		// Remove us from the list of players
-		if(this.roomDocRef !== null && store.state.user.username) this.roomDocRef.update(`users.${store.state.user.username}`, firebase.firestore.FieldValue.delete())
+		if(this.roomDocRef != null && store.state.user.username) this.roomDocRef.update(`users.${store.state.user.username}`, firebase.firestore.FieldValue.delete())
 		.catch(e => console.error(`${e.code}: ${e.message}`));
 		if(!store.state.user.username) console.error(`Username is blank, could not remove from users list`);
 	
