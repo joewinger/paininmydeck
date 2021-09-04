@@ -13,7 +13,10 @@ class GameManager {
 	// Initialize Firebase right away; this'll be one of the first things run any time
 	// the page is loaded.	
 	constructor() {
-		this.initializeFirebase();
+		this.isInitialized = new Promise((resolve, reject) => {
+			this.initializeFirebase().then(() => resolve())
+			.catch((e) => reject(e));
+		});
 	}
 
 	// Attach ourselves to the global Vue object, so we can call e.g. $game.createRoom() from components

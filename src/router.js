@@ -14,8 +14,9 @@ const routes = [
     path: '/',
     name: 'home',
     component: Home,
-    beforeEnter: (to, from, next) => {
+    beforeEnter: async (to, from, next) => {
       // If our state indicates that we are in a room, leave it.
+      await GameManager.isInitialized;
       if(store.state.room.roomId !== null) GameManager.leaveRoom();
       next();
     }
@@ -24,7 +25,8 @@ const routes = [
     path: '/join/:roomId',
     name: 'lobby',
     component: Lobby,
-    beforeEnter: (to, from, next) => {
+    beforeEnter: async (to, from, next) => {
+      await GameManager.isInitialized;
       GameManager.joinRoom(to.params.roomId)
       .then(() => next())
       .catch((e) => {
