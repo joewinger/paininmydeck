@@ -344,11 +344,13 @@ class GameManager {
 
 		// Figure out who played the card we selected
 		const playedBy = store.state.room.turn.playedCards.find(c => c.text == cardText).playedBy;
+		// Should it have handwritten font?
+		const wasBlank = store.state.room.turn.playedCards.find(c => c.text == cardText).blank || false;
 
 		// Update the room document:
 		//		1) Let everyone know which card was chosen
 		//		2) Grant the winner their points
-		await this.roomDocRef.update('turn.winningCard', { text: cardText, playedBy: playedBy },
+		await this.roomDocRef.update('turn.winningCard', { text: cardText, playedBy: playedBy, blank: wasBlank },
 														`users.${playedBy}.points`, firebase.firestore.FieldValue.increment(1));
 
 		// Figure out if somebody has reached the threshold to win the game

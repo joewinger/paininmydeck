@@ -145,8 +145,14 @@ export default {
 	z-index: 1250;
 }
 
+.whiteCard.blankfont { /* Used to show played blank cards with a hand written font */
+	font-family: 'Nanum Pen Script', aktiv-grotesk, Helvetica, sans-serif;
+	font-size: 1.7em;
+}
 .whiteCard.blank {
 	cursor: text;
+	font-family: 'Nanum Pen Script', aktiv-grotesk, Helvetica, sans-serif;
+	font-size: 1.7em; /* Nanum Pen Script is smaller than Aktiv Grotesk, this comps for that. Calculation was done by eye, so not perfect. */
 }
 .whiteCard.blank textarea {
 	width: 100%;
@@ -175,6 +181,8 @@ export default {
 	top: calc(50% - 25px);
 	left: calc(50% - 30px);
 
+	font-family: aktiv-grotesk, Helvetica, sans-serif;
+	font-size: clamp(1rem, 5.2vw, 1.25rem);
 	text-align: center;
 	color: var(--gray-200);
 }
@@ -223,6 +231,9 @@ export default {
 
 	background-color: var(--color);
 
+	/* Redefine font in case it's a blank card */
+	font-family: aktiv-grotesk, Helvetica, sans-serif;
+	font-size: clamp(1rem, 5.2vw, 1.25rem);
 	text-align: center;
 }
 .ribbon::before, .ribbon::after {

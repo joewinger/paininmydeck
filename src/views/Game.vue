@@ -7,6 +7,7 @@
 		<transition-group id="cardContainer" tag="div" name="cards">
 			<white-card v-for="(card, index) in cardSet"
 				:key='card.text || card'
+				:class="{'blankfont': card.blank}"
 				:style="{'--delay': index*0.2+'s'}"
 				:text='card.text || card'
 				:facedown="(playedThisTurn || isCzar) && turnStatus === 'WAITING_FOR_CARDS'" />
