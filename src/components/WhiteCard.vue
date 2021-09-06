@@ -3,7 +3,7 @@
 		<div class="card-text" v-if="!facedown && !isBlank">{{ this.text }}</div>
 		<textarea v-if="isBlank" v-model="blanktext" class="blank-input" :placeholder='"Blank\nCard"' @blur="onBlur" />
 		<transition name="save-btn">
-			<button v-if="isBlank && editing" class="save" @click="saveBlankCard"><ion-icon name="save" size="small" /></button>
+			<button v-if="isBlank && editing" class="save" @click="submitBlankCard"><ion-icon name="checkmark" /></button>
 		</transition>
 		<div class="ribbon" v-if="this.isWinner">
 			<div class="ribbon-content">
@@ -55,7 +55,7 @@ export default {
 			} else {
 				if(this.$store.state.user.playedThisTurn) return;
 
-				this.$game.playCard(this.text);
+				this.$game.submitCard(this.text);
 			}
 		},
 		onBlur(e) {
@@ -64,8 +64,10 @@ export default {
 			if(e.relatedTarget && e.relatedTarget.classList.contains('save')) return;
 			this.editing = false;
 		},
-		saveBlankCard() {
+		submitBlankCard() {
 			this.editing = false;
+			this.blanktext = this.blanktext.trim();
+
 			if (this.blanktext == '') {
 				this.$store.dispatch('error', {message: "Blank cards can't be blank!"});
 				return;
@@ -75,7 +77,7 @@ export default {
 				this.blanktext = '';
 				return;
 			}
-			this.$store.dispatch('user/updateBlankCard', {blankText: this.text, newText: this.blanktext});
+			this.$game.submitBlankCard(this.text, this.blanktext);
 		}
 	}
 }

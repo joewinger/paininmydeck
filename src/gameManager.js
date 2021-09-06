@@ -270,11 +270,11 @@ class GameManager {
 	}
 
 	/**
-	 * Plays a card - Removes the card from our hand (in local state & in
+	 * Submits a card - Removes the card from our hand (in local state & in
 	 * the db) & updates the room doc to reflect our played card
 	 * @param {String} cardText - The text on the card
 	 */
-	playCard(cardText) { // TODO: Move this to be a vuex action?
+	submitCard(cardText) { // TODO: Move this to be a vuex action?
 		if(store.getters['user/isCzar']) return; // Just in case this somehow gets called
 
 		// Remove the card we just played from our hand
@@ -288,7 +288,45 @@ class GameManager {
 		
 		// Update the room document to add our card in to play
 		this.roomDocRef.update({
-			'turn.playedCards': firebase.firestore.FieldValue.arrayUnion({ text: cardText, playedBy: store.state.user.username })
+			'turn.playedCards': firebase.firestore.FieldValue.arrayUnion({
+				text: cardText,
+				playedBy: store.state.user.username
+			})
+		});
+
+		store.commit('user/setPlayedThisTurn', true);
+	}
+
+	/**
+	 * Submits a blank card - Removes the card from our hand (in local state & in
+	 * the db) & updates the room doc to reflect our played card
+	 * @param {String} cardText - The card text as it appears in the db and state ('%BLANK% ...')
+	 * @param {String} customText - The text we'd like the submitted card to show
+	 */
+	submitBlankCard(cardText, customText) {
+		if(store.getters['user/isCzar']) return; // Just in case this somehow gets called
+		
+		// Capitalize and punctuate the card
+		customText = customText.charAt(0).toUpperCase() + customText.substring(1);
+		const punctuation = ['.', '!', '?', '(', ')'];
+		if (!punctuation.includes(customText.charAt(customText.length-1))) customText += '.';
+
+		// Remove the card we just played from our hand
+		const newHand = store.state.user.hand.filter(c => c != cardText);
+
+		// And update our user document to reflect the change
+		this.userDocRef.update({
+			hand: newHand,
+			numCardsInHand: newHand.length
+		});
+		
+		// Update the room document to add our card in to play
+		this.roomDocRef.update({
+			'turn.playedCards': firebase.firestore.FieldValue.arrayUnion({
+				text: customText,
+				playedBy: store.state.user.username,
+				blank: true
+			})
 		});
 
 		store.commit('user/setPlayedThisTurn', true);

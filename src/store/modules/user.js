@@ -16,15 +16,7 @@ const mutations = {
 	reset: (state) => Object.keys(initialState).forEach(key => state[key] = initialState[key])
 }
 
-const	actions = {
-	updateBlankCard({ state, commit }, {blankText, newText}) {
-		newText = newText.charAt(0).toUpperCase() + newText.substring(1);
-		const punctuation = ['.', '!', '?', '(', ')'];
-		if (!punctuation.includes(newText.charAt(newText.length-1))) newText += '.';
-		let hand = state.hand.map(card => card === blankText ? newText : card);
-		commit('updateHand', hand);
-	}
-}
+const	actions = {}
 
 const getters = {
 	isCzar(state, getters, rootState) {
