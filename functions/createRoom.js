@@ -7,7 +7,8 @@ const DEFAULT_DOCS = {
     settings: {
       pointsToWin: 10,
       cardsPerHand: 7,
-      numBlankCards: 0,
+      numBlankCards: 0,   // Blanks floating in the deck
+			guaranteedBlanks: 0,// Guaranteed blanks everyone starts with
       allBlanks: false,
     },
     turn: {

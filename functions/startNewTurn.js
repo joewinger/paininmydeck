@@ -28,14 +28,23 @@ exports.handler = async function(data, context, db, admin) {
 		const userData = userDoc.data();
 		
 		// Figure out how many cards this user needs
-		const numCardsNeeded = roomData.settings.cardsPerHand - userData.numCardsInHand;
+		let numCardsNeeded = roomData.settings.cardsPerHand - userData.numCardsInHand;
 		console.log(`User ${userDoc.id} needs ${numCardsNeeded} cards in room ${roomId}`);
+
+		let cardsToGive = []; // The array of cards we'll add to the player's hand
+
+		if(roomData.turn.round === 0) { // If this is the first draw
+			numCardsNeeded -= roomData.settings.guaranteedBlanks;
+			for(let i = 0; i < roomData.settings.guaranteedBlanks; i++) {
+				cardsToGive.push(`%BLANK% Guaranteed ${i+1}`);
+			}
+		}
 
 		// Make sure we have enough cards left - TODO: handle this better/let the user know what's happening
 		if(answerDeck.length < numCardsNeeded) console.error("Not enough answer cards left!");
 
 		// Take the cards we need off the top of the deck
-		const cardsToGive = answerDeck.slice(0, numCardsNeeded);
+		cardsToGive.push(...answerDeck.slice(0, numCardsNeeded));
 
 		// Remove the cards we took from the deck
 		answerDeck = answerDeck.filter(card => !cardsToGive.includes(card));

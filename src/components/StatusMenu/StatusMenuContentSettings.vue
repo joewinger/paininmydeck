@@ -11,8 +11,12 @@
 				<td><input type="number" v-model.number="pointsToWin" /></td>
 			</tr>
 			<tr>
-				<td>Blank Cards</td>
+				<td>Deck Blank Cards</td>
 				<td><input type="number" v-model.number="numBlankCards" /></td>
+			</tr>
+			<tr>
+				<td>Guaranteed Blanks</td>
+				<td><input type="number" v-model.number="guaranteedBlanks" /></td>
 			</tr>
 			<tr>
 				<td>All Blanks!</td>
@@ -41,6 +45,7 @@ export default {
 			changeCardsPerHand: -1,
 			changePointsToWin: -1,
 			changeNumBlankCards: -1,
+			changeGuaranteedBlanks: -1,
 			allBlanks: this.$store.state.room.settings.allBlanks
 		}
 	},
@@ -72,6 +77,15 @@ export default {
 				this.changeNumBlankCards = value;
 			}
 		},
+		guaranteedBlanks: {
+			get() {
+				if(this.changeGuaranteedBlanks === -1) return this.$store.state.room.settings.guaranteedBlanks;
+				return this.changeGuaranteedBlanks;
+			},
+			set(value) {
+				this.changeGuaranteedBlanks = value;
+			}
+		},
 	},
 	methods: {
 		updateSettings() {
@@ -80,6 +94,7 @@ export default {
 				cardsPerHand: (this.changeCardsPerHand !== -1) ? this.changeCardsPerHand : this.cardsPerHand,
 				pointsToWin: (this.changePointsToWin !== -1) ? this.changePointsToWin : this.pointsToWin,
 				numBlankCards: (this.changeNumBlankCards !== -1) ? this.changeNumBlankCards : this.numBlankCards,
+				guaranteedBlanks: (this.changeGuaranteedBlanks !== -1) ? this.changeGuaranteedBlanks : this.guaranteedBlanks,
 				allBlanks: this.allBlanks
 			}
 
@@ -88,6 +103,7 @@ export default {
 			this.changeCardsPerHand = -1;
 			this.changePointsToWin = -1;
 			this.changeNumBlankCards = -1;
+			this.changeGuaranteedBlanks = -1;
 		},
 		toggleAccordion() {
 			const contentEl = this.$refs.deckSettingsAccordianContent;
