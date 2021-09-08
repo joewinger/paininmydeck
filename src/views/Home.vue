@@ -8,8 +8,12 @@
 
 		<h3>Join a game</h3>
 		<input type="text" v-model="roomId" @keyup.enter="joinRoom()" placeholder="Room ID">
-		<button-loadable @click="joinRoom" class="primary" style="margin-top: -5px;">Join Game</button-loadable>
-		
+		<div style="display: flex; gap: 5px; margin-top: -5px; align-items: center;">
+			<button-loadable @click="joinRoom" class="primary">Join Game</button-loadable>
+			or
+			<button-loadable @click="joinRandomRoom" style="padding: 9px;"><ion-icon name="shuffle" title="Join a Random Room" /></button-loadable>
+		</div>
+
 		<h3>Or start your own</h3>
 		<div style="display: flex; gap: 5px;">
 			<button-loadable @click="createRoom">Start a new Game</button-loadable>
@@ -35,6 +39,14 @@ export default {
 			if (this.roomId != "") this.$router.push({ name: 'lobby', params: {roomId: this.roomId} });
 			else this.$store.dispatch('error', { message: 'Please enter a valid room number! 🤡' });
 			
+			btnCallback();
+		},
+		async joinRandomRoom (btnCallback = () => {}) {
+			let roomID = await this.$game.findRandomRoom();
+
+			if (roomID) this.$router.push({ name: 'lobby', params: {roomId: roomID} });
+			else this.$store.dispatch('error', { message: 'No public games available to join :\'(' });
+				
 			btnCallback();
 		},
 		async createRoom (btnCallback = () => {}) {

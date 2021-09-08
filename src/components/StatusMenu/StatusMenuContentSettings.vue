@@ -26,6 +26,10 @@
 				<td>Family Mode</td>
 				<td><input type="checkbox" v-model="familyMode" /></td>
 			</tr>
+			<tr>
+				<td>Public Game</td>
+				<td><input type="checkbox" v-model="publicGame" /></td>
+			</tr>
 		</table>
 		<!-- <div class="accordion">
 			<div class="accordion-title" @click="toggleAccordion">
@@ -51,7 +55,8 @@ export default {
 			changeNumBlankCards: -1,
 			changeGuaranteedBlanks: -1,
 			allBlanks: this.$store.state.room.settings.allBlanks,
-			familyMode: this.$store.state.room.settings.familyMode
+			familyMode: this.$store.state.room.settings.familyMode,
+			publicGame: this.$store.state.room.settings.public
 		}
 	},
 	computed: {
@@ -101,7 +106,8 @@ export default {
 				numBlankCards: (this.changeNumBlankCards !== -1) ? this.changeNumBlankCards : this.numBlankCards,
 				guaranteedBlanks: (this.changeGuaranteedBlanks !== -1) ? this.changeGuaranteedBlanks : this.guaranteedBlanks,
 				allBlanks: this.allBlanks,
-				familyMode: this.familyMode
+				familyMode: this.familyMode,
+				public: this.publicGame
 			}
 
 			this.$store.dispatch('room/updateSettings', settingsObject);

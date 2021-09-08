@@ -115,6 +115,16 @@ class GameManager {
 	}
 
 	/**
+	 * Find a random public room that's in lobby mode
+	 * @returns {number} ID of random open lobby, or null if none are available
+	 */
+	async findRandomRoom() {
+		let openRooms = await this.db.collection('games').where('gameState', '==', 'LOBBY').where('settings.public', '==', true).get();
+		
+		return (openRooms.docs.length == 0) ? null : openRooms.docs[Math.floor(Math.random() * openRooms.docs.length)].id;
+	}
+
+	/**
 	 * Calls our firebase serverless function to create a new room & returns the ID.
 	 * 
 	 * @returns {number} ID of newly created room
