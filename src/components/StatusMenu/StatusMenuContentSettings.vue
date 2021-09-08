@@ -22,6 +22,10 @@
 				<td>All Blanks!</td>
 				<td><input type="checkbox" v-model="allBlanks" /></td>
 			</tr>
+			<tr>
+				<td>Family Mode</td>
+				<td><input type="checkbox" v-model="familyMode" /></td>
+			</tr>
 		</table>
 		<!-- <div class="accordion">
 			<div class="accordion-title" @click="toggleAccordion">
@@ -46,7 +50,8 @@ export default {
 			changePointsToWin: -1,
 			changeNumBlankCards: -1,
 			changeGuaranteedBlanks: -1,
-			allBlanks: this.$store.state.room.settings.allBlanks
+			allBlanks: this.$store.state.room.settings.allBlanks,
+			familyMode: this.$store.state.room.settings.familyMode
 		}
 	},
 	computed: {
@@ -95,7 +100,8 @@ export default {
 				pointsToWin: (this.changePointsToWin !== -1) ? this.changePointsToWin : this.pointsToWin,
 				numBlankCards: (this.changeNumBlankCards !== -1) ? this.changeNumBlankCards : this.numBlankCards,
 				guaranteedBlanks: (this.changeGuaranteedBlanks !== -1) ? this.changeGuaranteedBlanks : this.guaranteedBlanks,
-				allBlanks: this.allBlanks
+				allBlanks: this.allBlanks,
+				familyMode: this.familyMode
 			}
 
 			this.$store.dispatch('room/updateSettings', settingsObject);

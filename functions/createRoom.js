@@ -9,6 +9,7 @@ const DEFAULT_DOCS = {
       cardsPerHand: 7,
       numBlankCards: 0,   // Blanks floating in the deck
 			guaranteedBlanks: 0,// Guaranteed blanks everyone starts with
+			familyMode: false,  // Don't use any cards marked as obscene, offensive, or sexual
       allBlanks: false,
     },
     turn: {

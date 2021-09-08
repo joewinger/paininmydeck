@@ -17,10 +17,10 @@ exports.handler = async function(data, context, db, admin) {
 	return true;
 }
 
-async function generateGameDecks(db, roomId, settings = { numBlankCards: 0, allBlanks: false }) {
+async function generateGameDecks(db, roomId, settings = { numBlankCards: 0, allBlanks: false, familyMode: false }) {
 	console.log(`Generating decks for room ${roomId}`);
 	
-	if(settings === null) {
+	if (settings === null) {
 		console.log(`No settings. Using all cards for room ${roomId}`);
 	}
 
@@ -32,9 +32,18 @@ async function generateGameDecks(db, roomId, settings = { numBlankCards: 0, allB
 	let numBlanks = settings.allBlanks ? 500 : settings.numBlankCards
 	for (let i = 0; i < numBlanks; i++) answerDeck.push(`%BLANK% ${i+1}`);
 
-	await db.collection('cards').get().then(querySnapshot => {
+	let cardCollection = db.collection('cards');
+
+	if (settings.familyMode) {
+		cardCollection = cardCollection.where('flags.obscene', '==', false)
+		.where('flags.offensive', '==', false)
+		.where('flags.sex', '==', false);
+	}
+
+	await cardCollection.get().then(querySnapshot => {
 		querySnapshot.forEach(cardDocSnapshot => {
 			let cardType = cardDocSnapshot.data().cardType;
+			console.log(`${cardDocSnapshot.id}: ${cardDocSnapshot.data().text}`);
 
 			if(cardType === "Q") questionDeck.push(cardDocSnapshot.get('text'));
 			if(cardType === "A" && !settings.allBlanks) answerDeck.push(cardDocSnapshot.get('text'));
