@@ -10,6 +10,7 @@ Vue.use(Vuex);
 const persistence = new statePersistence({
 	storage: sessionStorage,
 	key: 'savedState',
+	omitKeys: ['interstitial'], // Don't save interstital data, we don't want to re-draw those if we reload.
 	onRestoreState: () => {}
 });
 
@@ -52,7 +53,7 @@ const store = new Vuex.Store({
 				title = `Round ${round}`;
 
 				let users = store.getters['room/sortedUsers'];
-				if(users[0].points === 0) subtitle = `${state.room.turn.czar} is the Czar`; // First turn
+				if(users[0].points === 0) subtitle = `${state.room.turn.czar} is the Czar`; // First round
 				else if(users[0].points === users[1].points) subtitle = 'First place is tied.'
 				else subtitle = `${users[0].username} is in the lead.`
 			}
