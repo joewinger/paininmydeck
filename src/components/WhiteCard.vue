@@ -33,27 +33,27 @@ export default {
 			return this.text.startsWith('%BLANK%');
 		},
 		isWinner() {
-			if(this.$store.state.room.turn.winningCard !== null) {
+			if (this.$store.state.room.turn.winningCard !== null) {
 				return this.$store.state.room.turn.winningCard.text === this.text;
 			} else return false;
 		}
 	},
 	methods: {
 		onClick(mouseEvent) {
-			if(this.text == null || this.facedown) return;
+			if (this.text == null || this.facedown) return;
 
-			if(this.isBlank) {
+			if (this.isBlank) {
 				let card = mouseEvent.target;
 				if (card.classList.contains('whiteCard')) card.querySelector('.blank-input').focus();
 				this.editing = true;
 				return;
 			}
 
-			if(this.$store.getters['user/isCzar'] && !this.disableClicks && this.$store.state.room.turn.winningCard == null) {
+			if (this.$store.getters['user/isCzar'] && !this.disableClicks && this.$store.state.room.turn.winningCard == null) {
 				this.disableClicks = true;
 				this.$game.chooseCard(this.text);
 			} else {
-				if(this.$store.state.user.playedThisTurn) return;
+				if (this.$store.state.user.playedThisTurn) return;
 
 				this.$game.submitCard(this.text);
 			}
@@ -61,7 +61,7 @@ export default {
 		onBlur(e) {
 			// If we stop editing, the save button vanishes. If we click the
 			// save button, don't stop editing until we've finished saving.
-			if(e.relatedTarget && e.relatedTarget.classList.contains('save')) return;
+			if (e.relatedTarget && e.relatedTarget.classList.contains('save')) return;
 			this.editing = false;
 		},
 		submitBlankCard() {

@@ -40,8 +40,8 @@ export default {
 	},
 	methods: {
 		async startGame(btnCallback) {
-			if(this.starting) return;
-			// if(this.$store.state.room.users.length < this.minPlayers) {
+			if (this.starting) return;
+			// if (this.$store.state.room.users.length < this.minPlayers) {
 			// 	this.$store.dispatch('error', { message: `At least ${this.minPlayers} players are needed to start a game!` });
 			// 	btnCallback();
 			// 	return;

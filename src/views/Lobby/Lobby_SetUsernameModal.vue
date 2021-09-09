@@ -50,11 +50,11 @@ export default {
 			this.myColorSet = colorSet;
 		},
 		addUser() {
-			if(this.username == '') {
+			if (this.username == '') {
 				this.$store.dispatch('error', { message: 'Username can not be blank!', title: 'Invalid Username' });
 				return;
 			}
-			if(this.$store.state.room.users.some((user) => user.username == this.username)) { // Is there already a user with this name?
+			if (this.$store.state.room.users.some((user) => user.username == this.username)) { // Is there already a user with this name?
 				this.$store.dispatch('error', { message: `The username ${this.username} has already been taken!`, title: 'Invalid Username' });
 				this.username = '';
 				return;

@@ -58,9 +58,9 @@ function generateRoomId(db) {
 
 		fetchAllRooms(db).then(allRooms => {
 			
-			if(allRooms.length === max) return reject(new functions.https.HttpsError('resource-exhausted', 'Every possible room ID is taken.'));
+			if (allRooms.length === max) return reject(new functions.https.HttpsError('resource-exhausted', 'Every possible room ID is taken.'));
 
-			while(allRooms.includes(roomId)) { // This room ID is already in use
+			while (allRooms.includes(roomId)) { // This room ID is already in use
 				roomId = Math.floor(Math.random() * (max + 1)).toString().padStart(4, 0);
 			}
 

@@ -28,7 +28,7 @@ export default {
 		sendMessage(event) {
 			event.preventDefault();
 
-			if(this.messageText === '') return;
+			if (this.messageText === '') return;
 
 			this.$store.dispatch('room/sendChatMessage', this.messageText);
 			this.messageText = '';

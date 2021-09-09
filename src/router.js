@@ -17,7 +17,7 @@ const routes = [
     beforeEnter: async (to, from, next) => {
       // If our state indicates that we are in a room, leave it.
       await GameManager.isInitialized;
-      if(store.state.room.roomId !== null) GameManager.leaveRoom();
+      if (store.state.room.roomId !== null) GameManager.leaveRoom();
       next();
     }
   },
@@ -30,7 +30,7 @@ const routes = [
       GameManager.joinRoom(to.params.roomId)
       .then(() => next())
       .catch((e) => {
-        if(e === 'ROOM_DOES_NOT_EXIST') {
+        if (e === 'ROOM_DOES_NOT_EXIST') {
           store.dispatch('error', { title: 'Invalid Room ID', message: `No room exists with the ID ${to.params.roomId}` })
           next('/');
           return;
@@ -46,7 +46,7 @@ const routes = [
     name: 'game',
     component: Game,
     beforeEnter: (to, from, next) => { // https://router.vuejs.org/guide/advanced/navigation-guards.html
-      if(store.state.room.roomId !== null && store.state.room.gameState === 'PLAYING') {
+      if (store.state.room.roomId !== null && store.state.room.gameState === 'PLAYING') {
         // Verify that our state dictates we should be here
         next();
       } else next('/');
@@ -57,7 +57,7 @@ const routes = [
     name: 'gameover',
     component: GameOver,
     beforeEnter: (to, from, next) => {
-      if(store.state.room.roomId !== null && store.state.room.gameState === 'FINISHED') {
+      if (store.state.room.roomId !== null && store.state.room.gameState === 'FINISHED') {
         // Verify that our state dictates we should be here
         next();
       } else next('/');

@@ -31,7 +31,7 @@ export default {
 	},
 	computed: {
 		status() {
-			if(this.$store.state.room.turn.czar === this.userObj.username) {
+			if (this.$store.state.room.turn.czar === this.userObj.username) {
 				return statusMessages.czar
 			}
 			return this.playedCard ? statusMessages.played : statusMessages.waiting;

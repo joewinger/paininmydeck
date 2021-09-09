@@ -15,7 +15,7 @@ class statePersistence {
 		this.restoreState = (store) => {
 			store.commit('RESTORE_STATE_MUTATION', this.getSavedState());
 			
-			if(options.onRestoreState !== undefined) options.onRestoreState();
+			if (options.onRestoreState !== undefined) options.onRestoreState();
 		}
 
 		this.plugin = (store) => {

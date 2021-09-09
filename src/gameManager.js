@@ -33,7 +33,7 @@ class GameManager {
 		console.debug("Initializing Firebase...");
 		
 		let fbconfig;
-		if(process.env.NODE_ENV === 'production') {
+		if (process.env.NODE_ENV === 'production') {
 			console.debug("Production mode - using namespaced init config");
 			fbconfig = await fetch('/__/firebase/init.json').then(response => { return response.json(); });
 		} else {
@@ -54,7 +54,7 @@ class GameManager {
 		this.unsubFromUserDoc = 	(this.userDocRef === null) ? null : this.userDocRef.onSnapshot(snap => this.onUserUpdate(snap));
 	
 		// Analytics
-		if(process.env.NODE_ENV === 'production') firebase.analytics();
+		if (process.env.NODE_ENV === 'production') firebase.analytics();
 	
 		console.debug("Firebase Initialized OK");
 	}
@@ -70,12 +70,12 @@ class GameManager {
 	async joinRoom(roomId) {
 		console.debug(`Joining room ${roomId}...`);
 	
-		if(store.state.room.roomId === roomId) { // If we're already in this room -- i.e. if we reload our tab while in lobby
+		if (store.state.room.roomId === roomId) { // If we're already in this room -- i.e. if we reload our tab while in lobby
 			console.debug(`Already connected to room ${roomId} 👍`);
 			return;
 		}
 	
-		if(store.state.room.roomId !== null) await this.leaveRoom();
+		if (store.state.room.roomId !== null) await this.leaveRoom();
 		
 		this.roomDocRef = this.db.doc(`games/${roomId}`);
 		const roomDocSnapshot = await this.roomDocRef.get().catch((err) => {
@@ -91,7 +91,7 @@ class GameManager {
 		
 		console.debug("Success! Room document retrieved.", roomDocSnapshot.data());
 		// Grant us privileges if we're the first player
-		if(Object.keys(roomDocSnapshot.data().users).length === 0) store.commit('user/setPrivileged');
+		if (Object.keys(roomDocSnapshot.data().users).length === 0) store.commit('user/setPrivileged');
 		// Save this roomId so we know we should be connected here
 		store.commit('room/setRoomId', roomDocSnapshot.id);
 		// Save our chat document for reference later
@@ -132,7 +132,7 @@ class GameManager {
 	 */
 	async createRoom() {
 		let roomId = await firebase.functions().httpsCallable('createRoom')().then(roomId => roomId.data);
-		if(!roomId) {
+		if (!roomId) {
 			console.error('Room creation failed :( Check server logs for more info');
 			throw 'ROOM_CREATION_ERROR'
 		}
@@ -148,21 +148,21 @@ class GameManager {
 		// TODO: Handle us leaving mid-game - Re-assign the czar if it's us, maybe add our cards back in the pile
 		console.debug(`Leaving room ${store.state.room.roomId}...`);
 		
-		if(this.unsubFromRoomDoc != null) this.unsubFromRoomDoc();
-		if(this.unsubFromUserDoc != null) this.unsubFromUserDoc();
-		if(this.unsubFromChatDoc != null) {
-			if(store.state.user.username) store.dispatch('room/sendSystemMessage', `${store.state.user.username} has left the game.`);
+		if (this.unsubFromRoomDoc != null) this.unsubFromRoomDoc();
+		if (this.unsubFromUserDoc != null) this.unsubFromUserDoc();
+		if (this.unsubFromChatDoc != null) {
+			if (store.state.user.username) store.dispatch('room/sendSystemMessage', `${store.state.user.username} has left the game.`);
 			this.unsubFromChatDoc();
 		}
 			
 		// Get rid of our individual document
-		if(this.userDocRef != null) this.userDocRef.delete()
+		if (this.userDocRef != null) this.userDocRef.delete()
 		.catch(e => console.error(`${e.code}: ${e.message}`));
 	
 		// Remove us from the list of players
-		if(this.roomDocRef != null && store.state.user.username) this.roomDocRef.update(`users.${store.state.user.username}`, firebase.firestore.FieldValue.delete())
+		if (this.roomDocRef != null && store.state.user.username) this.roomDocRef.update(`users.${store.state.user.username}`, firebase.firestore.FieldValue.delete())
 		.catch(e => console.error(`${e.code}: ${e.message}`));
-		if(!store.state.user.username) console.error(`Username is blank, could not remove from users list`);
+		if (!store.state.user.username) console.error(`Username is blank, could not remove from users list`);
 	
 		// Reset our references
 		this.roomDocRef = null;
@@ -222,24 +222,24 @@ class GameManager {
 	
 		/* Logic */
 		// If the game just started
-		if(store.state.room.gameState === "LOBBY" && newRoomData.gameState === "PLAYING") {
+		if (store.state.room.gameState === "LOBBY" && newRoomData.gameState === "PLAYING") {
 			console.debug("Game has started!");
 			store.dispatch('showInterstitial', {title: 'Round 1', subtitle: `${store.state.room.turn.czar} is the Czar.`});
 		}
 
 		// If a new turn has begun
-		if(newRoomData.gameState === "PLAYING" && store.state.room.turn.questionCard !== newRoomData.turn.questionCard) {
+		if (newRoomData.gameState === "PLAYING" && store.state.room.turn.questionCard !== newRoomData.turn.questionCard) {
 			store.commit('room/updateRound', newRoomData.turn.round);
 			store.commit('user/setPlayedThisTurn', false);
 			store.dispatch('showInterstitial');
 		}
 		
 		/** @todo stop relying on czar for game updates like this */
-		if(store.getters['user/isCzar']) {
+		if (store.getters['user/isCzar']) {
 			// If a new card has been played
-			if(store.state.room.turn.playedCards.length < newRoomData.turn.playedCards.length) {
+			if (store.state.room.turn.playedCards.length < newRoomData.turn.playedCards.length) {
 				// If all cards have been played
-				if(newRoomData.turn.playedCards.length === store.state.room.users.length-1) {
+				if (newRoomData.turn.playedCards.length === store.state.room.users.length-1) {
 					this.roomDocRef.update({
 						'turn.status': 'WAITING_FOR_CZAR'
 					});
@@ -285,7 +285,7 @@ class GameManager {
 	 * @param {String} cardText - The text on the card
 	 */
 	submitCard(cardText) { // TODO: Move this to be a vuex action?
-		if(store.getters['user/isCzar']) return; // Just in case this somehow gets called
+		if (store.getters['user/isCzar']) return; // Just in case this somehow gets called
 
 		// Remove the card we just played from our hand
 		const newHand = store.state.user.hand.filter(c => c != cardText);
@@ -314,7 +314,7 @@ class GameManager {
 	 * @param {String} customText - The text we'd like the submitted card to show
 	 */
 	submitBlankCard(cardText, customText) {
-		if(store.getters['user/isCzar']) return; // Just in case this somehow gets called
+		if (store.getters['user/isCzar']) return; // Just in case this somehow gets called
 		
 		// Capitalize and punctuate the card
 		customText = customText.charAt(0).toUpperCase() + customText.substring(1);
@@ -350,7 +350,7 @@ class GameManager {
 	 */
 	async chooseCard(cardText) {
 		// Kick anyone who's not a czar out of this function (just in case)
-		if(!store.getters['user/isCzar']) return;
+		if (!store.getters['user/isCzar']) return;
 
 		// Figure out who played the card we selected
 		const playedBy = store.state.room.turn.playedCards.find(c => c.text == cardText).playedBy;
@@ -365,7 +365,7 @@ class GameManager {
 
 		// Figure out if somebody has reached the threshold to win the game
 		const winner = store.state.room.users.find(user => user.points >= store.state.room.settings.pointsToWin) || null;
-		if(winner) {
+		if (winner) {
 			this.endGame(winner);
 			return;
 		}

@@ -41,7 +41,7 @@ const mutations = { // Preceding '_' means the mutation should only be called fr
 const actions = {
 	updateUsers({ commit }, usersObj) {
 		let users = []; // Break our object down in to an array so it's easier to work with
-		for(let i = 0; i < Object.keys(usersObj).length; i++) {
+		for (let i = 0; i < Object.keys(usersObj).length; i++) {
 			users[i] = Object.values(usersObj)[i];
 			users[i].username = Object.keys(usersObj)[i];
 		}
@@ -49,7 +49,7 @@ const actions = {
 		commit('_updateUsers', users);
 	},
 	sendChatMessage({ state, rootState, dispatch }, message) {
-		if(message.charAt(0) !== '!') {
+		if (message.charAt(0) !== '!') {
 			firebase.firestore().doc(`games/${state.roomId}/meta/chat`).update({
 				chatMessages: firebase.firestore.FieldValue.arrayUnion({
 					timestamp: dayjs().valueOf(),
@@ -82,19 +82,19 @@ const actions = {
 		});
 	},
 	updateSettings({ state }, settingsObject) {
-		if(settingsObject.cardsPerHand < 3) settingsObject.cardsPerHand = 3;
-		if(settingsObject.pointsToWin < 1) settingsObject.pointsToWin = 1;
+		if (settingsObject.cardsPerHand < 3) settingsObject.cardsPerHand = 3;
+		if (settingsObject.pointsToWin < 1) settingsObject.pointsToWin = 1;
 
 		firebase.firestore().doc(`games/${state.roomId}`).update({
 			settings: settingsObject
 		});
 	},
 	updateGameState({ state, commit }, gameState) {
-		if(state.gameState !== gameState) { // If the state has changed
+		if (state.gameState !== gameState) { // If the state has changed
 			commit('_updateGameState', gameState);
 			
-			if(gameState === 'PLAYING')  router.replace({name: 'game'});
-			if(gameState === 'FINISHED') router.replace({name: 'gameover'});
+			if (gameState === 'PLAYING')  router.replace({name: 'game'});
+			if (gameState === 'FINISHED') router.replace({name: 'gameover'});
 		}
 	}
 }

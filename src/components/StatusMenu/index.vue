@@ -76,7 +76,7 @@ export default {
 	},
 	methods: {
 		toggleMenu(menuName) {
-			if(menuName === 'CHAT') {
+			if (menuName === 'CHAT') {
 				this.hasUnreadMessages = false;
 			}
 			this.currentMenu === menuName ? this.currentMenu = null : this.currentMenu = menuName;
@@ -84,8 +84,8 @@ export default {
 	},
 	created() {
 		this.unsubscribe = this.$store.subscribe((mutation, state) => {
-			if(this.currentMenu === 'CHAT') return;
-			if(mutation.type === 'room/updateChatMessages' && state.room.chatMessages.length > 0) {
+			if (this.currentMenu === 'CHAT') return;
+			if (mutation.type === 'room/updateChatMessages' && state.room.chatMessages.length > 0) {
 				this.hasUnreadMessages = true;
 			}
 		});

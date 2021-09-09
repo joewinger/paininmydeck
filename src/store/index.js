@@ -47,14 +47,14 @@ const store = new Vuex.Store({
 		showInterstitial: ({ state, commit }, options) => {
 			let title, subtitle;
 
-			if(!options) {
+			if (!options) {
 				let round = state.room.turn.round;
 				if (!round) round = 1;
 				title = `Round ${round}`;
 
 				let users = store.getters['room/sortedUsers'];
-				if(users[0].points === 0) subtitle = `${state.room.turn.czar} is the Czar`; // First round
-				else if(users[0].points === users[1].points) subtitle = 'First place is tied.'
+				if (users[0].points === 0) subtitle = `${state.room.turn.czar} is the Czar`; // First round
+				else if (users[0].points === users[1].points) subtitle = 'First place is tied.'
 				else subtitle = `${users[0].username} is in the lead.`
 			}
 			else ({ title, subtitle } = options);

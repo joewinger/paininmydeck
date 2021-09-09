@@ -62,7 +62,7 @@ export default {
 	computed: {
 		cardsPerHand: {
 			get() {
-				if(this.changeCardsPerHand === -1) return this.$store.state.room.settings.cardsPerHand;
+				if (this.changeCardsPerHand === -1) return this.$store.state.room.settings.cardsPerHand;
 				return this.changeCardsPerHand;
 			},
 			set(value) {
@@ -71,7 +71,7 @@ export default {
 		},
 		pointsToWin: {
 			get() {
-				if(this.changePointsToWin === -1) return this.$store.state.room.settings.pointsToWin;
+				if (this.changePointsToWin === -1) return this.$store.state.room.settings.pointsToWin;
 				return this.changePointsToWin;
 			},
 			set(value) {
@@ -80,7 +80,7 @@ export default {
 		},
 		numBlankCards: {
 			get() {
-				if(this.changeNumBlankCards === -1) return this.$store.state.room.settings.numBlankCards;
+				if (this.changeNumBlankCards === -1) return this.$store.state.room.settings.numBlankCards;
 				return this.changeNumBlankCards;
 			},
 			set(value) {
@@ -89,7 +89,7 @@ export default {
 		},
 		guaranteedBlanks: {
 			get() {
-				if(this.changeGuaranteedBlanks === -1) return this.$store.state.room.settings.guaranteedBlanks;
+				if (this.changeGuaranteedBlanks === -1) return this.$store.state.room.settings.guaranteedBlanks;
 				return this.changeGuaranteedBlanks;
 			},
 			set(value) {
@@ -120,7 +120,7 @@ export default {
 		toggleAccordion() {
 			const contentEl = this.$refs.deckSettingsAccordianContent;
 			const toggle = this.$refs.deckSettingsAccordianToggleButton;
-			if(contentEl.classList.contains('visible')) {
+			if (contentEl.classList.contains('visible')) {
 				contentEl.classList.remove('visible');
 				toggle.classList.remove('open');
 			}

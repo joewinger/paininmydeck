@@ -45,8 +45,8 @@ async function generateGameDecks(db, roomId, settings = { numBlankCards: 0, allB
 			let cardType = cardDocSnapshot.data().cardType;
 			console.log(`${cardDocSnapshot.id}: ${cardDocSnapshot.data().text}`);
 
-			if(cardType === "Q") questionDeck.push(cardDocSnapshot.get('text'));
-			if(cardType === "A" && !settings.allBlanks) answerDeck.push(cardDocSnapshot.get('text'));
+			if (cardType === "Q") questionDeck.push(cardDocSnapshot.get('text'));
+			if (cardType === "A" && !settings.allBlanks) answerDeck.push(cardDocSnapshot.get('text'));
 		});
 
 		return null; //

@@ -19,7 +19,7 @@ exports.handler = async function(data, context, db, admin) {
 	let answerDeck = decks.answerDeck;
 
 	// Loop through each user in need of cards & give them cards
-	for(let i = 0; i < usersInNeedOfCards.size; i++) {
+	for (let i = 0; i < usersInNeedOfCards.size; i++) {
 		/* eslint-disable no-await-in-loop */
 
 		// Set our references to make things easy
@@ -33,15 +33,15 @@ exports.handler = async function(data, context, db, admin) {
 
 		let cardsToGive = []; // The array of cards we'll add to the player's hand
 
-		if(roomData.turn.round === 0) { // If this is the first draw
+		if (roomData.turn.round === 0) { // If this is the first draw
 			numCardsNeeded -= roomData.settings.guaranteedBlanks;
-			for(let i = 0; i < roomData.settings.guaranteedBlanks; i++) {
+			for (let i = 0; i < roomData.settings.guaranteedBlanks; i++) {
 				cardsToGive.push(`%BLANK% Guaranteed ${i+1}`);
 			}
 		}
 
 		// Make sure we have enough cards left - TODO: handle this better/let the user know what's happening
-		if(answerDeck.length < numCardsNeeded) console.error("Not enough answer cards left!");
+		if (answerDeck.length < numCardsNeeded) console.error("Not enough answer cards left!");
 
 		// Take the cards we need off the top of the deck
 		cardsToGive.push(...answerDeck.slice(0, numCardsNeeded));
@@ -68,7 +68,7 @@ exports.handler = async function(data, context, db, admin) {
 	let questionDeck = decks.questionDeck;
 
 	// Make sure we have question cards left
-	if(questionDeck.length < 1) throw new Error("No question cards left!");
+	if (questionDeck.length < 1) throw new Error("No question cards left!");
 
 	// Randomly select a new question card
 	const newQuestionCard = questionDeck[Math.floor(Math.random() * questionDeck.length)];
