@@ -40,7 +40,6 @@ export default {
 			}
 
 			const routes = ['home', 'lobby', 'game', 'gameover'];
-			console.log(`${from.name} -> ${to.name}`);
 			this.transitionName = routes.indexOf(to.name) > routes.indexOf(from.name) ? 'slide-left' : 'slide-right';
 		}
 	}
