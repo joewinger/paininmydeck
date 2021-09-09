@@ -34,7 +34,13 @@ export default {
 	},
 	watch: {
 		'$route' (to, from) {
+			if (from.name == null) {
+				this.transitionName = 'default';
+				return;
+			}
+
 			const routes = ['home', 'lobby', 'game', 'gameover'];
+			console.log(`${from.name} -> ${to.name}`);
 			this.transitionName = routes.indexOf(to.name) > routes.indexOf(from.name) ? 'slide-left' : 'slide-right';
 		}
 	}
@@ -77,10 +83,10 @@ export default {
 	opacity: 0;
 	transform: translateX(100vw);
 }
-.slide-right-enter {
+.default-enter {
 	opacity: 0;
 }
-.slide-right-leave-to {
+.default-leave-to {
 	opacity: 0;
 }
 </style>
