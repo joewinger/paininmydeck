@@ -127,13 +127,9 @@ export default {
 	overflow-y: scroll;
 	padding: 15px;
 	border-radius: 15px;
-}
 
-.whiteCard.facedown .card-text {
-	backface-visibility: hidden;
 	-webkit-backface-visibility: hidden;
-	-moz-backface-visibility: hidden;
-	-moz-backface-visibility: hidden;
+	backface-visibility: hidden;
 }
 
 .whiteCard.facedown {
