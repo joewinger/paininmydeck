@@ -42,7 +42,7 @@ const actions = {
 	updateUsers({ commit }, usersObj) {
 		let users = [];
 		// Break our object down in to an array so it's easier to work with
-		// what we recieve: [user1: {a: b, c: d}, user2: {a: b, c: d}]
+		// what we recieve: {user1: {a: b, c: d}, user2: {a: b, c: d}}
 		// what we save:    [{username: user1, a: b, c: d}, {username: user2, a: b, c: d}]
 		for (let i = 0; i < Object.keys(usersObj).length; i++) {
 			users[i] = Object.values(usersObj)[i];
