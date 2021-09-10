@@ -247,16 +247,7 @@ class GameManager {
 			}
 		} 
 	
-		/* Setting state */
-		store.dispatch('room/updateUsers', newRoomData.users);
-		store.commit('room/updateSettings', newRoomData.settings);
-		store.dispatch('room/updateGameState', newRoomData.gameState); // This action routes us depending on the supplied gameState
-		store.commit('room/updateQuestionCard', newRoomData.turn.questionCard);
-		store.commit('room/updateCzar', newRoomData.turn.czar);
-		store.commit('room/updatePlayedCards', newRoomData.turn.playedCards);
-		store.commit('room/updateTurnStatus', newRoomData.turn.status);
-		store.commit('room/updateWinningCard', newRoomData.turn.winningCard);
-		store.commit('room/setGameWinner', newRoomData.winner);
+		store.dispatch('room/updateState', newRoomData);
 	}
 	
 	/**

@@ -2,6 +2,7 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import dayjs from 'dayjs';
 import router from '@/router';
+import isEqual from 'lodash.isequal';
 
 const initialState = {
 	roomId: null, 
@@ -39,6 +40,41 @@ const mutations = { // Preceding '_' means the mutation should only be called fr
 }
 
 const actions = {
+	/**
+	 * Updates our local state to match what's going on in the room document.
+	 * Called from GameManager.onRoomUpdate() when something in the room document has changed.
+	 * @param {object} roomData - Object containing the contents of the room document
+	 */
+	updateState({ state, commit, dispatch}, roomData) {
+		const trackedState = {
+			'users': 							{method: dispatch,	name: 'updateUsers'},
+			'settings': 					{method: commit, 		name: 'updateSettings'},
+			'gameState': 					{method: dispatch,	name: 'updateGameState'},
+			'turn.questionCard':	{method: commit, 		name: 'updateQuestionCard'},
+			'turn.czar': 					{method: commit, 		name: 'updateCzar'},
+			'turn.playedCards':		{method: commit, 		name: 'updatePlayedCards'},
+			'turn.status': 				{method: commit, 		name: 'updateTurnStatus'},
+			'turn.winningCard': 	{method: commit, 		name: 'updateWinningCard'},
+			'winner': 						{method: commit, 		name: 'setGameWinner'}
+		};
+
+		for (const key in trackedState) {
+			let [oldValue, incomingValue] = [state[key], roomData[key]];
+			if (key.startsWith('turn.')) {
+				oldValue = state.turn[key.substr(5)];
+				incomingValue = roomData.turn[key.substr(5)];
+			}
+
+			// We mutate the users object before saving it to state to make it easier to work with. Apply the same
+			// mutation here, so we have an apples-to-apples comparison to see if any data has changed.
+			if (key === 'users') incomingValue = Object.keys(incomingValue).map(username => ({ username:username, ...incomingValue[username] })).sort((a, b) => a.czarOrder - b.czarOrder);
+
+			if (isEqual(oldValue, incomingValue)) continue; // Skip properties that haven't changed
+			
+			trackedState[key].method(trackedState[key].name, incomingValue);
+			console.debug(`${key} has been updated.`);
+		}
+	},
 	updateUsers({ commit }, usersObj) {
 		// Break our object down in to an array so it's easier to work with
 		// what we recieve: {user1: {a: b, c: d}, user2: {a: b, c: d}}
