@@ -52,6 +52,10 @@ input[type='text'] {
 }
 
 button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
   margin: 2px;
 
   border: 2px solid var(--gray-300);
