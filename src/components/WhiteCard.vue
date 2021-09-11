@@ -3,7 +3,7 @@
 		<div class="card-text" v-if="!facedown && !isBlank">{{ this.text }}</div>
 		<textarea v-if="isBlank" v-model="blanktext" class="blank-input" :placeholder='"Blank\nCard"' @blur="onBlur" />
 		<transition name="save-btn">
-			<button v-if="isBlank && editing" class="save" @click="submitBlankCard"><ion-icon name="checkmark" /></button>
+			<button v-if="isBlank && editing" class="btn-save" @click="submitBlankCard"><ion-icon name="checkmark" /></button>
 		</transition>
 		<div class="ribbon" v-if="this.isWinner">
 			<div class="ribbon-content">
@@ -61,7 +61,7 @@ export default {
 		onBlur(e) {
 			// If we stop editing, the save button vanishes. If we click the
 			// save button, don't stop editing until we've finished saving.
-			if (e.relatedTarget && e.relatedTarget.classList.contains('save')) return;
+			if (e.relatedTarget && e.relatedTarget.classList.contains('btn-save')) return;
 			this.editing = false;
 		},
 		submitBlankCard() {
@@ -182,7 +182,7 @@ export default {
 	text-align: center;
 	color: var(--gray-200);
 }
-.whiteCard.blank button.save {
+.whiteCard.blank button.btn-save {
 	position: absolute;
 	bottom: 5px;
 	right: 5px;
@@ -201,7 +201,7 @@ export default {
 	
 	color: var(--accent-300);
 }
-.whiteCard.blank button.save:hover {
+.whiteCard.blank button.btn-save:hover {
 	background-color: var(--accent-300);
 	transition: transform 0.2s ease;
 	color: #fff;
