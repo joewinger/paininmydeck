@@ -6,6 +6,7 @@ class statePersistence {
 		this.key = options.key || 'savedState';
 		this.hashKey = options.hashKey || 'hash';
 		this.omitKeys = options.omitKeys || [];
+		this.onRestoreState = options.onRestoreState || (() => {});
 		this.onVerificationFailed = options.onVerificationFailed || (() => {});
 
 		this.getSavedState = () => {
@@ -24,7 +25,7 @@ class statePersistence {
 		this.restoreState = (store) => {
 			store.commit('RESTORE_STATE_MUTATION', this.getSavedState());
 			
-			if (options.onRestoreState !== undefined) options.onRestoreState();
+			this.onRestoreState();
 		}
 
 		this.plugin = (store) => {
