@@ -32,7 +32,10 @@ const DEFAULT_DOCS = {
   'decks': {
     questionDeck: [],
     answerDeck: []
-  }
+  },
+	'history': {
+		rounds: []
+	}
 };
 
 exports.handler = async function(data, context, db) {
@@ -46,6 +49,7 @@ exports.handler = async function(data, context, db) {
 	await db.doc(`games/${roomId}`).set(DEFAULT_DOCS['room']).catch(err => handleError(err));
 	await db.doc(`games/${roomId}/meta/chat`).set(DEFAULT_DOCS['chat']).catch(err => handleError(err));
 	await db.doc(`games/${roomId}/meta/decks`).set(DEFAULT_DOCS['decks']).catch(err => handleError(err));
+	await db.doc(`games/${roomId}/meta/history`).set(DEFAULT_DOCS['history']).catch(err => handleError(err));
 
 	return roomId;
 }
