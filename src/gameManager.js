@@ -48,9 +48,11 @@ class GameManager {
 		 */
 		this.roomDocRef = (store.state.room.roomId === null) ? null : this.db.doc(`games/${store.state.room.roomId}`);
 		this.chatDocRef = (store.state.room.roomId === null) ? null : this.db.doc(`games/${store.state.room.roomId}/meta/chat`);
+		this.historyDocRef = (store.state.room.roomId === null) ? null : this.db.doc(`games/${store.state.room.roomId}/meta/history`);
 		this.userDocRef = (store.state.user.username === '') ? null : this.db.doc(`games/${store.state.room.roomId}/users/${store.state.user.username}`);
 		this.unsubFromRoomDoc = 	(this.roomDocRef === null) ? null : this.roomDocRef.onSnapshot(snap => this.onRoomUpdate(snap));
 		this.unsubFromChatDoc = 	(this.chatDocRef === null) ? null : this.chatDocRef.onSnapshot(snap => this.onChatUpdate(snap));
+		this.unsubFromHistoryDoc = 	(this.historyDocRef === null) ? null : this.historyDocRef.onSnapshot(snap => this.onHistoryUpdate(snap));
 		this.unsubFromUserDoc = 	(this.userDocRef === null) ? null : this.userDocRef.onSnapshot(snap => this.onUserUpdate(snap));
 	
 		// Analytics
@@ -94,11 +96,13 @@ class GameManager {
 		if (Object.keys(roomDocSnapshot.data().users).length === 0) store.commit('user/setPrivileged');
 		// Save this roomId so we know we should be connected here
 		store.commit('room/setRoomId', roomDocSnapshot.id);
-		// Save our chat document for reference later
+		// Save our meta documents for reference later
 		this.chatDocRef = this.db.doc(`games/${roomId}/meta/chat`);
+		this.historyDocRef = this.db.doc(`games/${roomId}/meta/history`);
 		// Start watching the documents & save the returned unsubscribe functions for later.
 		this.unsubFromRoomDoc = this.roomDocRef.onSnapshot(snap => this.onRoomUpdate(snap));
 		this.unsubFromChatDoc = this.chatDocRef.onSnapshot(snap => this.onChatUpdate(snap));
+		this.unsubFromHistoryDoc = this.historyDocRef.onSnapshot(snap => this.onHistoryUpdate(snap));
 	
 		// Authenticate us while we join.
 		// Don't use await here, as this can finish in the background.
@@ -154,6 +158,7 @@ class GameManager {
 			if (store.state.user.username) store.dispatch('room/sendSystemMessage', `${store.state.user.username} has left the game.`);
 			this.unsubFromChatDoc();
 		}
+		if (this.unsubFromHistoryDoc != null) this.unsubFromHistoryDoc();
 			
 		// Get rid of our individual document
 		if (this.userDocRef != null) this.userDocRef.delete()
@@ -258,6 +263,16 @@ class GameManager {
 		console.debug("Chat update recieved");
 		
 		store.commit('room/updateChatMessages', snapshot.data().chatMessages);
+	}
+	
+	/**
+	 * Listener for history document changes
+	 * @param {firebase.firestore.DocumentSnapshot} snapshot
+	 */
+	onChatUpdate(snapshot) {
+		console.debug("History update recieved");
+		
+		store.commit('room/updateRoundHistory', snapshot.data().rounds);
 	}
 	
 	/**

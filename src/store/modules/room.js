@@ -10,6 +10,7 @@ const initialState = {
 	users: [], // This is a map in our DB, but it's easier to work with as an array on the client.
 	settings: {},
 	chatMessages: [],
+	roundHistory: [],
 	turn: {
 		round: null,
 		status: null,
@@ -29,6 +30,7 @@ const mutations = { // Preceding '_' means the mutation should only be called fr
 	_updateUsers: (state, users) => state.users = users,
 	updateSettings: (state, settingsObject) => state.settings = settingsObject,
 	updateChatMessages: (state, chatMessageArray) => state.chatMessages = chatMessageArray,
+	updateRoundHistory: (state, roundHistoryArray) => state.roundHistory = roundHistoryArray,
 	updateRound: (state, round) => state.turn.round = round,
 	updateTurnStatus: (state, newTurnStatus) => state.turn.status = newTurnStatus,
 	updateQuestionCard: (state, newQuestionCard) => state.turn.questionCard = newQuestionCard,
