@@ -3,7 +3,6 @@ import Vue from 'vue';
 import room from './modules/room';
 import user from './modules/user';
 import statePersistence from './statePersistence';
-// import GameManager from '@/gameManager.js';
 
 Vue.use(Vuex);
 
@@ -11,7 +10,8 @@ const persistence = new statePersistence({
 	storage: sessionStorage,
 	key: 'savedState',
 	omitKeys: ['interstitial'], // Don't save interstital data, we don't want to re-draw those if we reload.
-	onRestoreState: () => {}
+	onRestoreState: () => {},
+	onVerificationFailed: () => console.error('Nice try, Satan.')
 });
 
 const store = new Vuex.Store({
