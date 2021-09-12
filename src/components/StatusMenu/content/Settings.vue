@@ -26,7 +26,7 @@
 				<td>Family Mode</td>
 				<td><input type="checkbox" v-model="familyMode" /></td>
 			</tr>
-			<tr>
+			<tr v-if="$store.state.user.isPrivileged">
 				<td>Public Game</td>
 				<td><input type="checkbox" v-model="publicGame" /></td>
 			</tr>
