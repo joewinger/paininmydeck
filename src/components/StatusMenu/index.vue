@@ -49,10 +49,10 @@
 
 <script>
 import StatusBarButton from './StatusBarButton';
-import StatusMenuContentInfo from './StatusMenuContentInfo';
-import StatusMenuContentChat from './StatusMenuContentChat';
-import StatusMenuContentSettings from './StatusMenuContentSettings';
-import StatusMenuContentLeaderboard from './StatusMenuContentLeaderboard';
+import StatusMenuContentInfo from './content/Info';
+import StatusMenuContentChat from './content/Chat';
+import StatusMenuContentSettings from './content/Settings';
+import StatusMenuContentLeaderboard from './content/Leaderboard';
 
 export default {
 	name: 'StatusMenu',

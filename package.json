@@ -14,6 +14,7 @@
 		"fastclick": "^1.0.6",
 		"firebase": "^7.13.2",
 		"lodash.isequal": "^4.5.0",
+		"md5": "^2.3.0",
 		"vue": "^2.6.11",
 		"vue-router": "^3.1.6",
 		"vue-textarea-autosize": "^1.1.1",
