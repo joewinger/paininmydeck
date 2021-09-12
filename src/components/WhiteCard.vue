@@ -105,7 +105,6 @@ export default {
 	font-size: clamp(1rem, 5.2vw, 1.25rem);
 	font-weight: bold;
 
-	overflow-wrap: break-word;
   -webkit-hyphens: auto;
   -moz-hyphens: auto;
   -ms-hyphens: auto;
