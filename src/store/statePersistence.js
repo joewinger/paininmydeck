@@ -15,7 +15,7 @@ class statePersistence {
 			// we're connecting for the first time.
 			if (stateStr === undefined) return null;
 
-			if (verifyHash(stateStr, this.storage[this.hashKey])) return JSON.parse(stateStr);
+			if (hash(stateStr) === this.storage[this.hashKey]) return JSON.parse(stateStr);
 			else {
 				this.onVerificationFailed();
 				return null;
@@ -41,7 +41,7 @@ class statePersistence {
 
 				const stateStr = JSON.stringify(state);
 				this.storage.setItem(this.key, stateStr);
-				this.storage.setItem(this.hashKey, md5(stateStr));
+				this.storage.setItem(this.hashKey, hash(stateStr));
 			});
 		}
 	
@@ -55,8 +55,24 @@ class statePersistence {
 	}
 }
 
-function verifyHash(stateStr, hashStr) {
-	return md5(stateStr) === hashStr;
+/**
+ * Hash and obfuscate our state. Is this tamper-proof? No. Is this enough of
+ * of a pain in the ass to prevent randos from breaking things? Yes.
+ * 
+ * @param {String} stateStr - String version of the state object to be hashed
+ * @returns hashed & obfuscated version of provided string.
+ */
+function hash(stateStr) {
+	const a = md5(stateStr).split('');
+	const b = md5(stateStr.split('').reverse().join('')).split('');
+
+	let hash = '';
+
+	for (let i = 0; i < a.length; i++) {
+		hash += a[i] + b[i];
+	}
+
+	return hash;
 }
 
 export default statePersistence;
