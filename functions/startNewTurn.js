@@ -1,3 +1,5 @@
+const admin = require('firebase-admin');
+
 exports.handler = async function(data, context, db, admin) {
 	const roomId = data.roomId;
 
@@ -5,9 +7,31 @@ exports.handler = async function(data, context, db, admin) {
 	
 	// Set our references
 	const roomDoc = db.doc(`games/${roomId}`);
-	
+
   const roomData = (await roomDoc.get()).data();
 	const decks = (await db.doc(`games/${roomId}/meta/decks`).get()).data();
+
+	// Append Round Data to History Doc //////////////////////////////////////////////
+
+	db.doc(`games/${roomId}/meta/history`).update({
+		'rounds': admin.firestore.FieldValue.arrayUnion(
+			roomData.turn.round === 0 ? null : {
+			'round': roomData.turn.round,
+			'question': roomData.turn.questionCard,
+			'czar': roomData.turn.czar,
+			'winningAnswer': roomData.turn.winningCard.text,
+			'winningPlayer': roomData.turn.winningCard.playedBy,
+			'otherAnswers': roomData.turn.playedCards.filter(card => {
+				if (card.playedBy !== roomData.turn.winningCard.playedBy) {
+					return {
+						'answer': card.text,
+						'playedBy': card.playedBy
+					}
+				}
+				return null;
+			})
+		})
+	});
 	
 	// Replenish Cards ///////////////////////////////////////////////////////////////
 
