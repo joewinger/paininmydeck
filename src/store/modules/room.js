@@ -45,7 +45,7 @@ const actions = {
 	 * Called from GameManager.onRoomUpdate() when something in the room document has changed.
 	 * @param {object} roomData - Object containing the contents of the room document
 	 */
-	updateState({ state, commit, dispatch}, roomData) {
+	updateState({ state, rootState, commit, dispatch}, roomData) {
 		const trackedState = {
 			'users': 							{method: dispatch,	name: 'updateUsers'},
 			'settings': 					{method: commit, 		name: 'updateSettings'},
@@ -65,9 +65,20 @@ const actions = {
 				incomingValue = roomData.turn[key.substr(5)];
 			}
 
-			// We mutate the users object before saving it to state to make it easier to work with. Apply the same
-			// mutation here, so we have an apples-to-apples comparison to see if any data has changed.
-			if (key === 'users') incomingValue = Object.keys(incomingValue).map(username => ({ username:username, ...incomingValue[username] })).sort((a, b) => a.czarOrder - b.czarOrder);
+			if (key === 'users') {
+				// We mutate the users object before saving it to state to make it easier to work with. Apply the same
+				// mutation here, so we have an apples-to-apples comparison to see if any data has changed.
+				incomingValue = Object.keys(incomingValue).map(username => ({ username:username, ...incomingValue[username] })).sort((a, b) => a.czarOrder - b.czarOrder);
+				
+				const oldUsernames = oldValue.map(user => user.username);
+				const incomingUsernames = incomingValue.map(user => user.username);
+				const ourUsername = rootState.user.username;
+				if (oldUsernames.includes(ourUsername) && !incomingUsernames.includes(ourUsername)) {
+					router.replace({name: 'home'});
+					dispatch('error', { title: "Kicked!", message: "You've been kicked :(" }, { root: true });
+					return;
+				}
+			}
 
 			if (isEqual(oldValue, incomingValue)) continue; // Skip properties that haven't changed
 			
@@ -93,6 +104,7 @@ const actions = {
 				})
 			});
 		} else {
+			if (!rootState.user.isPrivileged) return;
 			let command = message.split(' ')[0].substring(1);
 			let args = message.split(' ').slice(1);
 			switch (command.toLowerCase()) {
@@ -102,6 +114,10 @@ const actions = {
 				case 'startnewturn':
 					firebase.functions().httpsCallable('startNewTurn')({roomId: state.roomId});
 					break;
+				case 'kick':
+					if (args[0].startsWith('"')) {
+						dispatch('kickPlayer', args.join(' ').split('"')[1]);
+					} else dispatch('kickPlayer', args[0]);
 			}
 		}
 	},
@@ -130,6 +146,10 @@ const actions = {
 			if (gameState === 'PLAYING')  router.replace({name: 'game'});
 			if (gameState === 'FINISHED') router.replace({name: 'gameover'});
 		}
+	},
+	kickPlayer({ state, rootState }, username) {
+		if (!rootState.user.isPrivileged) return;
+		firebase.firestore().doc(`games/${state.roomId}`).update(`users.${username}`, firebase.firestore.FieldValue.delete()).catch(e => console.error(e));
 	}
 }
 
