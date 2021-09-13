@@ -8,8 +8,17 @@
 				<status-bar-button
 					:class="{active: currentMenu === 'INFO'}"
 					@click.native="toggleMenu('INFO')"
+					v-if="$route.name === 'lobby'"
 				>
 					<ion-icon name="information-circle-outline"></ion-icon>
+				</status-bar-button>
+
+				<status-bar-button
+					:class="{active: currentMenu === 'HISTORY'}"
+					@click.native="toggleMenu('HISTORY')"
+					v-if="$route.name === 'game' || $route.name === 'gameover'"
+				>
+					<ion-icon name="time"></ion-icon>
 				</status-bar-button>
 
 				<status-bar-button
@@ -38,6 +47,7 @@
 			<div id="statusMenuContent-container">
 				<transition name="slide" mode="out-in">
 					<status-menu-content-info v-if="currentMenu === 'INFO'" />
+					<status-menu-content-history v-if="currentMenu === 'HISTORY'" />
 					<status-menu-content-chat v-if="currentMenu === 'CHAT'" />
 					<status-menu-content-settings v-if="currentMenu === 'SETTINGS'" />
 					<status-menu-content-leaderboard v-if="currentMenu === 'LEADERBOARD'" />
@@ -50,6 +60,7 @@
 <script>
 import StatusBarButton from './StatusBarButton';
 import StatusMenuContentInfo from './content/Info';
+import StatusMenuContentHistory from './content/History';
 import StatusMenuContentChat from './content/Chat';
 import StatusMenuContentSettings from './content/Settings';
 import StatusMenuContentLeaderboard from './content/Leaderboard';
@@ -59,6 +70,7 @@ export default {
 	components: {
 		StatusBarButton,
 		StatusMenuContentInfo,
+		StatusMenuContentHistory,
 		StatusMenuContentChat,
 		StatusMenuContentSettings,
 		StatusMenuContentLeaderboard
