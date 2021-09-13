@@ -5,8 +5,8 @@ exports.handler = async function(data, context, db, admin) {
 	
 	// Set our references
 	const roomDoc = db.doc(`games/${roomId}`);
-  const roomData = await roomDoc.get().then(data => data.data());
-	// const roomData = _roomData.data();
+	
+  const roomData = (await roomDoc.get()).data();
 	const decks = (await db.doc(`games/${roomId}/meta/decks`).get()).data();
 	
 	// Replenish Cards ///////////////////////////////////////////////////////////////
