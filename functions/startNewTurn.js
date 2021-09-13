@@ -21,15 +21,7 @@ exports.handler = async function(data, context, db, admin) {
 			'czar': roomData.turn.czar,
 			'winningAnswer': roomData.turn.winningCard.text,
 			'winningPlayer': roomData.turn.winningCard.playedBy,
-			'otherAnswers': roomData.turn.playedCards.filter(card => {
-				if (card.playedBy !== roomData.turn.winningCard.playedBy) {
-					return {
-						'answer': card.text,
-						'playedBy': card.playedBy
-					}
-				}
-				return null;
-			})
+			'otherAnswers': roomData.turn.playedCards.filter(card => card.playedBy !== roomData.turn.winningCard.playedBy)
 		})
 	});
 	
