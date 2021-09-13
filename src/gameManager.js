@@ -269,7 +269,7 @@ class GameManager {
 	 * Listener for history document changes
 	 * @param {firebase.firestore.DocumentSnapshot} snapshot
 	 */
-	onChatUpdate(snapshot) {
+	onHistoryUpdate(snapshot) {
 		console.debug("History update recieved");
 		
 		store.commit('room/updateRoundHistory', snapshot.data().rounds);
