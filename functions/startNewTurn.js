@@ -32,12 +32,17 @@ exports.handler = async function(data, context, db, admin) {
 		console.log(`User ${userDoc.id} needs ${numCardsNeeded} cards in room ${roomId}`);
 
 		let cardsToGive = []; // The array of cards we'll add to the player's hand
+		let reserveCards = null;
 
 		if (roomData.turn.round === 0) { // If this is the first draw
 			numCardsNeeded -= roomData.settings.guaranteedBlanks;
 			for (let i = 0; i < roomData.settings.guaranteedBlanks; i++) {
 				cardsToGive.push(`%BLANK% Guaranteed ${i+1}`);
 			}
+
+			// Track our reserve cards & remove them from the deck
+			reserveCards = answerDeck.slice(0, roomData.settings.numRedraws);
+			answerDeck = answerDeck.filter(card => !reserveCards.includes(card));
 		}
 
 		// Make sure we have enough cards left - TODO: handle this better/let the user know what's happening
@@ -48,13 +53,16 @@ exports.handler = async function(data, context, db, admin) {
 
 		// Remove the cards we took from the deck
 		answerDeck = answerDeck.filter(card => !cardsToGive.includes(card));
-		
+
+		let userDocPayload = {
+			hand: admin.firestore.FieldValue.arrayUnion(...cardsToGive),
+			numCardsInHand: admin.firestore.FieldValue.increment(cardsToGive.length)
+		}
+		if (reserveCards !== null) userDocPayload.reserveCards = reserveCards
+
 		// Update the user document to reflect the cards being in our hand
 		try {
-			await userDocRef.update({
-				hand: admin.firestore.FieldValue.arrayUnion(...cardsToGive),
-				numCardsInHand: admin.firestore.FieldValue.increment(cardsToGive.length)
-			});
+			await userDocRef.update(userDocPayload);
 		} catch (error) {
 			console.error(error);
 		}
