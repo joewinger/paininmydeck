@@ -1,20 +1,32 @@
 <template>
-	<div class="whiteCard" :class="{facedown: this.facedown, winner: this.isWinner, blank: this.isBlank }" @click="onClick">
-		<div class="card-text" v-if="!facedown && !isBlank">{{ this.text }}</div>
-		<textarea v-if="isBlank" v-model="blanktext" class="blank-input" :placeholder='"Blank\nCard"' @blur="onBlur" />
-		<transition name="save-btn">
-			<button v-if="isBlank && editing" class="btn-save" @click="submitBlankCard"><ion-icon name="checkmark" /></button>
-		</transition>
-		<div class="ribbon" v-if="this.isWinner">
-			<div class="ribbon-content">
-				<small>Played by</small>
-				{{ this.$store.state.room.turn.winningCard.playedBy }}
+	<div class="whiteCard-wrapper" :class="{ 'trashable': isTrashable, 'trashMode': trashMode }">
+		
+		<button class="btn-trash" v-if="isTrashable" @click="trashCard"><ion-icon name="trash"></ion-icon></button>
+		
+		<div class="whiteCard" ref="card" :class=classList @click="onClick">	
+			<div class="card-text" v-if="!facedown && !isBlank">{{ this.text }}</div>
+			
+			<textarea class="blank-input" v-if="isBlank" v-model="blanktext" :placeholder='"Blank\nCard"' @blur="onBlur" />
+			<transition name="save-btn">
+				<button class="btn-save" v-if="isBlank && editing" @click="submitBlankCard"><ion-icon name="checkmark" /></button>
+			</transition>
+			
+			<div class="ribbon" v-if="this.isWinner">
+				<div class="ribbon-content">
+					<small>Played by</small>
+					{{ this.$store.state.room.turn.winningCard.playedBy }}
+				</div>
 			</div>
+
 		</div>
 	</div>
 </template>
 
 <script>
+import '@interactjs/auto-start'
+import '@interactjs/actions/drag'
+import interact from '@interactjs/interact';
+
 export default {
 	name: 'WhiteCard',
 	props: {
@@ -25,10 +37,19 @@ export default {
 		return {
 			blanktext: '',
 			editing: false,
-			disableClicks: false
+			disableClicks: false,
+			isDragging: false,
+			trashMode: false // true = keep card rotated to access trash button
 		}
 	},
 	computed: {
+		classList() {
+			return {
+				facedown: this.facedown,
+				winner: this.isWinner,
+				blank: this.isBlank
+			}
+		},
 		isBlank() {
 			return this.text.startsWith('%BLANK%');
 		},
@@ -36,11 +57,21 @@ export default {
 			if (this.$store.state.room.turn.winningCard !== null) {
 				return this.$store.state.room.turn.winningCard.text === this.text;
 			} else return false;
+		},
+		isTrashable() {
+			// Only non-blank cards that are in our hand are trashable
+			return !this.isBlank && !this.$store.state.user.playedThisTurn && !this.$store.getters['user/isCzar'];
 		}
 	},
 	methods: {
 		onClick(mouseEvent) {
 			if (this.text == null || this.facedown) return;
+			if (this.isDragging) return;
+
+			if (this.trashMode) { // Click card to get out of trash mode
+				this.trashMode = false;
+				return;
+			}
 
 			if (this.isBlank) {
 				let card = mouseEvent.target;
@@ -78,20 +109,52 @@ export default {
 				return;
 			}
 			this.$game.submitBlankCard(this.text, this.blanktext);
+		},
+		trashCard() {
+			console.debug(`Trash card ${this.text}`);
 		}
+	},
+	mounted() {
+		interact(this.$refs.card).draggable({
+			startAxis: 'x', // Only worry about it if the drag was horizontal
+			onstart: (event) => {
+				if (this.isTrashable) {
+					this.isDragging = true;
+					this.trashMode = event.velocityX > 0;
+				}
+			},
+			onend: () => {
+				// Wait 1ms to disable drag mode, so our click handler knows we were just dragging
+				window.setTimeout(() => {
+					this.isDragging = false
+				}, 1);
+			}
+		}).styleCursor(false);
+	},
+	beforeDestroy() {
+		interact(this.$refs.card).unset();
 	}
 }
 </script>
 
 <style>
+.whiteCard-wrapper {
+	position: relative;
+	max-width: 150px;
+	min-width: 120px;
+	height: 195px;
+	border-radius: 15px;
+}
+.whiteCard-wrapper.trashable {
+	background: rgba(177, 177, 177, 0.25);
+}
 .whiteCard {
 	position: relative;
 	display: inline-block;
 
 	/* OG size: 200 x 260 */
-	max-width: 150px;
-	min-width: 120px;
-	height: 195px;
+	width: 100%;
+	height: 100%;
 	padding: 0;
 
 	background: #fff;
@@ -134,6 +197,42 @@ export default {
 
 .whiteCard.facedown {
   transform: rotateY( 180deg );
+}
+
+.trashMode .whiteCard {
+	/* Use matrix here rather than rotate() because needing to set transform-origin leads to issues
+	with all sorts of other transforms (i.e. :hover, .facedown). Note: 7.5deg rotate with origin 70% 200% looked good */
+	transform: matrix(1, 0.2, -0.2, 1, 35, 5); 
+	z-index: 1201;
+}
+.trashMode .btn-trash {
+	transform: none;
+}
+
+.btn-trash {
+	position: absolute;
+	top: 5px;
+	left: 8px;
+
+	--size: 35px;
+	width: var(--size);
+	height: var(--size);
+	padding: 0;
+	margin: 0;
+	
+	border-radius: 100%;
+	border-color: var(--gray-300);
+	background-color: transparent;
+
+	color: var(--gray-300);
+
+	transform: translateX(20px) rotate(70deg); /* This gets set to none in trashMode */
+	transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.btn-trash:hover {
+	background-color: var(--accent-300);
+	border-color: var(--accent-300);
+	color: #fff;
 }
 
 .winner, .winner:hover {

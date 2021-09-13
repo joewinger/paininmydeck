@@ -93,7 +93,7 @@ export default {
 	perspective: 800px;
 	
 	overflow-y: scroll;
-	overflow-x: visible;
+	overflow-x: hidden; /* Without this, there's issues when a card rotates for trash mode causing the container to expand */
 	
 	z-index: 1200;
 }
