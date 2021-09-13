@@ -11,7 +11,8 @@ const DEFAULT_DOCS = {
 			guaranteedBlanks: 0,// Guaranteed blanks everyone starts with
 			familyMode: false,  // Don't use any cards marked as obscene, offensive, or sexual
       allBlanks: false,
-			public: true
+			public: true,
+			numRedraws: 4
     },
     turn: {
       round: 0,
