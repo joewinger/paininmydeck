@@ -35,15 +35,6 @@
 				<td><input type="checkbox" v-model="publicGame" :disabled="!$store.state.user.isPrivileged" /></td>
 			</tr>
 		</table>
-		<!-- <div class="accordion">
-			<div class="accordion-title" @click="toggleAccordion">
-				<span>Deck Settings</span>
-				<ion-icon name="chevron-back-circle-outline" class="accordion-toggle" ref="deckSettingsAccordianToggleButton"></ion-icon>
-			</div>
-			<div class="accordion-content" ref="deckSettingsAccordianContent">
-				Coming soon
-			</div>
-		</div> -->
 		<br>
 		<button @click=updateSettings v-if="canEdit">Save</button>
 	</div>
@@ -140,18 +131,6 @@ export default {
 			this.changeNumBlankCards = -1;
 			this.changeGuaranteedBlanks = -1;
 			this.changeNumRedraws = -1;
-		},
-		toggleAccordion() {
-			const contentEl = this.$refs.deckSettingsAccordianContent;
-			const toggle = this.$refs.deckSettingsAccordianToggleButton;
-			if (contentEl.classList.contains('visible')) {
-				contentEl.classList.remove('visible');
-				toggle.classList.remove('open');
-			}
-			else {
-				contentEl.classList.add('visible');
-				toggle.classList.add('open');
-			}
 		}
 	}
 }
@@ -185,37 +164,5 @@ export default {
 	height: 20px;
 	width: 20px;
 	box-sizing: content-box;
-}
-
-.accordion {
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-}
-.accordion > .accordion-title {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	width: auto;
-	padding-top: 5px;
-	padding-bottom: 10px;
-}
-.accordion > .accordion-content {
-	max-height: 0;
-	overflow: hidden;
-	transition: all 0.5s ease;
-}
-.accordion > .accordion-content.visible {
-	max-height: 100px;
-}
-.accordion > .accordion-title > .accordion-toggle {
-	transition: all 0.2s ease;
-	font-size: 20pt;
-}
-.accordion > .accordion-title > .accordion-toggle.open {
-	transform: rotateZ(-90deg);
-}
-.accordion > .accordion-content > h2 {
-	font-size: 12pt;
 }
 </style>
