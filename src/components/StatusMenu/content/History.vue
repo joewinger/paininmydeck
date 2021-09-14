@@ -1,7 +1,9 @@
 <template>
 	<div id="statusMenuContent-history" class="statusMenuContent">
 		<h1>Round History</h1>
-		<div v-for="round in this.$store.state.room.roundHistory.slice(1)" class="round" :key="round.round">
+		<div class="initial" v-if="this.$store.state.room.turn.round <= 1">No history to show yet, check back next round!</div>
+		<div class="round" v-for="round in this.$store.state.room.roundHistory.slice(1)" :key="round.round">
+			<span class="round-number">&ndash; Round {{ round.round }} &ndash;</span>
 			<h4 class="question">{{ round.question | blankify }}</h4>
 			<ol class="answers">
 				<li class="miniCard winningAnswer" :style="{'--playedBy': `'${round.winningPlayer}'`}">{{ round.winningAnswer }}</li>
@@ -28,14 +30,41 @@ export default {
 	overflow-y: auto;
 }
 
-/* .round {
-	border-top : var(--ui-border-width) dotted var(--gray-200);
-} */
+.initial {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	
+	width: 70%;
+	height: 80%;
+
+	text-align: center;
+	font-size: 1.1rem;
+}
+
+.round {
+	margin-top: 10px;
+	margin-bottom: 5px;
+}
+
+.round .round-number {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	
+	height: 18px;
+	margin-bottom: 5px;
+	
+	background: var(--primary-200);
+	border-radius: 9px;
+	
+	text-align: center;
+	color: var(--primary-500);
+}
 
 .round .question {
 	font-weight: 600;
-	margin-top: 20px;
-	margin-bottom: 5px;
+	margin: 0 0 5px 0;
 }
 
 ol.answers {
@@ -47,6 +76,7 @@ ol.answers {
 
 	width: 278px;
 	padding: 0;
+	padding-bottom: 6px; /* So we don't clip the shadow under the card */
 	margin: 8px 0;
 
 	overflow-x: auto;
@@ -65,7 +95,7 @@ ol.answers {
 	margin-right: 20px;
 
 	border: var(--ui-border-width) solid var(--gray-200);
-	box-shadow: 0px 4px 4px rgba(177, 177, 177, 0.25);
+	box-shadow: 0px 2px 4px rgba(177, 177, 177, 0.25);
 	border-radius: 10px;
 
 	color: var(--gray-500);
