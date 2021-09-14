@@ -111,7 +111,8 @@ export default {
 			this.$game.submitBlankCard(this.text, this.blanktext);
 		},
 		trashCard() {
-			console.debug(`Trash card ${this.text}`);
+			this.$store.dispatch('user/trashCard', this.text);
+			this.trashMode = false;
 		}
 	},
 	mounted() {
