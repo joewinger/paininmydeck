@@ -26,6 +26,10 @@
 				<td>Family Mode</td>
 				<td><input type="checkbox" v-model="familyMode" /></td>
 			</tr>
+			<tr>
+				<td>Allowed Re-draws</td>
+				<td><input type="number" v-model.number="numRedraws" /></td>
+			</tr>
 			<tr v-if="$store.state.user.isPrivileged">
 				<td>Public Game</td>
 				<td><input type="checkbox" v-model="publicGame" /></td>
@@ -54,6 +58,7 @@ export default {
 			changePointsToWin: -1,
 			changeNumBlankCards: -1,
 			changeGuaranteedBlanks: -1,
+			changeNumRedraws: -1,
 			allBlanks: this.$store.state.room.settings.allBlanks,
 			familyMode: this.$store.state.room.settings.familyMode,
 			publicGame: this.$store.state.room.settings.public
@@ -96,6 +101,15 @@ export default {
 				this.changeGuaranteedBlanks = value;
 			}
 		},
+		numRedraws: {
+			get() {
+				if (this.changeNumRedraws === -1) return this.$store.state.room.settings.numRedraws;
+				return this.changeNumRedraws;
+			},
+			set(value) {
+				this.changeNumRedraws = value;
+			}
+		},
 	},
 	methods: {
 		updateSettings() {
@@ -105,6 +119,7 @@ export default {
 				pointsToWin: (this.changePointsToWin !== -1) ? this.changePointsToWin : this.pointsToWin,
 				numBlankCards: (this.changeNumBlankCards !== -1) ? this.changeNumBlankCards : this.numBlankCards,
 				guaranteedBlanks: (this.changeGuaranteedBlanks !== -1) ? this.changeGuaranteedBlanks : this.guaranteedBlanks,
+				numRedraws: (this.changeNumRedraws !== -1) ? this.changeNumRedraws : this.numRedraws,
 				allBlanks: this.allBlanks,
 				familyMode: this.familyMode,
 				public: this.publicGame
@@ -116,6 +131,7 @@ export default {
 			this.changePointsToWin = -1;
 			this.changeNumBlankCards = -1;
 			this.changeGuaranteedBlanks = -1;
+			this.changeNumRedraws = -1;
 		},
 		toggleAccordion() {
 			const contentEl = this.$refs.deckSettingsAccordianContent;
