@@ -4,48 +4,39 @@
 		<table>
 			<tr>
 				<td>Cards Per Hand</td>
-				<td><input type="number" v-model.number="cardsPerHand" /></td>
+				<td><input type="number" v-model.number="cardsPerHand" :disabled="!canEdit" /></td>
 			</tr>
 			<tr>
 				<td>Points To Win</td>
-				<td><input type="number" v-model.number="pointsToWin" /></td>
+				<td><input type="number" v-model.number="pointsToWin" :disabled="!canEdit" /></td>
 			</tr>
 			<tr>
 				<td>Deck Blank Cards</td>
-				<td><input type="number" v-model.number="numBlankCards" /></td>
+				<td><input type="number" v-model.number="numBlankCards" :disabled="!canEdit" /></td>
 			</tr>
 			<tr>
 				<td>Guaranteed Blanks</td>
-				<td><input type="number" v-model.number="guaranteedBlanks" /></td>
+				<td><input type="number" v-model.number="guaranteedBlanks" :disabled="!canEdit" /></td>
 			</tr>
 			<tr>
 				<td>All Blanks!</td>
-				<td><input type="checkbox" v-model="allBlanks" /></td>
+				<td><input type="checkbox" v-model="allBlanks" :disabled="!canEdit" /></td>
 			</tr>
 			<tr>
 				<td>Family Mode</td>
-				<td><input type="checkbox" v-model="familyMode" /></td>
+				<td><input type="checkbox" v-model="familyMode" :disabled="!canEdit" /></td>
 			</tr>
 			<tr>
 				<td>Allowed Re-draws</td>
-				<td><input type="number" v-model.number="numRedraws" /></td>
+				<td><input type="number" v-model.number="numRedraws" :disabled="!canEdit" /></td>
 			</tr>
-			<tr v-if="$store.state.user.isPrivileged">
+			<tr>
 				<td>Public Game</td>
-				<td><input type="checkbox" v-model="publicGame" /></td>
+				<td><input type="checkbox" v-model="publicGame" :disabled="!$store.state.user.isPrivileged" /></td>
 			</tr>
 		</table>
-		<!-- <div class="accordion">
-			<div class="accordion-title" @click="toggleAccordion">
-				<span>Deck Settings</span>
-				<ion-icon name="chevron-back-circle-outline" class="accordion-toggle" ref="deckSettingsAccordianToggleButton"></ion-icon>
-			</div>
-			<div class="accordion-content" ref="deckSettingsAccordianContent">
-				Coming soon
-			</div>
-		</div> -->
 		<br>
-		<button @click=updateSettings>Save</button>
+		<button @click=updateSettings v-if="canEdit">Save</button>
 	</div>
 </template>
 
@@ -65,12 +56,16 @@ export default {
 		}
 	},
 	computed: {
+		canEdit() {
+			return (!this.$store.state.room.settings.public) || this.$store.state.user.isPrivileged;
+		},
 		cardsPerHand: {
 			get() {
 				if (this.changeCardsPerHand === -1) return this.$store.state.room.settings.cardsPerHand;
 				return this.changeCardsPerHand;
 			},
 			set(value) {
+				if (!this.canEdit) return;
 				this.changeCardsPerHand = value
 			}
 		},
@@ -80,6 +75,7 @@ export default {
 				return this.changePointsToWin;
 			},
 			set(value) {
+				if (!this.canEdit) return;
 				this.changePointsToWin = value
 			}
 		},
@@ -89,6 +85,7 @@ export default {
 				return this.changeNumBlankCards;
 			},
 			set(value) {
+				if (!this.canEdit) return;
 				this.changeNumBlankCards = value;
 			}
 		},
@@ -98,6 +95,7 @@ export default {
 				return this.changeGuaranteedBlanks;
 			},
 			set(value) {
+				if (!this.canEdit) return;
 				this.changeGuaranteedBlanks = value;
 			}
 		},
@@ -107,6 +105,7 @@ export default {
 				return this.changeNumRedraws;
 			},
 			set(value) {
+				if (!this.canEdit) return;
 				this.changeNumRedraws = value;
 			}
 		},
@@ -132,18 +131,6 @@ export default {
 			this.changeNumBlankCards = -1;
 			this.changeGuaranteedBlanks = -1;
 			this.changeNumRedraws = -1;
-		},
-		toggleAccordion() {
-			const contentEl = this.$refs.deckSettingsAccordianContent;
-			const toggle = this.$refs.deckSettingsAccordianToggleButton;
-			if (contentEl.classList.contains('visible')) {
-				contentEl.classList.remove('visible');
-				toggle.classList.remove('open');
-			}
-			else {
-				contentEl.classList.add('visible');
-				toggle.classList.add('open');
-			}
 		}
 	}
 }
@@ -177,37 +164,5 @@ export default {
 	height: 20px;
 	width: 20px;
 	box-sizing: content-box;
-}
-
-.accordion {
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-}
-.accordion > .accordion-title {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	width: auto;
-	padding-top: 5px;
-	padding-bottom: 10px;
-}
-.accordion > .accordion-content {
-	max-height: 0;
-	overflow: hidden;
-	transition: all 0.5s ease;
-}
-.accordion > .accordion-content.visible {
-	max-height: 100px;
-}
-.accordion > .accordion-title > .accordion-toggle {
-	transition: all 0.2s ease;
-	font-size: 20pt;
-}
-.accordion > .accordion-title > .accordion-toggle.open {
-	transform: rotateZ(-90deg);
-}
-.accordion > .accordion-content > h2 {
-	font-size: 12pt;
 }
 </style>
