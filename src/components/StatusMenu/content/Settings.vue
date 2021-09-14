@@ -4,35 +4,35 @@
 		<table>
 			<tr>
 				<td>Cards Per Hand</td>
-				<td><input type="number" v-model.number="cardsPerHand" /></td>
+				<td><input type="number" v-model.number="cardsPerHand" :disabled="!canEdit" /></td>
 			</tr>
 			<tr>
 				<td>Points To Win</td>
-				<td><input type="number" v-model.number="pointsToWin" /></td>
+				<td><input type="number" v-model.number="pointsToWin" :disabled="!canEdit" /></td>
 			</tr>
 			<tr>
 				<td>Deck Blank Cards</td>
-				<td><input type="number" v-model.number="numBlankCards" /></td>
+				<td><input type="number" v-model.number="numBlankCards" :disabled="!canEdit" /></td>
 			</tr>
 			<tr>
 				<td>Guaranteed Blanks</td>
-				<td><input type="number" v-model.number="guaranteedBlanks" /></td>
+				<td><input type="number" v-model.number="guaranteedBlanks" :disabled="!canEdit" /></td>
 			</tr>
 			<tr>
 				<td>All Blanks!</td>
-				<td><input type="checkbox" v-model="allBlanks" /></td>
+				<td><input type="checkbox" v-model="allBlanks" :disabled="!canEdit" /></td>
 			</tr>
 			<tr>
 				<td>Family Mode</td>
-				<td><input type="checkbox" v-model="familyMode" /></td>
+				<td><input type="checkbox" v-model="familyMode" :disabled="!canEdit" /></td>
 			</tr>
 			<tr>
 				<td>Allowed Re-draws</td>
-				<td><input type="number" v-model.number="numRedraws" /></td>
+				<td><input type="number" v-model.number="numRedraws" :disabled="!canEdit" /></td>
 			</tr>
-			<tr v-if="$store.state.user.isPrivileged">
+			<tr>
 				<td>Public Game</td>
-				<td><input type="checkbox" v-model="publicGame" /></td>
+				<td><input type="checkbox" v-model="publicGame" :disabled="!$store.state.user.isPrivileged" /></td>
 			</tr>
 		</table>
 		<!-- <div class="accordion">
@@ -45,7 +45,7 @@
 			</div>
 		</div> -->
 		<br>
-		<button @click=updateSettings>Save</button>
+		<button @click=updateSettings v-if="canEdit">Save</button>
 	</div>
 </template>
 
@@ -65,12 +65,16 @@ export default {
 		}
 	},
 	computed: {
+		canEdit() {
+			return (!this.$store.state.room.settings.public) || this.$store.state.user.isPrivileged;
+		},
 		cardsPerHand: {
 			get() {
 				if (this.changeCardsPerHand === -1) return this.$store.state.room.settings.cardsPerHand;
 				return this.changeCardsPerHand;
 			},
 			set(value) {
+				if (!this.canEdit) return;
 				this.changeCardsPerHand = value
 			}
 		},
@@ -80,6 +84,7 @@ export default {
 				return this.changePointsToWin;
 			},
 			set(value) {
+				if (!this.canEdit) return;
 				this.changePointsToWin = value
 			}
 		},
@@ -89,6 +94,7 @@ export default {
 				return this.changeNumBlankCards;
 			},
 			set(value) {
+				if (!this.canEdit) return;
 				this.changeNumBlankCards = value;
 			}
 		},
@@ -98,6 +104,7 @@ export default {
 				return this.changeGuaranteedBlanks;
 			},
 			set(value) {
+				if (!this.canEdit) return;
 				this.changeGuaranteedBlanks = value;
 			}
 		},
@@ -107,6 +114,7 @@ export default {
 				return this.changeNumRedraws;
 			},
 			set(value) {
+				if (!this.canEdit) return;
 				this.changeNumRedraws = value;
 			}
 		},
