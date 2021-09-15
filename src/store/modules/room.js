@@ -22,7 +22,7 @@ const initialState = {
 	winner: null
 };
 
-let state = initialState;
+let state = {...initialState};
 
 const mutations = { // Preceding '_' means the mutation should only be called from within an action.
 	setRoomId: (state, roomId) => state.roomId = String(roomId),
@@ -38,7 +38,7 @@ const mutations = { // Preceding '_' means the mutation should only be called fr
 	updatePlayedCards: (state, newPlayedCards) => state.turn.playedCards = newPlayedCards,
 	updateWinningCard: (state, card) => state.turn.winningCard = card,
 	setGameWinner: (state, username) => state.winner = username,
-	reset: (state) => Object.keys(initialState).forEach(key => state[key] = initialState[key])
+	reset: (state) => Object.assign(state, initialState)
 }
 
 const actions = {

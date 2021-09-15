@@ -9,7 +9,7 @@ const initialState = {
 	redrawsUsed: 0
 };
 
-let state = initialState;
+let state = {...initialState};
 
 const mutations = {
 	setUsername: (state, username) => state.username = String(username),
@@ -18,7 +18,7 @@ const mutations = {
 	updateHand: (state, newHand) => state.hand = newHand,
 	updatePoints: (state, numPoints) => state.points = numPoints,
 	updateRedrawsUsed: (state, numRedrawsUsed) => state.redrawsUsed = numRedrawsUsed,
-	reset: (state) => Object.keys(initialState).forEach(key => state[key] = initialState[key])
+	reset: (state) => Object.assign(state, initialState)
 }
 
 const	actions = {
