@@ -31,7 +31,8 @@ export default {
 	name: 'WhiteCard',
 	props: {
 		text: String,
-		facedown: Boolean
+		facedown: Boolean,
+		index: Number
 	},
 	data() {
 		return {
@@ -116,6 +117,15 @@ export default {
 		}
 	},
 	mounted() {
+		// Peek trash mode on round 1 so people know it's there.
+		// Wait 4s for the interstitial to finish
+		if (this.isTrashable && this.index === 0 && this.$store.state.room.turn.round === 1) {
+			window.setTimeout(() => {
+				this.trashMode = true;
+				window.setTimeout(() => this.trashMode = false, 600);
+			}, 4000);
+		}
+
 		interact(this.$refs.card).draggable({
 			startAxis: 'x', // Only worry about it if the drag was horizontal
 			onstart: (event) => {

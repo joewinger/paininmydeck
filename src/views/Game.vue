@@ -8,7 +8,8 @@
 			<white-card v-for="(card, index) in cardSet"
 				:key='card.text || card'
 				:class="{'blankfont': card.blank}"
-				:style="{'--delay': index*0.2+'s'}"
+				:style="{'--delay': index*0.3+'s'}"
+				:index=index
 				:text='card.text || card'
 				:facedown="(playedThisTurn || isCzar) && turnStatus === 'WAITING_FOR_CARDS'" />
 		</transition-group>
