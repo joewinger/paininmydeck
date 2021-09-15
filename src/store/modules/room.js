@@ -85,7 +85,6 @@ const actions = {
 			if (isEqual(oldValue, incomingValue)) continue; // Skip properties that haven't changed
 			
 			trackedState[key].method(trackedState[key].name, incomingValue);
-			console.debug(`${key} has been updated.`);
 		}
 	},
 	updateUsers({ commit }, usersObj) {

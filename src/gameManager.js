@@ -223,7 +223,6 @@ class GameManager {
 	 */
 	onRoomUpdate(snapshot) {
 		let newRoomData = snapshot.data();
-		console.debug("Room update recieved");
 	
 		/* Logic */
 		// If the game just started
@@ -260,8 +259,6 @@ class GameManager {
 	 * @param {firebase.firestore.DocumentSnapshot} snapshot
 	 */
 	onChatUpdate(snapshot) {
-		console.debug("Chat update recieved");
-		
 		store.commit('room/updateChatMessages', snapshot.data().chatMessages);
 	}
 	
@@ -270,8 +267,6 @@ class GameManager {
 	 * @param {firebase.firestore.DocumentSnapshot} snapshot
 	 */
 	onHistoryUpdate(snapshot) {
-		console.debug("History update recieved");
-		
 		store.commit('room/updateRoundHistory', snapshot.data().rounds);
 	}
 	
@@ -280,8 +275,6 @@ class GameManager {
 	 * @param {firebase.firestore.DocumentSnapshot} snapshot 
 	 */
 	onUserUpdate(snapshot) {
-		console.debug("User update recived");
-		
 		store.commit('user/updateHand', snapshot.data().hand);
 	}
 
