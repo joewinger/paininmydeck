@@ -104,8 +104,8 @@ export default {
  * before we come in 
  * Also note to self I haven't seen anyone else doing staggered animations
  * with css variables like this online but I didn't look too hard */
-.whiteCard.cards-enter-active {
-	transition-delay: calc(0.3s + var(--delay));
+.cards-enter-active {
+	transition: opacity calc(0.3s + var(--delay));
 }
 .cards-enter, .cards-leave-to {
   opacity: 0;
