@@ -52,6 +52,7 @@ const actions = {
 			'users': 							{method: dispatch,	name: 'updateUsers'},
 			'settings': 					{method: commit, 		name: 'updateSettings'},
 			'gameState': 					{method: dispatch,	name: 'updateGameState'},
+			'turn.round':					{method: commit,		name: 'updateRound'},
 			'turn.questionCard':	{method: commit, 		name: 'updateQuestionCard'},
 			'turn.czar': 					{method: commit, 		name: 'updateCzar'},
 			'turn.playedCards':		{method: commit, 		name: 'updatePlayedCards'},
