@@ -106,17 +106,23 @@ const actions = {
 				})
 			});
 		} else {
-			if (!rootState.user.isPrivileged) return;
 			let command = message.split(' ')[0].substring(1);
 			let args = message.split(' ').slice(1);
 			switch (command.toLowerCase()) {
+				case 'v':
+					console.log('Version:', process.env.VUE_APP_COMMIT_HASH);
+					dispatch('error', { title: 'Version', message: process.env.VUE_APP_COMMIT_HASH }, { root: true });
+					break;
 				case 'system':
+					if (!rootState.user.isPrivileged) return;
 					dispatch('sendSystemMessage', args.join(' '));
 					break;
 				case 'startnewturn':
+					if (!rootState.user.isPrivileged) return;
 					firebase.functions().httpsCallable('startNewTurn')({roomId: state.roomId});
 					break;
 				case 'kick':
+					if (!rootState.user.isPrivileged) return;
 					if (args[0].startsWith('"')) {
 						dispatch('kickPlayer', args.join(' ').split('"')[1]);
 					} else dispatch('kickPlayer', args[0]);

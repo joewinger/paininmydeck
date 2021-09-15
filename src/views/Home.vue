@@ -18,6 +18,8 @@
 		<div style="display: flex; gap: 5px;">
 			<button-loadable @click="createRoom">Start a new Game</button-loadable>
 		</div>
+
+		<span class="commitHash">{{ $commitHash }}</span>
 	</div>
 </template>
 
@@ -95,5 +97,17 @@ export default {
 }
 #home h3 {
 	margin-bottom: 0;
+}
+
+.commitHash {
+	position: fixed;
+	bottom: 5px;
+	left: 50%;
+	transform: translateX(-50%);
+
+	font-size: 0.7rem;
+}
+.commitHash::before {
+	content: 'version '
 }
 </style>

@@ -6,6 +6,10 @@
 				<td>Room ID</td>
 				<td>{{ $store.state.room.roomId }}</td>
 			</tr>
+			<tr>
+				<td>Version</td>
+				<td>{{ $commitHash }}</td>
+			</tr>
 			<tr v-if="$store.state.room.gameState === 'PLAYING'">
 				<td>Czar</td>
 				<td>{{ $store.state.room.turn.czar }}</td>

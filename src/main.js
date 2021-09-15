@@ -23,6 +23,7 @@ Vue.filter('blankify', (value) => {
 	return value.replace("_", "________")
 });
 
+Vue.prototype.$commitHash = process.env.VUE_APP_COMMIT_HASH;
 
 new Vue({
 	store,
