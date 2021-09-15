@@ -1,6 +1,6 @@
 <template>
 	<div id="home">
-		<h1 class="logo">
+		<h1 class="logo" @click="showVersion = !showVersion">
 			<span>Pain</span>
 			<span>in my</span>
 			<span>Deck</span>
@@ -19,7 +19,7 @@
 			<button-loadable @click="createRoom">Start a new Game</button-loadable>
 		</div>
 
-		<span class="commitHash">{{ $commitHash }}</span>
+		<span class="commitHash" v-if="showVersion">{{ $commitHash }}</span>
 	</div>
 </template>
 
@@ -33,7 +33,8 @@ export default {
 	},
 	data () {
 		return {
-			roomId: ''
+			roomId: '',
+			showVersion: false
 		}
 	},
 	methods: {
