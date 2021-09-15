@@ -7,7 +7,7 @@
 			Pain In My Deck!
 		</div>
 		<transition name="navbar-info">
-			<div id="navbar-info" v-if="$store.state.user.username !== ''">
+			<div id="navbar-info" v-if="$store.state.user.username !== ''" @click="copyRoomId">
 				Room<br/>{{ $store.state.room.roomId }}
 			</div>
 		</transition>
@@ -16,7 +16,12 @@
 
 <script>
 export default {
-	name: 'NavBar'
+	name: 'NavBar',
+	methods: {
+		copyRoomId() {
+			navigator.clipboard.writeText(this.$store.state.room.roomId);
+		}
+	}
 }
 </script>
 
