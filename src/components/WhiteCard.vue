@@ -6,7 +6,7 @@
 		<div class="whiteCard" ref="card" :class=classList @click="onClick">	
 			<div class="card-text" v-if="!facedown && !isBlank">{{ this.text }}</div>
 			
-			<textarea class="blank-input" v-if="isBlank" v-model="blanktext" :placeholder='"Blank\nCard"' @blur="onBlur" />
+			<textarea class="blank-input" v-if="isBlank" v-model="blanktext" placeholder="Blank Card" @blur="onBlur" />
 			<transition name="save-btn">
 				<button class="btn-save" v-if="isBlank && editing" @click="submitBlankCard"><ion-icon name="checkmark" /></button>
 			</transition>
@@ -259,7 +259,7 @@ export default {
 	font-family: 'Nanum Pen Script', aktiv-grotesk, Helvetica, sans-serif;
 	font-size: 1.7em; /* Nanum Pen Script is smaller than Aktiv Grotesk, this comps for that. Calculation was done by eye, so not perfect. */
 }
-.whiteCard.blank textarea {
+.blank-input {
 	width: 100%;
 	/* I have no idea where these 4px are coming from, but without
 	this there's a teensy bit of overscroll. */
@@ -275,21 +275,23 @@ export default {
 	
 	resize: none;
 }
-.whiteCard.blank textarea:focus {
+.blank-input:focus {
 	outline: none;
 }
-.whiteCard.blank textarea::placeholder {
-	position: absolute;
+.blank-input::placeholder,
+.blank-input::-webkit-input-placeholder,
+.blank-input::-moz-placeholder {
+	position: relative; /* ??? This should be absolute but doesn't work on mobile */
 
-	width: 60px;
-	height: 50px;
-	top: calc(50% - 25px);
-	left: calc(50% - 30px);
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 
 	font-family: aktiv-grotesk, Helvetica, sans-serif;
 	font-size: clamp(1rem, 5.2vw, 1.25rem);
 	text-align: center;
 	color: var(--gray-200);
+	white-space: pre-wrap;
 }
 .whiteCard.blank button.btn-save {
 	position: absolute;
