@@ -6,7 +6,8 @@ const initialState = {
 	hand: [],
 	isPrivileged: false,
 	playedThisTurn: false,
-	redrawsUsed: 0
+	redrawsUsed: 0,
+	beingKicked: false // Used to detect weather we should prompt the user when they're leaving a game
 };
 
 let state = {...initialState};
@@ -18,6 +19,7 @@ const mutations = {
 	updateHand: (state, newHand) => state.hand = newHand,
 	updatePoints: (state, numPoints) => state.points = numPoints,
 	updateRedrawsUsed: (state, numRedrawsUsed) => state.redrawsUsed = numRedrawsUsed,
+	setBeingKicked: (state, beingKicked) => state.beingKicked = beingKicked,
 	reset: (state) => Object.assign(state, initialState)
 }
 

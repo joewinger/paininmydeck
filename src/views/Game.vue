@@ -60,6 +60,13 @@ export default {
 		...mapGetters('user', [
 			'isCzar'
 		])
+	},
+	beforeRouteLeave(to, from, next) {
+		console.log(this.users);
+		if (to.name === 'home') {
+			if (this.$store.state.user.beingKicked) next(); // We got kicked
+			else if (window.confirm('Are you sure you\'d like to leave in the middle of this game?')) next();
+		}
 	}
 }
 </script>

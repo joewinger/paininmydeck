@@ -77,7 +77,9 @@ const actions = {
 				const incomingUsernames = incomingValue.map(user => user.username);
 				const ourUsername = rootState.user.username;
 				if (oldUsernames.includes(ourUsername) && !incomingUsernames.includes(ourUsername)) {
+					commit('user/setBeingKicked', true, { root: true }); // Used so we don't prompt the user if they want to leave, in Game.vue
 					router.replace({name: 'home'});
+					commit('user/setBeingKicked', false, { root: true });
 					dispatch('error', { title: "Kicked!", message: "You've been kicked :(" }, { root: true });
 					return;
 				}
