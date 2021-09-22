@@ -2,13 +2,15 @@
 	<div id="statusMenuContent-history" class="statusMenuContent">
 		<h1>Round History</h1>
 		<div class="initial" v-if="this.$store.state.room.turn.round <= 1">No history to show yet, check back next round!</div>
-		<div class="round" v-for="round in this.$store.state.room.roundHistory.slice(1)" :key="round.round">
-			<span class="round-number">&ndash; Round {{ round.round }} &ndash;</span>
-			<h4 class="question">{{ round.question | blankify }}</h4>
-			<ol class="answers">
-				<li class="miniCard winningAnswer" :style="{'--playedBy': `'${round.winningPlayer}'`}">{{ round.winningAnswer }}</li>
-				<li class="miniCard" v-for="answer in round.otherAnswers" :key="answer.text"  :style="{'--playedBy': `'${answer.playedBy}'`}">{{ answer.text }}</li>
-			</ol>
+		<div class="round-list">
+			<div class="round" v-for="round in this.$store.state.room.roundHistory.slice(1)" :key="round.round">
+				<span class="round-number">&ndash; Round {{ round.round }} &ndash;</span>
+				<h4 class="question">{{ round.question | blankify }}</h4>
+				<ol class="answers">
+					<li class="miniCard winningAnswer" :style="{'--playedBy': `'${round.winningPlayer}'`}">{{ round.winningAnswer }}</li>
+					<li class="miniCard" v-for="answer in round.otherAnswers" :key="answer.text"  :style="{'--playedBy': `'${answer.playedBy}'`}">{{ answer.text }}</li>
+				</ol>
+			</div>
 		</div>
 	</div>
 </template>
@@ -40,6 +42,13 @@ export default {
 
 	text-align: center;
 	font-size: 1.1rem;
+}
+
+.round-list {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	flex-direction: column-reverse;
 }
 
 .round {
