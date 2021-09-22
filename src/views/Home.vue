@@ -83,16 +83,16 @@ export default {
 	flex-direction: column;
 	justify-content: flex-end;
 
-	width: 25vmin;
-	height: 25vmin;
-	padding: 3vmin;
+	width: max(25vmin, 90px);
+	height: max(25vmin, 90px);
+	padding: max(3vmin, 10.8px);
 	
-	border: solid 0.8vmin var(--primary-300);
+	border: solid max(0.8vmin, 3px) var(--primary-300);
 	border-radius: 15px;
 
 	color: var(--primary-300);
   font-family: 'Inter', sans-serif;
-	font-size: 6vmin;
+	font-size: max(6vmin, 22px);
 	font-weight: 800; 
 	text-transform: uppercase;
 }
