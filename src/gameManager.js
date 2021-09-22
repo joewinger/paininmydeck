@@ -91,7 +91,7 @@ class GameManager {
 			throw 'ROOM_DOES_NOT_EXIST';
 		}
 		
-		console.debug("Success! Room document retrieved.", roomDocSnapshot.data());
+		console.debug("Success! Room document retrieved.");
 		// Grant us privileges if we're the first player
 		if (Object.keys(roomDocSnapshot.data().users).length === 0) store.commit('user/setPrivileged');
 		// Save this roomId so we know we should be connected here
@@ -114,7 +114,6 @@ class GameManager {
 			console.error("Auth unsuccessful :( More info below:", `${e.code}: ${e.message}`);
 		});
 		
-		console.groupEnd();
 		return;
 	}
 
