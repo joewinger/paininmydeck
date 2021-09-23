@@ -361,16 +361,14 @@ class GameManager {
 		await this.roomDocRef.update('turn.winningCard', { text: cardText, playedBy: playedBy, blank: wasBlank },
 														`users.${playedBy}.points`, firebase.firestore.FieldValue.increment(1));
 
-		// Figure out if somebody has reached the threshold to win the game
-		const winner = store.state.room.users.find(user => user.points >= store.state.room.settings.pointsToWin) || null;
-		if (winner) {
-			this.endGame(winner);
-			return;
-		}
-
 		// Wait 3 seconds then start the next turn. This will eventually be replaced with something cooler, like an animation.
 		setTimeout(async () => {
-			await this.startNewTurn();
+			// Figure out if somebody has reached the threshold to win the game
+			const winner = store.state.room.users.find(user => user.points >= store.state.room.settings.pointsToWin) || null;
+			if (winner) {
+				this.endGame(winner);
+				return;
+			} else await this.startNewTurn();
 		}, 3000);
 	}
 
