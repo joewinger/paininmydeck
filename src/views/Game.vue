@@ -66,7 +66,7 @@ export default {
 		if (to.name === 'home') {
 			if (this.$store.state.user.beingKicked) next(); // We got kicked
 			else if (window.confirm('Are you sure you\'d like to leave in the middle of this game?')) next();
-		}
+		} else next(); // i.e. navigating to gameover
 	}
 }
 </script>
