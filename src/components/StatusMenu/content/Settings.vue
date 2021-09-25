@@ -66,7 +66,7 @@ export default {
 			},
 			set(value) {
 				if (!this.canEdit) return;
-				this.changeCardsPerHand = value
+				this.changeCardsPerHand = this.clamp(value, 3, 30);
 			}
 		},
 		pointsToWin: {
@@ -76,7 +76,7 @@ export default {
 			},
 			set(value) {
 				if (!this.canEdit) return;
-				this.changePointsToWin = value
+				this.changePointsToWin = this.clamp(value, 1, 100);
 			}
 		},
 		numBlankCards: {
@@ -86,7 +86,7 @@ export default {
 			},
 			set(value) {
 				if (!this.canEdit) return;
-				this.changeNumBlankCards = value;
+				this.changeNumBlankCards = this.clamp(value, 0, 2000);
 			}
 		},
 		guaranteedBlanks: {
@@ -96,7 +96,7 @@ export default {
 			},
 			set(value) {
 				if (!this.canEdit) return;
-				this.changeGuaranteedBlanks = value;
+				this.changeGuaranteedBlanks = this.clamp(value, 0, this.cardsPerHand);
 			}
 		},
 		numRedraws: {
@@ -106,11 +106,14 @@ export default {
 			},
 			set(value) {
 				if (!this.canEdit) return;
-				this.changeNumRedraws = value;
+				this.changeNumRedraws = this.clamp(value, 0, 30);
 			}
 		},
 	},
 	methods: {
+		clamp(value, min, max) {
+			return Math.min(Math.max(value, min), max);
+		},
 		updateSettings() {
 			const settingsObject = {
 				// Use the setting's state value if we haven't updated it ourselved
