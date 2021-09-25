@@ -6,7 +6,8 @@
 		<div class="whiteCard" ref="card" :class=classList @click="onClick">	
 			<div class="card-text" v-if="!facedown && !isBlank">{{ this.text }}</div>
 			
-			<textarea class="blank-input" v-if="isBlank" v-model="blanktext" placeholder="Blank Card" @blur="onBlur" />
+			<textarea class="blank-input" v-if="isBlank" v-model="blanktext" placeholder="Blank Card" maxlength="60" @blur="onBlur" />
+			<span class="char-limit" v-if="isBlank && editing && blanktext.length > 30">{{blanktext.length}}/60</span>
 			<transition name="save-btn">
 				<button class="btn-save" v-if="isBlank && editing" @click="submitBlankCard"><ion-icon name="checkmark" /></button>
 			</transition>
@@ -36,7 +37,7 @@ export default {
 	},
 	data() {
 		return {
-			blanktext: '',
+			blanktext_: '',
 			editing: false,
 			disableClicks: false,
 			isDragging: false,
@@ -49,6 +50,14 @@ export default {
 				facedown: this.facedown,
 				winner: this.isWinner,
 				blank: this.isBlank
+			}
+		},
+		blanktext: {
+			get() {
+				return this.blanktext_;
+			},
+			set(value) {
+				this.blanktext_ = value.substring(0, 60);
 			}
 		},
 		isBlank() {
@@ -257,6 +266,7 @@ export default {
 .whiteCard.blank {
 	cursor: text;
 	font-family: 'Nanum Pen Script', aktiv-grotesk, Helvetica, sans-serif;
+	letter-spacing: 0;
 	font-size: 1.7em; /* Nanum Pen Script is smaller than Aktiv Grotesk, this comps for that. Calculation was done by eye, so not perfect. */
 }
 .blank-input {
@@ -293,6 +303,15 @@ export default {
 	color: var(--gray-200);
 	white-space: pre-wrap;
 }
+
+.whiteCard.blank .char-limit {
+	position: absolute;
+	bottom: 5px;
+	left: 5px;
+	color: var(--gray-200);
+	font-size: 1.2rem;
+}
+
 .whiteCard.blank button.btn-save {
 	position: absolute;
 	bottom: 5px;
