@@ -59,6 +59,11 @@ export default {
 				this.username = '';
 				return;
 			}
+			if (this.username.length > 12) {
+				this.$store.dispatch('error', { message: `The username ${this.username} is too long! 12 characters max, please :)`, title: 'Invalid Username' });
+				this.username = '';
+				return;
+			}
 
 			sessionStorage.setItem('username', this.username);
 			localStorage.setItem('username', this.username);
