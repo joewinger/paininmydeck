@@ -147,13 +147,17 @@ export default {
 	flex-direction: column;
 }
 
+#statusMenuContent-settings table tr td:nth-of-type(2) {
+	width: 60px;
+	text-align: center;
+}
+
 #statusMenuContent-settings input[type="number"] {
 	padding: 7px;
 	margin: 0;
 	height: auto;
-	width: 20px;
+	width: 100%;
 	border-radius: 0;
-	box-sizing: content-box;
   -moz-appearance: textfield;
 }
 #statusMenuContent-settings input[type="number"]::-webkit-outer-spin-button,
@@ -163,9 +167,8 @@ export default {
 }
 
 #statusMenuContent-settings input[type="checkbox"] {
-	margin: 7px;
+	margin: 7px 0;
 	height: 20px;
-	width: 20px;
 	box-sizing: content-box;
 }
 </style>
