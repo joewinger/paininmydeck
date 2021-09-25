@@ -134,6 +134,8 @@ export default {
 			this.changeNumBlankCards = -1;
 			this.changeGuaranteedBlanks = -1;
 			this.changeNumRedraws = -1;
+
+			this.$emit('close-menu');
 		}
 	}
 }

@@ -49,7 +49,7 @@
 					<status-menu-content-info v-if="currentMenu === 'INFO'" />
 					<status-menu-content-history v-if="currentMenu === 'HISTORY'" />
 					<status-menu-content-chat v-if="currentMenu === 'CHAT'" />
-					<status-menu-content-settings v-if="currentMenu === 'SETTINGS'" />
+					<status-menu-content-settings v-if="currentMenu === 'SETTINGS'" @close-menu="currentMenu = null" />
 					<status-menu-content-leaderboard v-if="currentMenu === 'LEADERBOARD'" />
 				</transition>
 			</div>
