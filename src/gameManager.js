@@ -379,10 +379,20 @@ class GameManager {
 	async endGame(winner) {
 		console.debug(`${winner} wins!`);
 
+		await this.db.doc(`games/${store.state.room.roomId}/meta/finalRecord`).set({
+			winner: winner,
+			leaderboard: store.getters['room/sortedUsers'],
+			rounds: store.state.room.turn.round
+		});
+
 		await this.roomDocRef.update({
 			winner: winner,
 			gameState: `FINISHED`
 		});
+	}
+
+	async getFinalRecordData() {
+		return (await this.db.doc(`games/${store.state.room.roomId}/meta/finalRecord`).get()).data();
 	}
 }
 
