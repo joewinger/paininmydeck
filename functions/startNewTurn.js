@@ -11,6 +11,8 @@ exports.handler = async function(data, context, db, admin) {
   const roomData = (await roomDoc.get()).data();
 	const decks = (await db.doc(`games/${roomId}/meta/decks`).get()).data();
 
+	const promoPhotoMode = roomData.settings._promoPhotoMode === true;
+
 	// Append Round Data to History Doc //////////////////////////////////////////////
 
 	db.doc(`games/${roomId}/meta/history`).update({
@@ -28,7 +30,7 @@ exports.handler = async function(data, context, db, admin) {
 	// Replenish Cards ///////////////////////////////////////////////////////////////
 
 	// Find everyone who's missing cards
-	const usersInNeedOfCards = await roomDoc.collection('users').where('numCardsInHand', '<', roomData.settings.cardsPerHand).get();
+	const usersInNeedOfCards = await (promoPhotoMode ? roomDoc.collection('users') : roomDoc.collection('users').where('numCardsInHand', '<', roomData.settings.cardsPerHand)).get();
 	console.log(`${usersInNeedOfCards.size} users are in need of cards in room ${roomId}`);
 
 	// Set our reference to use later
@@ -44,7 +46,7 @@ exports.handler = async function(data, context, db, admin) {
 		const userData = userDoc.data();
 		
 		// Figure out how many cards this user needs
-		let numCardsNeeded = roomData.settings.cardsPerHand - userData.numCardsInHand;
+		let numCardsNeeded = promoPhotoMode ? roomData.settings.cardsPerHand : roomData.settings.cardsPerHand - userData.numCardsInHand;
 		console.log(`User ${userDoc.id} needs ${numCardsNeeded} cards in room ${roomId}`);
 
 		let cardsToGive = []; // The array of cards we'll add to the player's hand
@@ -74,7 +76,8 @@ exports.handler = async function(data, context, db, admin) {
 			hand: admin.firestore.FieldValue.arrayUnion(...cardsToGive),
 			numCardsInHand: admin.firestore.FieldValue.increment(cardsToGive.length)
 		}
-		if (reserveCards !== null) userDocPayload.reserveCards = reserveCards
+		if (promoPhotoMode) userDocPayload.hand = cardsToGive;
+		if (reserveCards !== null) userDocPayload.reserveCards = reserveCards;
 
 		// Update the user document to reflect the cards being in our hand
 		try {
