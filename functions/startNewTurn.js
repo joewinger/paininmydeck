@@ -19,9 +19,9 @@ exports.handler = async function(data, context, db, admin) {
 			'round': roomData.turn.round,
 			'question': roomData.turn.questionCard,
 			'czar': roomData.turn.czar,
-			'winningAnswer': roomData.turn.winningCard.text,
-			'winningPlayer': roomData.turn.winningCard.playedBy,
-			'otherAnswers': roomData.turn.playedCards.filter(card => card.playedBy !== roomData.turn.winningCard.playedBy)
+			'winningAnswer': roomData.turn.winningCard ? roomData.turn.winningCard.text : null, // In case we manually call this for debugging & there is no winning card yet
+			'winningPlayer': roomData.turn.winningCard ? roomData.turn.winningCard.playedBy : null,
+			'otherAnswers': roomData.turn.playedCards.filter(card => card.playedBy !== (roomData.turn.winningCard ? roomData.turn.winningCard.playedBy : false))
 		})
 	});
 	
