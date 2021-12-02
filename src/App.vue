@@ -6,9 +6,7 @@
 				<router-view/>
 			</transition>
 		</div>
-		<div id="row-status">
-			<status-menu v-if="$store.state.room.roomId !== null" />
-		</div>
+		<status-menu v-if="$store.state.room.roomId !== null" />
 		<error-toast />
 		<interstitial />
 	</div>
@@ -49,7 +47,7 @@ export default {
 <style>
 #app {
 	display: grid;
-	grid-template-rows: [row-nav] var(--navbar-height) [row-content] 1fr [row-status] 70px;
+	grid-template-rows: [row-nav] var(--navbar-height) [row-content] 1fr;
 	width: 100%;
 	height: 100%;
 }
