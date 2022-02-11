@@ -4,7 +4,7 @@
 			<ion-icon name="arrow-back-circle-outline" />
 		</div>
 		<div id="navbar-title">
-			Pain In My Deck!
+			<img src="@/assets/logo-white.svg" alt="Pain In My Deck!" height="50%"/>
 		</div>
 		<transition name="navbar-info">
 			<div id="navbar-info" v-if="$store.state.user.username !== ''" @click="copyRoomId">

@@ -1,10 +1,6 @@
 <template>
 	<div id="home">
-		<h1 class="logo" @click="showVersion = !showVersion">
-			<span>Pain</span>
-			<span>in my</span>
-			<span>Deck</span>
-		</h1>
+		<img id="main-logo" src="@/assets/logo-orange.svg" alt="Pain In My Deck!" @click="showVersion = !showVersion">
 
 		<h3>Join a game</h3>
 		<input type="text" v-model="roomId" @keyup.enter="joinRoom()" placeholder="Room ID">
@@ -78,23 +74,10 @@ export default {
 	height: 100%;
 	width: 100%;
 }
-#home h1.logo {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-end;
-
-	width: max(25vmin, 90px);
-	height: max(25vmin, 90px);
-	padding: max(3vmin, 10.8px);
+#home #main-logo {
+	max-width: 90%;
 	
-	border: solid max(0.8vmin, 3px) var(--primary-300);
-	border-radius: 15px;
-
-	color: var(--primary-300);
-  font-family: 'Inter', sans-serif;
-	font-size: max(6vmin, 22px);
-	font-weight: 800; 
-	text-transform: uppercase;
+  filter: drop-shadow(0px 2px 0px #C89D30) drop-shadow(0px 3px 0px #B08C31);
 }
 #home h3 {
 	margin-bottom: 0;
