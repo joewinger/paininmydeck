@@ -1,18 +1,19 @@
 <template>
 	<div id="home">
 		<img id="main-logo" src="@/assets/logo-orange.svg" alt="Pain In My Deck!" @click="showVersion = !showVersion">
+		<h2 class="subtitle">An online Cards Against Humanity clone built for phones (and humans).</h2>
 
-		<h3>Join a game</h3>
-		<input type="text" v-model="roomId" @keyup.enter="joinRoom()" placeholder="Room ID">
-		<div style="display: flex; gap: 5px; margin-top: -5px; align-items: center;">
-			<button-loadable @click="joinRoom" class="primary">Join Game</button-loadable>
-			or
-			<button-loadable @click="joinRandomRoom" style="padding: 9px;"><ion-icon name="shuffle" title="Join a Random Room" /></button-loadable>
-		</div>
-
-		<h3>Or start your own</h3>
-		<div style="display: flex; gap: 5px;">
-			<button-loadable @click="createRoom">Start a new Game</button-loadable>
+		<div class="game-controls">
+			<div class="join-group">
+				<input class="room-input" type="text" v-model="roomId" @keyup.enter="joinRoom()" placeholder="ROOM ID">
+				<div class="buttons" style="display: flex; gap: 5px;"	>
+					<button-loadable @click="joinRoom" class="primary btn-joinroom">PLAY</button-loadable>
+					<button-loadable @click="joinRandomRoom" style="padding: 9px;"><ion-icon name="shuffle" title="Join a Random Room" /></button-loadable>
+				</div>
+			</div>
+			<div class="links">
+				<link-loadable @click="createRoom">START A NEW GAME</link-loadable>
+			</div>
 		</div>
 
 		<span class="commitHash" v-if="showVersion">{{ $commitHash }}</span>
@@ -21,11 +22,13 @@
 
 <script>
 import ButtonLoadable from '@/components/ButtonLoadable';
+import LinkLoadable from '@/components/LinkLoadable.vue';
 
 export default {
 	name: 'Home',
 	components: {
-		ButtonLoadable
+		ButtonLoadable,
+		LinkLoadable
 	},
 	data () {
 		return {
@@ -77,11 +80,95 @@ export default {
 #home #main-logo {
 	max-width: 90%;
 	
-  filter: drop-shadow(0px 2px 0px #C89D30) drop-shadow(0px 3px 0px #B08C31);
+  filter: drop-shadow(0px 2px 0px #C89D30) drop-shadow(0px 2px 0px #B08C31);
 }
-#home h3 {
-	margin-bottom: 0;
+#home h2.subtitle {
+	font-size: 24px;
+	color: #6e6e75;
+	text-align: center;
+
+	max-width: min(430px, 95vw);
+	margin-top: 10px;
 }
+@media screen and (max-width: 550px) {
+	#home #main-logo {
+		filter: drop-shadow(0px 1px 0px #C89D30) drop-shadow(0px 1px 0px #B08C31);
+	}
+	#home h2.subtitle {
+		font-size: 20px;
+	}
+}
+
+#home .game-controls {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+
+	width: min(450px, 70vw);
+	padding: 24px 0;
+
+	background-color: #F6F6F8;
+	border-radius: 15px;
+	box-shadow: 0px 4px 4px #E0E0E0;
+}
+
+#home .game-controls .join-group {
+	display: flex;
+	gap: 5px;
+	align-items: center;
+	flex-direction: row;
+}
+@media screen and (max-width: 650px) {
+	#home .game-controls .join-group {
+		flex-direction: column;
+	}
+}
+
+#home .game-controls .room-input {
+	width: 200px;
+
+	font-weight: 700;
+	font-size: 24px;
+	letter-spacing: 20%;
+
+	border: 2px solid #E0E0E0;
+	box-sizing: border-box;
+	border-radius: 15px;
+}
+#home .game-controls .room-input::placeholder {
+	color: #E0E0E0;
+}
+
+#home .game-controls button {
+	border-radius: 15px;
+}
+#home .game-controls .btn-joinroom {
+	font-family: "Bungee";
+	font-size: 24px;
+	height: 44px;
+	padding: 0 24px;
+}
+
+#home .game-controls .links {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: row;
+
+	padding-top: 16px;
+}
+
+#home .game-controls .links a {
+	font-weight: 700;
+	font-size: 14px;
+	color: #828282;
+	border-bottom: 1px solid #828282;
+	font-style: normal;
+
+	cursor: pointer;
+}
+
 
 .commitHash {
 	position: fixed;
