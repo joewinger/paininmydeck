@@ -1,6 +1,6 @@
 /* TEAM */
 	Joe Winger
-	Contact: josephwinger1@gmail.com
+	Contact: joe@joewinger.com
 	From: Lehigh Valley, PA, USA
 
 /* THANKS AND ATTRIBUTION */
