@@ -63,7 +63,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 #home {
 	position: absolute;
 	top: 0;
@@ -76,99 +76,101 @@ export default {
 
 	height: 100%;
 	width: 100%;
-}
-#home #main-logo {
-	max-width: 90%;
 	
-  filter: drop-shadow(0px 2px 0px #C89D30) drop-shadow(0px 2px 0px #B08C31);
-}
-#home h2.subtitle {
-	font-size: 24px;
-	color: #6e6e75;
-	text-align: center;
-
-	max-width: min(430px, 95vw);
-	margin-top: 10px;
-}
-@media screen and (max-width: 550px) {
-	#home #main-logo {
-		filter: drop-shadow(0px 1px 0px #C89D30) drop-shadow(0px 1px 0px #B08C31);
+	#main-logo {
+		max-width: 90%;
+		
+		filter: drop-shadow(0px 2px 0px #C89D30) drop-shadow(0px 2px 0px #B08C31);
+		
+		@media screen and (max-width: 550px) {
+			filter: drop-shadow(0px 1px 0px #C89D30) drop-shadow(0px 1px 0px #B08C31);
+		}
 	}
-	#home h2.subtitle {
-		font-size: 20px;
+
+	h2.subtitle {
+		font-size: 24px;
+		color: #6e6e75;
+		text-align: center;
+
+		max-width: min(430px, 95vw);
+		margin-top: 10px;
+
+		@media screen and (max-width: 550px) {
+			font-size: 20px;
+		}
 	}
-}
 
-#home .game-controls {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-
-	width: min(450px, 70vw);
-	padding: 24px 0;
-
-	background-color: #F6F6F8;
-	border-radius: 15px;
-	box-shadow: 0px 4px 4px #E0E0E0;
-}
-
-#home .game-controls .join-group {
-	display: flex;
-	gap: 5px;
-	align-items: center;
-	flex-direction: row;
-}
-@media screen and (max-width: 650px) {
-	#home .game-controls .join-group {
+	.game-controls {
+		display: flex;
 		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+
+		width: min(450px, 70vw);
+		padding: 24px 0;
+
+		background-color: #F6F6F8;
+		border-radius: 15px;
+		box-shadow: 0px 4px 4px #E0E0E0;
+		
+		.join-group {
+			display: flex;
+			gap: 5px;
+			align-items: center;
+			flex-direction: row;
+
+			@media screen and (max-width: 650px) {
+				flex-direction: column;
+			}
+
+			input.room-input {
+				width: 200px;
+
+				font-weight: 700;
+				font-size: 24px;
+				letter-spacing: 20%;
+
+				border: 2px solid #E0E0E0;
+				box-sizing: border-box;
+				border-radius: 15px;
+
+				&::placeholder {
+					color: #E0E0E0;
+				}
+			}
+		}
+
+		button {
+			border-radius: 15px;
+
+			&.btn-joinroom {
+				font-family: "Bungee";
+				font-size: 24px;
+				height: 44px;
+				padding: 0 24px;
+			}
+		}
+
+		.links {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: row;
+
+			padding-top: 16px;
+
+			a {
+				font-weight: 700;
+				font-size: 14px;
+				color: #828282;
+				border-bottom: 1px solid #828282;
+				font-style: normal;
+
+				cursor: pointer;
+			}
+		}
 	}
 }
-
-#home .game-controls .room-input {
-	width: 200px;
-
-	font-weight: 700;
-	font-size: 24px;
-	letter-spacing: 20%;
-
-	border: 2px solid #E0E0E0;
-	box-sizing: border-box;
-	border-radius: 15px;
-}
-#home .game-controls .room-input::placeholder {
-	color: #E0E0E0;
-}
-
-#home .game-controls button {
-	border-radius: 15px;
-}
-#home .game-controls .btn-joinroom {
-	font-family: "Bungee";
-	font-size: 24px;
-	height: 44px;
-	padding: 0 24px;
-}
-
-#home .game-controls .links {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: row;
-
-	padding-top: 16px;
-}
-
-#home .game-controls .links a {
-	font-weight: 700;
-	font-size: 14px;
-	color: #828282;
-	border-bottom: 1px solid #828282;
-	font-style: normal;
-
-	cursor: pointer;
-}
-
 
 .commitHash {
 	position: fixed;
