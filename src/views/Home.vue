@@ -148,6 +148,12 @@ export default {
 				font-size: 24px;
 				height: 44px;
 				padding: 0 24px;
+
+				text-shadow: 0 1px 0 #C89D30, 0 2px 0 #B08C31;
+
+				&:hover {
+					text-shadow: 0 1px 0 #C89D30;
+				}
 			}
 		}
 
