@@ -111,7 +111,7 @@ export default {
 
 		background-color: #F6F6F8;
 		border-radius: 15px;
-		box-shadow: 0px 4px 4px #E0E0E0;
+		box-shadow: 0px 4px 4px hsla(0, 0%, 87%, 70%);
 		
 		.join-group {
 			display: flex;
