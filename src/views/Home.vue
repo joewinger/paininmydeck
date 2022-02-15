@@ -17,6 +17,17 @@
 		</div>
 
 		<span class="commitHash" v-if="showVersion">{{ $commitHash }}</span>
+		
+		<footer>
+			<img class="footer-logo" src="@/assets/logo-white.svg" alt="Pain In My Deck!" />
+			<div class="left">
+				<span>Some things &copy; 2022 paininmydeck.com</span>
+				<span>In no way affiliated with <a href="https://www.cardsagainsthumanity.com/">Cards Against Humanity</a>.</span>
+			</div>
+			<div class="right">
+				<a href="mailto:contact@paininmydeck.com">Reach Out</a>
+			</div>
+		</footer>
 	</div>
 </template>
 
@@ -71,11 +82,11 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-	justify-content: center;
 	gap: 15px;
 
 	height: 100%;
 	width: 100%;
+	padding-top: 100px;
 	
 	#main-logo {
 		max-width: 90%;
@@ -188,5 +199,56 @@ export default {
 }
 .commitHash::before {
 	content: 'version '
+}
+
+footer {
+	width: 100%;
+	padding: 50px min(100px, 10vw);
+	box-sizing: border-box;
+
+	background-color: var(--gray-500);
+
+	color: #DEDEDE;
+
+	a {
+		border-bottom: solid 1px #AAA;
+		display: inline;
+		font-style: normal;
+
+		&:hover {
+			border-bottom-color: #DEDEDE;
+		}
+	}
+
+	.footer-logo {
+		display: block;
+
+		height: 22px;
+		margin-bottom: 10px;
+	}
+
+	.left, .right {
+		display: inline-flex;
+		flex-direction: column;
+
+		width: 50%;
+
+		vertical-align: top;
+
+		@media screen and (max-width: 700px) {
+			width: 100%;
+		}
+	}
+	.left {
+		align-items: flex-start;
+	}
+	.right {
+		align-items: flex-end;
+
+		@media screen and (max-width: 700px) {
+			align-items: flex-start;
+			margin-top: 10px;
+		}
+	}
 }
 </style>
