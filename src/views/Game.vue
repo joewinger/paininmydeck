@@ -4,7 +4,7 @@
 
 		<info-bar :text=infoText v-if=infoText />
 
-		<transition-group id="cardContainer" tag="div" name="cards">
+		<transition-group id="card-container" tag="div" name="cards">
 			<white-card v-for="(card, index) in cardSet"
 				:key='card.text || card'
 				:class="{'blankfont': card.blank}"
@@ -87,7 +87,7 @@ export default {
 	scroll-behavior: smooth;
   color: inherit;
 }
-#cardContainer {
+#card-container {
 	width: 100%;
 	display: grid;
 	grid-template-columns: repeat(auto-fit, min(150px, 48%)); /* 150 = width of white card */
