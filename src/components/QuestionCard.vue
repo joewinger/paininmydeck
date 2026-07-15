@@ -2,29 +2,24 @@
   <div :class="{'questionCard': true, 'sticky': sticky }"
   @click="toggleSticky()"
   :style="{
-    '--gradient-from': $store.getters['room/getCzarColorSet'][0],
-    '--gradient-to': $store.getters['room/getCzarColorSet'][1]
+    '--gradient-from': game.czarColorSet[0],
+    '--gradient-to': game.czarColorSet[1]
   }">
-    {{ text | blankify }}
+    {{ blankify(text) }}
   </div>
 </template>
 
-<script>
-export default {
-	name: 'QuestionCard',
-	props: {
-		text: String
-	},
-  data() {
-    return {
-      sticky: true
-    };
-  },
-  methods: {
-    toggleSticky() {
-      this.sticky = !this.sticky;
-    }
-  }
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useGameStore } from '@/stores/game';
+import { blankify } from '@/shared/protocol';
+
+defineProps<{ text: string }>();
+const game = useGameStore();
+const sticky = ref(true);
+
+function toggleSticky() {
+	sticky.value = !sticky.value;
 }
 </script>
 

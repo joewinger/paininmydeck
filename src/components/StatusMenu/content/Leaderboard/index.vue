@@ -3,32 +3,25 @@
 		<h1>Leaderboard</h1>
 		<div id="leaderboardEntries">
 			<leaderboard-entry
-				v-for="user in $store.getters['room/sortedUsers']"
-				:key="user.username"
+				v-for="user in game.sortedUsers"
+				:key="user.playerId"
 				:user-obj=user
 				:rank='calculateRank(user)'
-				:played-card="$store.getters['room/getUsernamesPlayedCard'].includes(user.username)"
+				:played-card="game.playedPlayerIds.includes(user.playerId)"
 			/>
 		</div>
 	</div>
 </template>
 
-<script>
-import LeaderboardEntry from './LeaderboardEntry';
+<script setup lang="ts">
+import LeaderboardEntry from './LeaderboardEntry.vue';
+import type { PlayerSummary } from '@/shared/protocol';
+import { useGameStore } from '@/stores/game';
 
-export default {
-	name: 'StatusMenuContentLeaderboard',
-	components: {
-		LeaderboardEntry
-	},
-	methods: {
-		calculateRank(user) {
-			let possiblePointValues = [...new Set(this.$store.getters['room/sortedUsers'].map(user => user.points))];
-			possiblePointValues.sort((a, b) => b - a);
-
-			return possiblePointValues.indexOf(user.points)+1;
-		}
-	}
+const game = useGameStore();
+function calculateRank(user: PlayerSummary): number {
+	const possiblePointValues = [...new Set(game.sortedUsers.map((player) => player.points))].sort((a, b) => b - a);
+	return possiblePointValues.indexOf(user.points) + 1;
 }
 </script>
 

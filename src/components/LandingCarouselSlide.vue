@@ -1,16 +1,20 @@
 <template>
 	<div :class="{ 'carousel-slide': true, 'active': active }" :style="{ '--color': slideData.color }">
-		<div class="img" :style="{'--src': `url(${slideData.imgSrc}`}"></div>
+		<div class="img" :style="{'--src': `url(&quot;${slideData.imgSrc}&quot;)`}"></div>
 		<h3 class="title">{{ slideData.title }}</h3>
 		<p class="description">{{ slideData.description }}</p>
   </div>
 </template>
 
-<script>
-export default {
-	name: 'LandingCarouselSlide',
-	props: ['slideData', 'active']
+<script setup lang="ts">
+export interface LandingSlide {
+	color: string;
+	imgSrc: string;
+	title: string;
+	description: string;
 }
+
+defineProps<{ slideData: LandingSlide; active: boolean }>();
 </script>
 
 <style lang="scss" scoped>

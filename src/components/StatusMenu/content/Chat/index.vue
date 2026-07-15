@@ -5,31 +5,21 @@
 				v-for="(message, index) in messages"
 				:key=index
 				:message-obj=message
-				:last-in-thread="index === 0 ? true : messages[index-1].sender !== message.sender"
+				:last-in-thread="index === 0 ? true : messages[index-1].senderDisplayName !== message.senderDisplayName"
 			/>
 		</div>
 		<chat-input />
 	</div>
 </template>
 
-<script>
-import ChatInput from './ChatInput';
-import ChatMessage from './ChatMessage';
+<script setup lang="ts">
+import { computed } from 'vue';
+import ChatInput from './ChatInput.vue';
+import ChatMessage from './ChatMessage.vue';
+import { useGameStore } from '@/stores/game';
 
-export default {
-	name: 'StatusMenuContentChat',
-	components: {
-		ChatMessage,
-		ChatInput
-	},
-	computed: {
-		messages: {
-			get() {
-				return [...this.$store.state.room.chatMessages].reverse(); // Reverse the messages because they'll be displayed in a flex container with flex-direction: column-reverse
-			}
-		}
-	}
-}
+const game = useGameStore();
+const messages = computed(() => [...game.chatMessages].reverse());
 </script>
 
 <style>

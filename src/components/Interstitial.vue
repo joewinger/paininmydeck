@@ -1,16 +1,16 @@
 <template>
 	<transition appear name="interstitial">
-		<div id="interstitial" v-if="$store.state.interstitial.title">
-      <h1>{{ $store.state.interstitial.title }}</h1>
-      <h2>{{ $store.state.interstitial.subtitle }}</h2>
+		<div id="interstitial" v-if="ui.interstitial.title">
+      <h1>{{ ui.interstitial.title }}</h1>
+      <h2>{{ ui.interstitial.subtitle }}</h2>
 		</div>
 	</transition>
 </template>
 
-<script>
-export default {
-	name: 'Interstitial'
-}
+<script setup lang="ts">
+import { useUiStore } from '@/stores/ui';
+
+const ui = useUiStore();
 </script>
 
 <style>
@@ -82,7 +82,7 @@ export default {
 }
 
 /* Default position is left: 150vw. -150vw centers us, -250vw hides us, -300vw gives us a 50vw buffer. */
-.interstitial-enter {
+.interstitial-enter-from {
   transform: translateX(-300vw);
 }
 .interstitial-enter-active {
@@ -91,14 +91,14 @@ export default {
 
 /* The translates help this element move through the animation a bit
    faster, because it has farther to travel. Helps make things look nice. */
-#interstitial.interstitial-enter::after {
+#interstitial.interstitial-enter-from::after {
   transform: rotate(10deg) translateX(-20vw);
 }
 #interstitial.interstitial-enter-to::after {
   transform: rotate(10deg) translateX(20vw);
 }
 
-#interstitial.interstitial-enter::before {
+#interstitial.interstitial-enter-from::before {
   transform: rotate(20deg);
 }
 #interstitial.interstitial-enter-to::before {

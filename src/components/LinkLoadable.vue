@@ -4,24 +4,20 @@
   </a>
 </template>
 
-<script>
-export default {
-	name: 'LinkLoadable',
-  data() {
-    return {
-      isLoading: false
-    }
-  },
-  methods: {
-    onClick: function() {
-      if (this.isLoading) return;
-      this.isLoading = true;
-      this.$emit('click', this.callback)
-    },
-    callback: function() {
-      this.isLoading = false;
-    }
-  }
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const emit = defineEmits<{ click: [done: () => void] }>();
+const isLoading = ref(false);
+
+function callback() {
+  isLoading.value = false;
+}
+
+function onClick() {
+  if (isLoading.value) return;
+  isLoading.value = true;
+  emit('click', callback);
 }
 </script>
 

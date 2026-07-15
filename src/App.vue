@@ -2,46 +2,61 @@
 	<div id="app">
 		<nav-bar />
 		<div id="row-content">
-			<transition :name="transitionName">
-				<router-view/>
-			</transition>
+			<router-view v-slot="{ Component }">
+				<transition :name="transitionName">
+					<component :is="Component" />
+				</transition>
+			</router-view>
 		</div>
-		<status-menu v-if="$store.state.room.roomId !== null" />
+		<status-menu v-if="game.roomId !== null" />
 		<error-toast />
 		<interstitial />
 	</div>
 </template>
 
-<script>
-import NavBar from '@/components/NavBar';
-import StatusMenu from '@/components/StatusMenu';
-import ErrorToast from '@/components/ErrorToast';
+<script setup lang="ts">
+import { onBeforeUnmount, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import NavBar from '@/components/NavBar.vue';
+import StatusMenu from '@/components/StatusMenu/index.vue';
+import ErrorToast from '@/components/ErrorToast.vue';
 import Interstitial from '@/components/Interstitial.vue';
+import { useGameStore } from '@/stores/game';
 
-export default {
-	components: {
-		NavBar,
-		StatusMenu,
-		ErrorToast,
-		Interstitial
+const route = useRoute();
+const router = useRouter();
+const game = useGameStore();
+const transitionName = ref('default');
+const routeOrder = ['home', 'lobby', 'game', 'gameover'];
+
+watch(
+	() => route.name,
+	(to, from) => {
+		if (from == null) {
+			transitionName.value = 'default';
+			return;
+		}
+		transitionName.value = routeOrder.indexOf(String(to)) > routeOrder.indexOf(String(from)) ? 'slide-left' : 'slide-right';
 	},
-	data() {
-		return {
-			transitionName: 'default'
+);
+
+watch(
+	() => [game.phase, game.beingKicked, game.terminalExit] as const,
+	([phase, beingKicked, terminalExit]) => {
+		if (beingKicked || terminalExit !== null) {
+			void router.replace({ name: 'home' });
+			return;
+		}
+		if (['COLLECTING', 'JUDGING', 'REVEAL'].includes(phase) && route.name === 'lobby') {
+			void router.replace({ name: 'game', params: { roomId: game.roomId } });
+		}
+		if (['FINISHED', 'CANCELLED'].includes(phase) && route.name !== 'gameover') {
+			void router.replace({ name: 'gameover', params: { roomId: game.roomId } });
 		}
 	},
-	watch: {
-		'$route' (to, from) {
-			if (from.name == null) {
-				this.transitionName = 'default';
-				return;
-			}
+);
 
-			const routes = ['home', 'lobby', 'game', 'gameover'];
-			this.transitionName = routes.indexOf(to.name) > routes.indexOf(from.name) ? 'slide-left' : 'slide-right';
-		}
-	}
-}
+onBeforeUnmount(() => game.dispose());
 </script>
 
 <style>
@@ -64,7 +79,7 @@ export default {
 .default-enter-active, .default-leave-active {
 	transition: opacity 0.3s, transform 0.3s;
 }
-.slide-left-enter {
+.slide-left-enter-from {
 	opacity: 0;
 	transform: translateX(100vw);
 }
@@ -72,7 +87,7 @@ export default {
 	opacity: 0;
 	transform: translateX(-100vw);
 }
-.slide-right-enter {
+.slide-right-enter-from {
 	opacity: 0;
 	transform: translateX(-100vw);
 }
@@ -80,7 +95,7 @@ export default {
 	opacity: 0;
 	transform: translateX(100vw);
 }
-.default-enter {
+.default-enter-from {
 	opacity: 0;
 }
 .default-leave-to {

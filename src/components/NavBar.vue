@@ -1,26 +1,32 @@
 <template>
 	<div id="navbar">
-		<div id="navbar-back" @click="$router.replace('/')" v-if="$store.state.room.roomId !== null">
+		<div id="navbar-back" @click="router.replace('/')" v-if="game.roomId !== null">
 			<ion-icon name="arrow-back-circle-outline" />
 		</div>
 		<div id="navbar-title">
 			<img src="@/assets/logo-white.svg" alt="Pain In My Deck!" height="50%"/>
 		</div>
 		<transition name="navbar-info">
-			<div id="navbar-info" v-if="$store.state.user.username !== ''" @click="copyRoomId">
-				Room<br/>{{ $store.state.room.roomId }}
+			<div id="navbar-info" v-if="game.username !== ''" @click="copyRoomId">
+				Room<br/>{{ game.roomId }}
 			</div>
 		</transition>
 	</div>
 </template>
 
-<script>
-export default {
-	name: 'NavBar',
-	methods: {
-		copyRoomId() {
-			navigator.clipboard.writeText(this.$store.state.room.roomId);
-		}
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+import { useGameStore } from '@/stores/game';
+
+const router = useRouter();
+const game = useGameStore();
+
+async function copyRoomId() {
+	if (!game.roomId) return;
+	try {
+		await navigator.clipboard.writeText(game.roomId);
+	} catch {
+		// Clipboard access can be denied; the frozen UI intentionally has no toast.
 	}
 }
 </script>
@@ -91,7 +97,7 @@ export default {
 	transition: transform 0.2s ease-out;
 }
 
-.navbar-info-enter, .navbar-info-leave-to {
+.navbar-info-enter-from, .navbar-info-leave-to {
 	transform: translateX(200%);
 }
 </style>

@@ -1,24 +1,19 @@
 <template>
 	<transition appear name="toast">
-		<div id="errorToast" @click="close" v-if="$store.state.error.message">
-			<span class="title">{{ $store.state.error.title }}</span>
+		<div id="errorToast" @click="ui.closeNotification" v-if="ui.error.message">
+			<span class="title">{{ ui.error.title }}</span>
       <span class="errorMessage">
-        {{ $store.state.error.message }}
+        {{ ui.error.message }}
       </span>
       <div class="close">&times;</div>
 		</div>
 	</transition>
 </template>
 
-<script>
-export default {
-	name: 'ErrorToast',
-  methods: {
-    close() {
-      this.$store.dispatch('error', {});
-    }
-  }
-}
+<script setup lang="ts">
+import { useUiStore } from '@/stores/ui';
+
+const ui = useUiStore();
 </script>
 
 <style scoped>
@@ -70,11 +65,11 @@ export default {
 }
 
 /* Over-scale and over-slide */
-.toast-enter-to, .toast-leave {
+.toast-enter-to, .toast-leave-from {
   transform: scale(1.05) translateY(-5px);
 }
 
-.toast-enter {
+.toast-enter-from {
   transform: scale(0.9) translateY( calc( var(--height) * 1.1 ) );
   opacity: 0;
 }

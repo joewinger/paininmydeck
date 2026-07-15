@@ -1,39 +1,38 @@
 <template>
 	<div class="chatInput">
 		<div class="chatInput-content">
-			<textarea-autosize
+			<textarea
+				ref="textarea"
 				v-model="messageText"
-				@keydown.enter.native=sendMessage
-				:max-height=80
+				@keydown.enter.prevent="sendMessage"
 				maxlength=280
 				rows=1
 			/>
-			<button @click=sendMessage :style="{'--color': $store.getters['user/getColorSet'][0], '--color-2': $store.getters['user/getColorSet'][1] }"><ion-icon name="send"></ion-icon></button>
+			<button @click="sendMessage" :style="{'--color': game.userColorSet[0], '--color-2': game.userColorSet[1] }"><ion-icon name="send"></ion-icon></button>
 		</div>
 	</div>
 </template>
 
-<script>
-export default {
-	name: 'ChatInput',
-	data() {
-		return {
-			messageText: ''
-		}
-	},
-	methods: {
-		// NOTE: If we're doing this to prevent new lines, we should just
-		// remove the textarea-autosize plugin and use an <input>, but I'm
-		// not sure if this change is permenant. 8/13/21
-		sendMessage(event) {
-			event.preventDefault();
+<script setup lang="ts">
+import { nextTick, ref, watch } from 'vue';
+import { useGameStore } from '@/stores/game';
 
-			if (this.messageText === '') return;
+const game = useGameStore();
+const textarea = ref<HTMLTextAreaElement | null>(null);
+const messageText = ref('');
 
-			this.$store.dispatch('room/sendChatMessage', this.messageText);
-			this.messageText = '';
-		}
-	}
+watch(messageText, async () => {
+	await nextTick();
+	if (!textarea.value) return;
+	textarea.value.style.height = 'auto';
+	textarea.value.style.height = `${Math.min(textarea.value.scrollHeight, 80)}px`;
+});
+
+async function sendMessage() {
+	const text = messageText.value.trim();
+	if (!text) return;
+	messageText.value = '';
+	await game.sendChat(text).catch(() => undefined);
 }
 </script>
 

@@ -3,109 +3,100 @@
 		<transition name="fade">
 			<div class="backgroundEffect" v-if="currentMenu !== null" @click="currentMenu = null" />
 		</transition>
-		<div id="statusMenu" :class="{hidden: $store.state.user.username === '', open: open}">
+		<div id="statusMenu" :class="{hidden: game.username === '', open: open}">
 			<div id="statusBar">
 				<status-bar-button
 					:class="{active: currentMenu === 'INFO'}"
-					@click.native="toggleMenu('INFO')"
-					v-if="$route.name === 'lobby'"
+					@click="toggleMenu('INFO')"
+					v-if="route.name === 'lobby'"
 				>
 					<ion-icon name="information-circle-outline"></ion-icon>
 				</status-bar-button>
 
 				<status-bar-button
 					:class="{active: currentMenu === 'HISTORY'}"
-					@click.native="toggleMenu('HISTORY')"
-					v-if="$route.name === 'game' || $route.name === 'gameover'"
+					@click="toggleMenu('HISTORY')"
+					v-if="route.name === 'game' || route.name === 'gameover'"
 				>
 					<ion-icon name="time"></ion-icon>
 				</status-bar-button>
 
 				<status-bar-button
 					:class="{ active: currentMenu === 'CHAT', notification: hasUnreadMessages }"
-					@click.native="toggleMenu('CHAT')"
+					@click="toggleMenu('CHAT')"
 				>
 					<ion-icon name="chatbubble-outline"></ion-icon>
 				</status-bar-button>
 				
 				<status-bar-button
 					:class="{active: currentMenu === 'SETTINGS'}"
-					@click.native="toggleMenu('SETTINGS')"
-					v-if="$route.name === 'lobby'"
+					@click="toggleMenu('SETTINGS')"
+					v-if="route.name === 'lobby'"
 				>
 					<ion-icon name="settings-outline"></ion-icon>
 				</status-bar-button>
 
 				<status-bar-button
 					:class="{active: currentMenu === 'LEADERBOARD'}"
-					@click.native="toggleMenu('LEADERBOARD')"
-					v-if="$route.name === 'game' || $route.name === 'gameover'"
+					@click="toggleMenu('LEADERBOARD')"
+					v-if="route.name === 'game' || route.name === 'gameover'"
 				>
 					<ion-icon name="people-circle-outline"></ion-icon>
 				</status-bar-button>
 			</div>
 			<div id="statusMenuContent-container">
 				<transition name="slide" mode="out-in">
-					<status-menu-content-info v-if="currentMenu === 'INFO'" />
-					<status-menu-content-history v-if="currentMenu === 'HISTORY'" />
-					<status-menu-content-chat v-if="currentMenu === 'CHAT'" />
-					<status-menu-content-settings v-if="currentMenu === 'SETTINGS'" @close-menu="currentMenu = null" />
-					<status-menu-content-leaderboard v-if="currentMenu === 'LEADERBOARD'" />
+					<component :is="currentComponent" v-if="currentComponent" @close-menu="currentMenu = null" />
 				</transition>
 			</div>
 		</div>
 	</div>
 </template>
 
-<script>
-import StatusBarButton from './StatusBarButton';
-import StatusMenuContentInfo from './content/Info';
-import StatusMenuContentHistory from './content/History';
-import StatusMenuContentChat from './content/Chat';
-import StatusMenuContentSettings from './content/Settings';
-import StatusMenuContentLeaderboard from './content/Leaderboard';
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import StatusBarButton from './StatusBarButton.vue';
+import StatusMenuContentInfo from './content/Info.vue';
+import StatusMenuContentHistory from './content/History.vue';
+import StatusMenuContentChat from './content/Chat/index.vue';
+import StatusMenuContentSettings from './content/Settings.vue';
+import StatusMenuContentLeaderboard from './content/Leaderboard/index.vue';
+import { useGameStore } from '@/stores/game';
 
-export default {
-	name: 'StatusMenu',
-	components: {
-		StatusBarButton,
-		StatusMenuContentInfo,
-		StatusMenuContentHistory,
-		StatusMenuContentChat,
-		StatusMenuContentSettings,
-		StatusMenuContentLeaderboard
-	},
-	data() {
-		return {
-			currentMenu: null,
-			hasUnreadMessages: false,
-		}
-	},
-	computed: {
-		open() {
-			return this.currentMenu !== null
-		}
-	},
-	methods: {
-		toggleMenu(menuName) {
-			if (menuName === 'CHAT') {
-				this.hasUnreadMessages = false;
-			}
-			this.currentMenu === menuName ? this.currentMenu = null : this.currentMenu = menuName;
-		}
-	},
-	created() {
-		this.unsubscribe = this.$store.subscribe((mutation, state) => {
-			if (this.currentMenu === 'CHAT') return;
-			if (mutation.type === 'room/updateChatMessages' && state.room.chatMessages.length > 0) {
-				this.hasUnreadMessages = true;
-			}
-		});
-	},
-	beforeDestroy() {
-		this.unsubscribe();
-	}
+type MenuName = 'INFO' | 'HISTORY' | 'CHAT' | 'SETTINGS' | 'LEADERBOARD';
+const route = useRoute();
+const game = useGameStore();
+const currentMenu = ref<MenuName | null>(null);
+const hasUnreadMessages = ref(false);
+const open = computed(() => currentMenu.value !== null);
+const menuComponents = {
+	INFO: StatusMenuContentInfo,
+	HISTORY: StatusMenuContentHistory,
+	CHAT: StatusMenuContentChat,
+	SETTINGS: StatusMenuContentSettings,
+	LEADERBOARD: StatusMenuContentLeaderboard,
+};
+const currentComponent = computed(() => currentMenu.value ? menuComponents[currentMenu.value] : null);
+
+function toggleMenu(menuName: MenuName) {
+	if (menuName === 'CHAT') hasUnreadMessages.value = false;
+	currentMenu.value = currentMenu.value === menuName ? null : menuName;
 }
+
+watch(() => game.chatMessages.at(-1)?.id, (messageId, previousMessageId) => {
+	if (currentMenu.value !== 'CHAT' && messageId && messageId !== previousMessageId) {
+		hasUnreadMessages.value = true;
+	}
+});
+
+watch(() => route.name, (routeName) => {
+	if (currentMenu.value === null || currentMenu.value === 'CHAT') return;
+	const validMenus: MenuName[] = routeName === 'lobby'
+		? ['INFO', 'CHAT', 'SETTINGS']
+		: ['HISTORY', 'CHAT', 'LEADERBOARD'];
+	if (!validMenus.includes(currentMenu.value)) currentMenu.value = null;
+});
 </script>
 
 <style>
@@ -194,12 +185,12 @@ export default {
 	-o-transition: all 0.5s ease;
 	transition: all 0.5s ease;
 }
-.slide-enter, .slide-leave-to {
+.slide-enter-from, .slide-leave-to {
 	max-height: 0;
 	opacity: 0;
 	transform: translateY(200px);
 }
-.slide-enter-to, .slide-leave {
+.slide-enter-to, .slide-leave-from {
 	max-height: 65vh;
 	opacity: 1;
 }
@@ -212,10 +203,10 @@ export default {
 	-o-transition: opacity 0.5s ease;
 	transition: opacity 0.5s ease;
 }
-.fade-enter, .fade-leave-to {
+.fade-enter-from, .fade-leave-to {
 	opacity: 0;
 }
-.fade-enter-to, .fade-leave {
+.fade-enter-to, .fade-leave-from {
 	opacity: 1;
 }
 

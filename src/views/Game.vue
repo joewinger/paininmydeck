@@ -6,69 +6,50 @@
 
 		<transition-group id="card-container" tag="div" name="cards">
 			<white-card v-for="(card, index) in cardSet"
-				:key='card.text || card'
-				:class="{'blankfont': card.blank}"
+				:key="card.id"
 				:style="{'--delay': index*0.3+'s'}"
-				:index=index
-				:text='card.text || card'
-				:facedown="(playedThisTurn || isCzar) && turnStatus === 'WAITING_FOR_CARDS'" />
+				:index="index"
+				:card="card"
+				:facedown="(game.playedThisTurn || game.isCzar) && game.phase === 'COLLECTING'" />
 		</transition-group>
 	</div>
 </template>
 
-<script>
-import InfoBar from '@/components/InfoBar';
-import QuestionCard from '@/components/QuestionCard';
-import WhiteCard from '@/components/WhiteCard';
-import { mapState, mapGetters } from 'vuex';
+<script setup lang="ts">
+import { computed } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
+import InfoBar from '@/components/InfoBar.vue';
+import QuestionCard from '@/components/QuestionCard.vue';
+import WhiteCard from '@/components/WhiteCard.vue';
+import { useGameStore } from '@/stores/game';
+import type { Card, PlayedCard } from '@/shared/protocol';
 
-export default {
-	name: 'Game',
-	components: {
-		InfoBar,
-		QuestionCard,
-		WhiteCard,
-	},
-	computed: {
-		infoText() {
-			if (this.isCzar) {
-				return this.turnStatus === 'WAITING_FOR_CZAR' ? 'Select the winning card!' : 'You are the Card Czar!'
-			}
-			else if (this.playedThisTurn) {
-				if (this.turnStatus === 'WAITING_FOR_CARDS') return 'Waiting for everyone to play a card!'
-				if (this.turnStatus === 'WAITING_FOR_CZAR') return `Waiting for ${this.czar} to pick a winner...`
-			}
-			
-			return false;
-		},
-		cardSet() {
-			if (this.$store.state.room.turn.winningCard) return [this.$store.state.room.turn.winningCard]
-			if (this.isCzar || this.playedThisTurn) return this.playedCards
-			if (!this.isCzar && !this.playedThisTurn) return this.hand
-			return null;
-		},
-		...mapState('room', {
-			questionText: state => state.turn.questionCard,
-			turnStatus: state => state.turn.status,
-			playedCards: state => state.turn.playedCards,
-			czar: state => state.turn.czar
-		}),
-		...mapState('user', [
-			'playedThisTurn',
-			'hand'
-		]),
-		...mapGetters('user', [
-			'isCzar'
-		])
-	},
-	beforeRouteLeave(to, from, next) {
-		console.log(this.users);
-		if (to.name === 'home') {
-			if (this.$store.state.user.beingKicked) next(); // We got kicked
-			else if (window.confirm('Are you sure you\'d like to leave in the middle of this game?')) next();
-		} else next(); // i.e. navigating to gameover
+const game = useGameStore();
+const questionText = computed(() => game.turn.questionCard);
+const czarName = computed(() => game.czar?.displayName ?? 'the Czar');
+const infoText = computed(() => {
+	if (game.connectionState === 'connecting') return 'Connecting to the room...';
+	if (game.connectionState === 'reconnecting') return 'Reconnecting to the room...';
+	const disconnected = game.users.filter((player) => !player.connected).map((player) => player.displayName);
+	if (disconnected.length === 1) return `Waiting for ${disconnected[0]} to reconnect...`;
+	if (disconnected.length > 1) return `Waiting for ${disconnected.join(', ')} to reconnect...`;
+	if (game.isCzar) return game.phase === 'JUDGING' || game.phase === 'REVEAL' ? 'Select the winning card!' : 'You are the Card Czar!';
+	if (game.playedThisTurn) {
+		if (game.phase === 'COLLECTING') return 'Waiting for everyone to play a card!';
+		if (game.phase === 'JUDGING' || game.phase === 'REVEAL') return `Waiting for ${czarName.value} to pick a winner...`;
 	}
-}
+	return '';
+});
+const cardSet = computed<(Card | PlayedCard)[]>(() => {
+	if (game.turn.winningCard) return [game.turn.winningCard];
+	if (game.isCzar || game.playedThisTurn) return game.turn.playedCards;
+	return game.hand;
+});
+
+onBeforeRouteLeave((to) => {
+	if (to.name !== 'home' || game.beingKicked || game.terminalExit !== null) return true;
+	return window.confirm("Are you sure you'd like to leave in the middle of this game?");
+});
 </script>
 
 <style>
@@ -115,7 +96,7 @@ export default {
 .cards-enter-active {
 	transition: opacity calc(0.3s + var(--delay));
 }
-.cards-enter, .cards-leave-to {
+.cards-enter-from, .cards-leave-to {
   opacity: 0;
 }
 .whiteCard.cards-move {

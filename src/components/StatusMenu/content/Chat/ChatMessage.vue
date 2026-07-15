@@ -3,29 +3,20 @@
 		<span
 			v-if="messageObj.type != 'system'"
 			class="sender"
-			:style="`color: ${$store.getters['room/getColorSetByUsername'](messageObj.sender)[0]}`"
+			:style="`color: ${game.colorSetForPlayer(messageObj.senderPlayerId)[0]}`"
 			>
-			{{ messageObj.sender }}
+			{{ messageObj.senderDisplayName }}
 		</span>
 		<span class="message">{{ messageObj.text }}</span>
 	</div>
 </template>
 
-<script>
-import dayjs from 'dayjs';
+<script setup lang="ts">
+import type { ChatMessage } from '@/shared/protocol';
+import { useGameStore } from '@/stores/game';
 
-export default {
-	name: 'ChatMessage',
-	props: {
-		messageObj: Object,
-		lastInThread: Boolean
-	},
-	computed: {
-		timestamp() {
-			return dayjs(this.messageObj.timestamp).format('h:mm')
-		}
-	}
-}
+defineProps<{ messageObj: ChatMessage; lastInThread?: boolean }>();
+const game = useGameStore();
 </script>
 
 <style>

@@ -4,7 +4,7 @@
 			{{ rank }}
 		</div>
 		<div class="leaderboardEntry-username">
-			{{ userObj.username }}
+			{{ userObj.displayName }}
 		</div>
 		<div class="leaderboardEntry-status">
 			{{ status }}
@@ -15,29 +15,22 @@
 	</div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed } from 'vue';
+import type { PlayerSummary } from '@/shared/protocol';
+import { useGameStore } from '@/stores/game';
+
 const statusMessages = {
 	czar: "Card czar",
 	waiting: "Choosing a card...",
 	played: "Played a card"
-}
-
-export default {
-	name: 'LeaderboardEntry',
-	props: {
-		rank: Number,
-		userObj: Object,
-		playedCard: Boolean
-	},
-	computed: {
-		status() {
-			if (this.$store.state.room.turn.czar === this.userObj.username) {
-				return statusMessages.czar
-			}
-			return this.playedCard ? statusMessages.played : statusMessages.waiting;
-		}
-	}
-}
+};
+const props = defineProps<{ rank: number; userObj: PlayerSummary; playedCard: boolean }>();
+const game = useGameStore();
+const status = computed(() => {
+	if (game.turn.czarPlayerId === props.userObj.playerId) return statusMessages.czar;
+	return props.playedCard ? statusMessages.played : statusMessages.waiting;
+});
 </script>
 
 <style>

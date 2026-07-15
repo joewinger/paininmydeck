@@ -1,16 +1,11 @@
 <template>
 	<div id="infoBar">
-		{{ this.text }}
+		{{ text }}
 	</div>
 </template>
 
-<script>
-export default {
-	name: 'InfoBar',
-	props: {
-		text: String
-	}
-}
+<script setup lang="ts">
+defineProps<{ text: string }>();
 </script>
 
 <style scoped>

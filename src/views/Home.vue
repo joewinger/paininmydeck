@@ -5,10 +5,9 @@
 
 		<div class="game-controls">
 			<div class="join-group">
-				<input class="room-input" type="text" v-model="roomId" @keyup.enter="joinRoom()" placeholder="ROOM ID">
+				<input class="room-input" type="text" v-model="roomId" @input="sanitizeRoomId" @keyup.enter="joinRoom()" placeholder="ROOM ID" maxlength="5" autocapitalize="characters" autocomplete="off" spellcheck="false">
 				<div class="buttons" style="display: flex; gap: 5px;"	>
 					<button-loadable @click="joinRoom" class="primary btn-joinroom">PLAY</button-loadable>
-					<button-loadable @click="joinRandomRoom" style="padding: 9px;"><ion-icon name="shuffle" title="Join a Random Room" /></button-loadable>
 				</div>
 			</div>
 			<div class="links">
@@ -16,7 +15,7 @@
 			</div>
 		</div>
 
-		<span class="commitHash" v-if="showVersion">{{ $commitHash }}</span>
+		<span class="commitHash" v-if="showVersion">{{ commitHash }}</span>
 
 		<section id="features">
 			<h2 class="features-header">Features</h2>
@@ -29,6 +28,7 @@
 			<div class="left">
 				<span>Some things &copy; 2022 paininmydeck.com</span>
 				<span>In no way affiliated with <a href="https://www.cardsagainsthumanity.com/">Cards Against Humanity</a>.</span>
+				<span>Card content is available under <a href="https://creativecommons.org/licenses/by-nc-sa/2.0/">CC BY-NC-SA 2.0</a>.</span>
 			</div>
 			<div class="right">
 				<a href="mailto:contact@paininmydeck.com">Reach Out</a>
@@ -37,73 +37,54 @@
 	</div>
 </template>
 
-<script>
-import ButtonLoadable from '@/components/ButtonLoadable';
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import ButtonLoadable from '@/components/ButtonLoadable.vue';
 import LinkLoadable from '@/components/LinkLoadable.vue';
 import LandingCarousel from '@/components/LandingCarousel.vue';
+import { useGameStore } from '@/stores/game';
+import { useUiStore } from '@/stores/ui';
+import { commitHash } from '@/config';
+import { isRoomId, normalizeRoomId } from '@/shared/protocol';
 
-export default {
-	name: 'Home',
-	components: {
-		ButtonLoadable,
-		LinkLoadable,
-		LandingCarousel
-	},
-	data () {
-		return {
-			roomId: '',
-			showVersion: false,
-			features: [
-				{
-					color: "#B1E8FC",
-					imgSrc: "https://via.placeholder.com/566x400/FFFFFF",
-					title: "Family Mode",
-					description: "Enable family mode in the settings menu to remove cards that might upset grandma."
-				},
-				{
-					color: "#ADD787",
-					imgSrc: "https://via.placeholder.com/566x400/FFFFFF",
-					title: "Blank Cards",
-					description: "Oh we got a funny guy here? Try your hand and see if you can make your friends giggle (spoiler: you won’t)."
-				},
-				{
-					color: "#D98CCE",
-					imgSrc: "https://via.placeholder.com/566x400/FFFFFF",
-					title: "Card Trashing",
-					description: "The polls are in: our cards suck."
-				},
-				{
-					color: "#F1AA71",
-					imgSrc: "https://via.placeholder.com/566x400/FFFFFF",
-					title: "Round History",
-					description: "The polls are in: our cards suck."
-				}
-			]
+const router = useRouter();
+const game = useGameStore();
+const ui = useUiStore();
+const roomId = ref('');
+const showVersion = ref(false);
+const features = [
+	{ color: '#B1E8FC', imgSrc: '/img/feature-placeholder.svg', title: 'Family Mode', description: 'Enable family mode in the settings menu to remove cards that might upset grandma.' },
+	{ color: '#ADD787', imgSrc: '/img/feature-placeholder.svg', title: 'Blank Cards', description: 'Oh we got a funny guy here? Try your hand and see if you can make your friends giggle (spoiler: you won’t).' },
+	{ color: '#D98CCE', imgSrc: '/img/feature-placeholder.svg', title: 'Card Trashing', description: 'The polls are in: our cards suck.' },
+	{ color: '#F1AA71', imgSrc: '/img/feature-placeholder.svg', title: 'Round History', description: 'The polls are in: our cards suck.' },
+];
+
+function sanitizeRoomId() {
+	roomId.value = normalizeRoomId(roomId.value).replace(/[^A-HJ-NP-Z]/g, '').slice(0, 5);
+}
+
+async function joinRoom(done: () => void = () => {}) {
+	sanitizeRoomId();
+	try {
+		if (!isRoomId(roomId.value)) {
+			ui.notify({ title: 'Invalid Room ID', message: 'Enter the five-letter room ID (without I or O).' });
+			return;
 		}
-	},
-	methods: {
-		joinRoom (btnCallback = () => {}) {
-			if (this.roomId != "") this.$router.push({ name: 'lobby', params: {roomId: this.roomId} });
-			else this.$store.dispatch('error', { message: 'Please enter a valid room number! 🤡' });
-			
-			btnCallback();
-		},
-		async joinRandomRoom (btnCallback = () => {}) {
-			let roomID = await this.$game.findRandomRoom();
+		await router.push({ name: 'lobby', params: { roomId: roomId.value } });
+	} finally {
+		done();
+	}
+}
 
-			if (roomID) this.$router.push({ name: 'lobby', params: {roomId: roomID} });
-			else this.$store.dispatch('error', { message: 'No public games available to join :\'(' });
-				
-			btnCallback();
-		},
-		async createRoom (btnCallback = () => {}) {
-			let roomId = await this.$game.createRoom();
-
-			if (roomId !== false) this.$router.push({ name: 'lobby', params: {roomId: roomId} });
-			else this.$store.dispatch('error', { message: 'Error creating room :( Try again in a little while.' });
-			
-			btnCallback();
-		}
+async function createRoom(done: () => void = () => {}) {
+	try {
+		const id = await game.createRoom();
+		await router.push({ name: 'lobby', params: { roomId: id } });
+	} catch {
+		// The store translates API failures into the existing toast surface.
+	} finally {
+		done();
 	}
 }
 </script>

@@ -1,24 +1,25 @@
 <template>
 	<div id="statusMenuContent-history" class="statusMenuContent">
 		<h1>Round History</h1>
-		<div class="initial" v-if="this.$store.state.room.turn.round <= 1">No history to show yet, check back next round!</div>
+		<div class="initial" v-if="game.roundHistory.length === 0">No history to show yet, check back next round!</div>
 		<div class="round-list">
-			<div class="round" v-for="round in this.$store.state.room.roundHistory.slice(1)" :key="round.round">
+			<div class="round" v-for="round in game.roundHistory" :key="round.round">
 				<span class="round-number">&ndash; Round {{ round.round }} &ndash;</span>
-				<h4 class="question">{{ round.question | blankify }}</h4>
+				<h4 class="question">{{ blankify(round.question) }}</h4>
 				<ol class="answers">
-					<li class="miniCard winningAnswer" :style="{'--playedBy': `'${round.winningPlayer}'`}">{{ round.winningAnswer }}</li>
-					<li class="miniCard" v-for="answer in round.otherAnswers" :key="answer.text"  :style="{'--playedBy': `'${answer.playedBy}'`}">{{ answer.text }}</li>
+					<li class="miniCard winningAnswer" :style="{'--playedBy': `'${round.winningPlayerDisplayName}'`}">{{ round.winningAnswer }}</li>
+					<li class="miniCard" v-for="answer in round.otherAnswers" :key="`${answer.playedByPlayerId}-${answer.text}`" :style="{'--playedBy': `'${answer.playedByDisplayName}'`}">{{ answer.text }}</li>
 				</ol>
 			</div>
 		</div>
 	</div>
 </template>
 
-<script>
-export default {
-	name: 'StatusMenuContentHistory'
-}
+<script setup lang="ts">
+import { useGameStore } from '@/stores/game';
+import { blankify } from '@/shared/protocol';
+
+const game = useGameStore();
 </script>
 
 <style>

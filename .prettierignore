@@ -1,0 +1,15 @@
+.playwright-cli
+.wrangler
+coverage
+dist
+node_modules
+output
+playwright-report
+test-results
+package-lock.json
+worker-configuration.d.ts
+cards/base.json
+src/**/*.vue
+src/assets/**/*.css
+src/assets/**/*.svg
+public/**/*.svg

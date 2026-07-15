@@ -1,0 +1,6516 @@
+{
+  "schemaVersion": 1,
+  "catalog": {
+    "id": "cah-base",
+    "name": "Cards Against Humanity Base Game (legacy Pain in My Deck catalog)",
+    "version": "legacy-firestore-2026-07-15",
+    "source": {
+      "kind": "legacy-firestore-export",
+      "projectId": "paininmydeck",
+      "database": "(default)",
+      "collection": "cards",
+      "deck": "CAH_BASE",
+      "exportedOn": "2026-07-15"
+    },
+    "license": {
+      "spdx": "CC-BY-NC-SA-2.0",
+      "name": "Creative Commons Attribution-NonCommercial-ShareAlike 2.0 Generic",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/2.0/",
+      "originalGamePdf": "https://s3.amazonaws.com/cah/CAH_MainGame.pdf"
+    },
+    "counts": {
+      "total": 534,
+      "answers": 458,
+      "questions": 76,
+      "familySafeAnswers": 305,
+      "familySafeQuestions": 71
+    },
+    "cardsSha256": "f426fbd88adac1690b78d6529b8cf092678ce7d88aacc2aaa3417a09ef020d7c"
+  },
+  "cards": [
+    {
+      "id": "0IZu8rAlO7LGEaQ4owGB",
+      "text": "Seduction.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "0oQa2Wcxnwf92onD5lkO",
+      "text": "Black people.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "0vaJqu9taFlUIKGSdBMK",
+      "text": "Goats eating cans.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "0za2KwdogBvzVRmAqPyF",
+      "text": "Tasteful sideboob.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "155cnAleqnDH2N2TqiBl",
+      "text": "The miracle of childbirth.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "15C2TsyMHBPQlBdmsZEs",
+      "text": "Necrophilia.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": true,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "1CtPZvVNKg0QTOPaX0zj",
+      "text": "The Hustle.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "1DjsYnKPAa3TgwyFFLX3",
+      "text": "The Blood of Christ.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "1GhJCt1Mb81SR7Laueeg",
+      "text": "Swooping.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "1Is26anjNmlpO82B5DoT",
+      "text": "A really cool hat.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "24fpENZPCIP4ju0VxxIq",
+      "text": "Robert Downey, Jr.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "2655jrfDclcdOIKwS4qm",
+      "text": "A look-see.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "27LibsAvGBZS2USanEAn",
+      "text": "The class field trip was completely ruined by _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "2E5AHO0qXZlBkKNwEYq5",
+      "text": "Boogers.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "2ECmyPC4jb0F5UflgK10",
+      "text": "Finger painting.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "2hwa0VhbFYuxjO8mL5Ld",
+      "text": "Feeding Rosie O'Donnell.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "2r1KwSHxZDxGcHBP8vOL",
+      "text": "Forgetting the Alamo.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "2XDBx2umSDNB7AqzjGMy",
+      "text": "_.  High five, bro.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "2Za5V6NnmkXsagS8ljbt",
+      "text": "Roofies.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "3D03USGXO82jjvW8QnCB",
+      "text": "Getting so angry that you pop a boner.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "3F7R6dAn7AESaVhaDNEl",
+      "text": "The World of Warcraft.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "3iMTbA9jGJwzsoAW3vmx",
+      "text": "The Virginia Tech Massacre.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "3mmsTvLW5WHhRORZINNC",
+      "text": "Cuddling.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "3XbPJKdMQBIck2mZyQNd",
+      "text": "Fiery poops.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "3ZmkQ5mr0mopgz5I1bVO",
+      "text": "Vehicular manslaughter.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "401suhThKCn3q1NUCPKB",
+      "text": "The Pope.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "4akH0DjYkMfe4TEHKuVG",
+      "text": "Christopher Walken.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "4bOxuKRoLf24Wq7neWgC",
+      "text": "The profoundly handicapped.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "4c7RSG2KLcWTxVfJa0jD",
+      "text": "Embryonic stem cells.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "4lofiZGxaBxMa6QAjEYM",
+      "text": "Nickelback.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "4yQKXnXiN6RFCnQhAfFb",
+      "text": "Bling.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "509iRqCaoDg4RMJt23Ic",
+      "text": "Racism.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "54r5Vxi8pRirLP0bpx2I",
+      "text": "A fetus.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "57yyDUTg07C9Qo35kmzM",
+      "text": "I got 99 problems but _ ain't one.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "5f1SSqy0zUBJEYd0aU3A",
+      "text": "Loose lips.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "5Ux0bfhj0cBKFgG4gTAj",
+      "text": "Riding off into the sunset.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "5v2ynj1C8ngErmQbm0iz",
+      "text": "Glenn Beck convulsively vomiting as a brood of crab spiders hatches in his brain and erupts from his tear ducts.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": true,
+        "sex": false
+      }
+    },
+    {
+      "id": "5wMdy1S6vdNAmNRA48NS",
+      "text": "Crystal meth.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "5xxJjnk1pr09x3Ao4sW6",
+      "text": "Third base.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "6FefgztC9D0j4s1phUC6",
+      "text": "Overcompensation.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "6gc3ZcVWU6scl7oderHy",
+      "text": "Friction.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "6KJXsVBNb1nJ2ITbcOVk",
+      "text": "Flash flooding.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "6LrOpskXV9glIOzXy7ut",
+      "text": "Civilian casualties.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "6qiaAQzCkicZ4a9wI48C",
+      "text": "The Rapture.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "6RkzL5NZfe4YiKouelJS",
+      "text": "Re-gifting.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "6sG4DF3IsxINrYs1I9jK",
+      "text": "What is Batman's guilty pleasure?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "6Tac8L78wTLzWz5CeUAF",
+      "text": "Life for American Indians was forever changed when the White Man introduced them to _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "6uO7QAVncwElwhoOAIKo",
+      "text": "Kids with ass cancer.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "6V45qsvvZZxeWklFXFdK",
+      "text": "Famine.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "6WXbocHWii3hB82Zd4g1",
+      "text": "Party poopers.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "704wpRYSRpNoDhB5zZNb",
+      "text": "John Wilkes Booth.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "73YcJUh9QRdCQCFeM3qL",
+      "text": "GoGurt®.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "79no5BxJlGvdK1Coxm2K",
+      "text": "Doin' it in the butt.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "7gMLT3BQKDykBo8V2XQC",
+      "text": "Eugenics.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "7JqmlFBIt0AxHDhS2XDE",
+      "text": "Vigilante justice.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "7lmF5tLM1T4AmBK0VVzu",
+      "text": "A sausage festival.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "7WAF6QzpNEJ4UVXvZIw0",
+      "text": "Eating all of the cookies before the AIDS bake-sale.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "7YphEL1mf09gBRyxDA0b",
+      "text": "Auschwitz.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "7zsz1gT47AuIgjKhiMYc",
+      "text": "Aaron Burr.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "8aDAawOu1RW75Sf6aoGN",
+      "text": "A stray pube.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "8b1DC7nKXcXSTyKIe9Ti",
+      "text": "Fear itself.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "8dmglw4MvDYl2ziIizBc",
+      "text": "Getting drunk on mouthwash.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "8qmWENFnZIldQOiwDr5c",
+      "text": "Heartwarming orphans.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "8Rj2Zvp54pFduDhrImfc",
+      "text": "Farting and walking away.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "8rvTJRlwp0wbxkS3kTKc",
+      "text": "College.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "974YqmzJDQ3kKXLQLpZd",
+      "text": "Penis envy.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "99rb57mYmrZIiuxcNibA",
+      "text": "Smallpox blankets.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "9W7hkQUBFqUULshqLHJY",
+      "text": "What did I bring back from Mexico?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "9XIb34zM7ONeRAldg8VJ",
+      "text": "Lockjaw.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "9Ye3SZNGITHlGxUbwfgz",
+      "text": "Nipple blades.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "aA9CTMYNnZOJXRDIehKv",
+      "text": "Child beauty pageants.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "aAjEBG5bBUAt2FaWGotw",
+      "text": "Bill Nye the Science Guy.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "aazKjfQNrNnTJpXxt3Tw",
+      "text": "Sperm whales.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "aCGVKKJkGRk1qUpnYi3j",
+      "text": "Horrifying laser hair removal accidents.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "aDK3PukNGqH8fTdR8wO8",
+      "text": "What's Teach for America using to inspire inner city students to succeed?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "AhBRBWG832TdhyYhGGeX",
+      "text": "A middle-aged man on roller skates.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "anBlXSdOMz5Gb9T4tA0m",
+      "text": "Concealing a boner",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "aNimC9qm2Zv3LFbdg87E",
+      "text": "Dental dams.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "aOeWcGNLiR0Sqv18Vnyv",
+      "text": "Dwarf tossing.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "AQf6qIZpf0xUZSjBRijr",
+      "text": "Former President George W. Bush.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "aqulOSlSi959tli1YftI",
+      "text": "A foul mouth.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "aShnfPQWhzulx8yTU4CT",
+      "text": "The Jews.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "atemXsbaKS9yChfAN967",
+      "text": "Scientology.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "avv3pmeiU2kstE2rrQWr",
+      "text": "Prancing.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "azOLtCHIfMLsq2zW5LsB",
+      "text": "Passing a kidney stone.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "b8o53pCB5iVEubWj7mfQ",
+      "text": "Pterodactyl eggs.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "BCePdl0c9SodWGGBpTAS",
+      "text": "Being fabulous.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "BCv6eCgOltOsmPw6cizy",
+      "text": "AXE Body Spray.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "beEgvkJasOi6HEndPSUP",
+      "text": "My relationship status.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "bEMOMKfNq3YhXMnUuvEW",
+      "text": "The true meaning of Christmas.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "BG1XDzawXKYZi9kwZQEn",
+      "text": "Wearing underwear inside-out to avoid doing laundry.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "bJ5ifN92sSj9vzCs5bNL",
+      "text": "The homosexual agenda.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "BJMIKbOvjC1gj0gMLRIG",
+      "text": "Oompa-Loompas.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "bkbhRjlzZneBz07weplr",
+      "text": "Pictures of boobs.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "Bol3vodJNY9cG49WxdFr",
+      "text": "Golden showers.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "bRWhnmUOvM9t3AlHIOkP",
+      "text": "Justin Bieber.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "BrXS7bWRcxnkS6H8BU0j",
+      "text": "Menstruation.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "cbgxGzMWTWbag2j9OGIG",
+      "text": "Child abuse.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "CbQh0KYUbb0cku8JRPhZ",
+      "text": "Licking things to claim them as your own.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "cCzBtNjpPqWP6BPmGp6i",
+      "text": "Flesh-eating bacteria.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "CFfaJ2qeXmS0PkVsiERj",
+      "text": "Anthropologists have recently discovered a primitive tribe that worships _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "CHLbVYAgw1Rl2oFhBD2r",
+      "text": "Seppuku.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "CMyRfoGlIed14r8lOpkM",
+      "text": "A gentle caress of the inner thigh.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "Cn6jpLwiNPoDAHZlYv6k",
+      "text": "The Underground Railroad.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "cNVJXqivpTh1sf5Eu94u",
+      "text": "An asymmetric boob job.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "csRkXAErF9jjVcSR6jOk",
+      "text": "Making a pouty face.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "cuZa2YrKEC0YcQ2oms2K",
+      "text": "Homeless people.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "cVSnXd4TZQ2GpUJI47dm",
+      "text": "Maybe she's born with it.  Maybe it's _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "cwNcaWi1O1ggmdciO0Lx",
+      "text": "When Pharaoh remained unmoved, Moses called down a Plague of _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "CWQRQDRSLWnn4iccg74e",
+      "text": "MechaHitler.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "cyg9IwwmNW7SZYdlwAw6",
+      "text": "The terrorists.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "cyoEU1k8HHdAv43d10Yj",
+      "text": "Grandma.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "d1Cgf8szojU5Z6FO6M9F",
+      "text": "Figgy pudding.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "d662WjMFKpQkLQp9xUjV",
+      "text": "But before I kill you, Mr. Bond, I must show you _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "D6jJZHObP3t9bAUnIYr6",
+      "text": "Drinking alone.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "D7efCqeqT6PdExbUzTP7",
+      "text": "What's there a ton of in heaven?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "dAJq9kxfgIOp3yFb9eTB",
+      "text": "Gandhi.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "DGnQsFNcqX4W2RPdZfMZ",
+      "text": "Cards Against Humanity.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "DhQgx2bT9055gWXwagjE",
+      "text": "Spontaneous human combustion.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "dhz4wKWJ7yDHyz7iQOCE",
+      "text": "A mime having a stroke.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "DKwqBTNXCJG1eZyA4zl5",
+      "text": "Incest.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "dO7TfSkSQ5rZxGn9RVCK",
+      "text": "The Trail of Tears.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Dq1u3It0hq6CLKJfxjrB",
+      "text": "Land mines.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "DuCUsBsCOsuzSgNgVViB",
+      "text": "What's the new fad diet?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "dv4YCZgB920lANCbZh20",
+      "text": "Michael Jackson.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "dwHRvOu7NXNtLJVRpyFu",
+      "text": "The South.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "DYCLr02UbCNw8ZHBnd5G",
+      "text": "Masturbation.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "dZ2whviO05UiDdEhksF7",
+      "text": "A windmill full of corpses.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "dz68JM10vJWiw9EXafiv",
+      "text": "Vigorous jazz hands.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "DZk49LZpgDSj3rTpoXqB",
+      "text": "Getting really high.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "E1GeZlKDxqg5WXTl0Phr",
+      "text": "_.  It's a trap!",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "e2N0PvTePd6gDpaaV5hU",
+      "text": "What's the most emo?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "e3iQD5dYcfHw1aXQwXsW",
+      "text": "The gays.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "e6o0hr6sCS8NRgUneKQP",
+      "text": "The taint; the grundle; the fleshy fun-bridge.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "E7SXPxFhk3xXOVYo9Wdy",
+      "text": "An icepick lobotomy.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "e8RJ39JR74gkP2FZB2il",
+      "text": "Sean Connery.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "EA4WbRNEfSka3Yk6kUM3",
+      "text": "Road head.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "eAFHLqZxRQPmwHigD0jb",
+      "text": "Taking off your shirt.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "EaSZ9bBTQI2zmEpySO5e",
+      "text": "Sexual tension.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "EB9qF1q0Pi9LcVc2lF8b",
+      "text": "Darth Vader.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Edrsgc309uk5TbhL2mZc",
+      "text": "A micropenis.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "EJjKEefdwUhZSuW0kjUg",
+      "text": "Picking up girls at the abortion clinic.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "EJtgS1NVIuY8XqblXCey",
+      "text": "My collection of high-tech sex toys.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "eMlGMSNfZYdq2nsGBXsU",
+      "text": "I do not know with what weapons World War III will be fought, but World War IV will be fought with _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "EQ3Nezymr6DuVu0WfTd8",
+      "text": "Why am I sticky?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      },
+      "pick": 1
+    },
+    {
+      "id": "etvti45mAwsJnZaxAr1x",
+      "text": "The Chinese gymnastics team.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "evaG6tBH9u7dvhG1Wszp",
+      "text": "Sexting.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "eW9xsAXK1sAu5KMNp2PJ",
+      "text": "What helps Obama unwind?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "eX4CDIkjvXto42w3p73g",
+      "text": "A sea of troubles.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "ExgT0ibj3GtCGeh0K51n",
+      "text": "Testicular torsion.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "Exigl4zqJMaEyJEMbUfs",
+      "text": "Getting naked and watching Nickelodeon.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "EY9itxtrQzFA5o4oeSMk",
+      "text": "A sassy black woman.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "EyiniPu88VBH9RHbFyZl",
+      "text": "Peeing a little bit.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "ezCX0sNOsLJBQpQcRDF1",
+      "text": "Friends who eat all the snacks.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "F3HFejdDxRmV5ykJG2nb",
+      "text": "Ghosts.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "feXMbYpANqiJDsOwciUk",
+      "text": "Firing a rifle into the air while balls deep in a squealing hog.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "fFFG6NvmBohL73eLF9QA",
+      "text": "What's the crustiest?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "FlS0XvHudLMdA5iRgAo3",
+      "text": "Catapults.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "fpLJnFptRajXaygYhpWM",
+      "text": "In the new Disney Channel Original Movie, Hannah Montana struggles with _ for the first time.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "FpLlGBYbx0yDKKOfAwcf",
+      "text": "Nocturnal emissions.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "FprUWSQ4jZxAvzWgQHR5",
+      "text": "Actually taking candy from a baby.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "FQ2j9oHvC9klOKxoVGTI",
+      "text": "Not reciprocating oral sex.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "FrX57AeVeM8m5OkaShY6",
+      "text": "Smegma.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "FtjzeAKhRwDD4ifNQBsX",
+      "text": "Next from J.K. Rowling: Harry Potter and the Chamber of _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "FYhqnJi0jj56Zkt4hz2k",
+      "text": "Expecting a burp and vomiting on the floor.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "fzP95hMh8SJpGVfijchS",
+      "text": "Gloryholes.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "g20CWAgLop0kebUeqZpG",
+      "text": "A moment of silence.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "g4JSkGlPYRSejsO9KZyx",
+      "text": "Hot cheese.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "gAEx2GVuUlTe2RhAuF2e",
+      "text": "What are my parents hiding from me?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "GdM16j47bSHDVFdljsOl",
+      "text": "Take-backsies.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "GeJQyO8PXCtdaw2Llimv",
+      "text": "The Three-Fifths compromise.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "GG9DH90mjTges10kNffa",
+      "text": "Waterboarding.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "ggMNt8FrWvdbNaIQZjH1",
+      "text": "Tweeting.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "GLC8JNRmCuLaHMaZwPaP",
+      "text": "A lifetime of sadness.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "gPt4oqcylgK6pCcROcfs",
+      "text": "Alcoholism.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "GQ0meIgrG1XryhvF7cDH",
+      "text": "In Michael Jackson's final moments, he thought about _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "GSc03kgc06VSUMT2izk6",
+      "text": "_: kid-tested, mother-approved.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "gsOeMWDxns7CVxmY8zEQ",
+      "text": "The hardworking Mexican.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "gT7yDFzFZsywXXtuvOrF",
+      "text": "A Bop It™.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "guDgmLkoJYt23E2GIcSd",
+      "text": "Genghis Khan.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "gUSXDQETHeoFfPgNVZAL",
+      "text": "Coming to Broadway this season, _: The Musical.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "gwBFd4xJcM24jUU6rP7s",
+      "text": "Balls.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "GXYQT2VhTScggL63m26x",
+      "text": "Kanye West.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "GZehcDmpfTjMMA0RAJk1",
+      "text": "Passable transvestites.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "H1d4DTJgIj0mMhqYdxsw",
+      "text": "Two midgets shitting into a bucket.",
+      "type": "answer",
+      "flags": {
+        "language": true,
+        "obscene": true,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "h1P9wZNDsoFHMGcMkgAA",
+      "text": "Sunshine and rainbows.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "h2ICyPdDCHEm7M6YnbNy",
+      "text": "Porn Stars.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "H3FAqdnpRlx1P6uXC7Yv",
+      "text": "After the earthquake, Sean Penn brought _ to the people of Haiti.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "h49DmulLTxgNsWLym8qa",
+      "text": "RoboCop.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "h8VuJG6cvoaJNqSh9anF",
+      "text": "Customer service representatives.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "HaDCiyvmQMAJb47ZjYBX",
+      "text": "A hot mess.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "HAWHHdopv87wPWqt0vDD",
+      "text": "The Hamburglar.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "hbK2tEHBUN22wor9ncl8",
+      "text": "An M. Night Shyamalan plot twist.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "hCeRIfJ30w5Ubd1s3317",
+      "text": "Erectile dysfunction.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "hDh2qCEFOgZJjoHiDdJJ",
+      "text": "Stifling a giggle at the mention of Hutus and Tutsis.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "hdVSOEPLxV0wdsrXKvu0",
+      "text": "Raptor attacks.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "hgHF0MOHsuQ6YJkTdz5m",
+      "text": "A bag of magic beans.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "HgIjuUOWyrDRnhNlfyXM",
+      "text": "Skeletor.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "HGPGhgqHiEoCTtnvdKo8",
+      "text": "Man meat.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "hjGTJ1cKC7PZAwQrexSn",
+      "text": "Sharing needles.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "hLFRE8nEzwDi8ZKjtTVJ",
+      "text": "Chutzpah.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "hmyIh8fnDdSPiqb4V41h",
+      "text": "BATMAN!!!",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "HofcY6Wrni2gIHjecLjF",
+      "text": "Scrubbing under the folds.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "hp21Jf4iduoe4YWSEp47",
+      "text": "My sex life.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "hpAaraFSvCzQuLX7nRSs",
+      "text": "Friends with benefits.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "HqLCL3bGy7pSzIn81QDm",
+      "text": "A gypsy curse.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "HQLkHx85ux0YUI1V7m2I",
+      "text": "Leaving an awkward voicemail.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "hUoTiDRjXdXiJKjo8Yfw",
+      "text": "Fancy Feast®.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "hUud8Bb9IZ9ivemG1LfX",
+      "text": "Puberty.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "HxlfBX7r47cwCc6zTI3O",
+      "text": "What's my secret power?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "i1vAhQZskxyIp1073xEm",
+      "text": "The Force.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "I2I4i8ZJi22t3F2JJGcC",
+      "text": "Arnold Schwarzenegger.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "iAaTMsALJSeQaLA2hcF4",
+      "text": "Pixelated bukkake.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "IcN04GOAYmVJhYG76OQB",
+      "text": "Assless chaps.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "iEIVlJJb8q52bae6HoT9",
+      "text": "When I am a billionaire, I shall erect a 50-foot statue to commemorate _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "IgFkIpJvr4tveYhJYrQJ",
+      "text": "Democrats.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": true,
+        "sex": false
+      }
+    },
+    {
+      "id": "ih3t8p0eDymoixqaoLDb",
+      "text": "Date rape.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "ijRfaEa4mtPgWSeM5FZt",
+      "text": "_: good to the last drop.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "ImZIasHbN93Gc1cAyHZd",
+      "text": "Praying the gay away.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "Ipkhbl7qL9YGwKnTjAsS",
+      "text": "A bleached asshole.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "IQurdbkDg4Gc1NvV9ltT",
+      "text": "Raping and pillaging.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "Is4ciyTFNjdmEYGtgV8F",
+      "text": "When you fart and a little bit comes out.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "j06MBfGD9tUEyups9UxX",
+      "text": "Dear Abby, I'm having some trouble with _ and would like your advice.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "j81fvV4eztxFBv32szaI",
+      "text": "A mopey zoo lion.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "J89MHL9HtwLLZzCDRplS",
+      "text": "What gives me uncontrollable gas?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "JCAzoiNDO4KhkPuvlhLx",
+      "text": "Amputees.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "JDPTADjPQwnL9V8MXcjo",
+      "text": "Hot Pockets®.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "JDVX1cFGCNaYzzMZL5qu",
+      "text": "Women in yogurt commercials.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "jELNlG2wdVV719SxWqHb",
+      "text": "Tentacle porn.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "jgy4Wzq5QLZalTeHTMIO",
+      "text": "What does Dick Cheney prefer?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "JHBg1HbZzGoAFhz7ypc5",
+      "text": "Obesity.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "jjk02rHoBdE17vSjSgTU",
+      "text": "Dying.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "JkLJU7YaErkJK5bIK8cf",
+      "text": "Autocannibalism.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "jKO6IwjbZ35zlTELpUHy",
+      "text": "Too much hair gel.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "JLDWSEoPVh6vPOg20cud",
+      "text": "Pulling out.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "jM72RPrTPCqqXeFPuE7R",
+      "text": "Keg stands.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "jmYc0bX444GTTkuEVi29",
+      "text": "Laying an egg.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "jNLOcy9sxBc3BbSRc0J1",
+      "text": "A balanced breakfast.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "jp6KJoc7rNe6Hkpwzto2",
+      "text": "In 1,000 years when paper money is but a distant memory, _ will be our currency.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "jq6gHUC0C5SQnU6TzNRu",
+      "text": "Opposable thumbs.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "jqf3boUtxJ76gmY0tb01",
+      "text": "Soiling oneself.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "jStQkTR80LCIB1vYiDZt",
+      "text": "Police brutality.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": true,
+        "sex": false
+      }
+    },
+    {
+      "id": "jTHuSWrkzAdygK3L6xXf",
+      "text": "A big hoopla about nothing.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "jXfZ8vov6zdfDzZfd9ww",
+      "text": "Old-people smell.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "jXQ5NjiMFrC9EMicfOCm",
+      "text": "The Donald Trump Seal of Approval™.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": true,
+        "sex": false
+      }
+    },
+    {
+      "id": "jzkbP8rPgVzK1wpvYNqr",
+      "text": "A disappointing birthday party.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "K65OYHiDWO2HIy3OEdDt",
+      "text": "The Holy Bible.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "k82z31Hy5GCALN8vP36V",
+      "text": "The Rev. Dr. Martin Luther King, Jr.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "KA2TqnYGnKehwhoTWhiJ",
+      "text": "Friendly fire.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "KdDQi3aYCCxnvJW5cgJ2",
+      "text": "A falcon with a cap on its head.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "ke7ITT5WGedcbzaRQa3s",
+      "text": "Dead parents.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "kfllxs4B0fgFrg7VIFvm",
+      "text": "Poorly-timed Holocaust jokes.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "kGt3ApoIcRxvL24wKije",
+      "text": "The Kool-Aid Man.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Kiu8ANb9oLh66ag6SdNb",
+      "text": "Active listening.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "KKWMSY33k7QLlUcjeQne",
+      "text": "Asians who aren't good at math.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Ko4SD6iYzRcd6nwvTZ8l",
+      "text": "Altar boys.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "KofNCbFx62ZON2RDJYOw",
+      "text": "Being on fire.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "kp8fmNqjV4jrQYgVu4a6",
+      "text": "My inner demons.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "kQEoRcY40nxLcVP2iZfv",
+      "text": "The Übermensch.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "KSxDkcUIeWOD7VVFsn5W",
+      "text": "Teenage pregnancy.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "ktbyhAe9aSP5YAIS8O4Z",
+      "text": "TSA guidelines now prohibit _ on airplanes.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "kVVGiodMJBGejeStAstg",
+      "text": "Barack Obama.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": true,
+        "sex": false
+      }
+    },
+    {
+      "id": "KYc779FP7M8AGDlol1Ra",
+      "text": "A murder most foul.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "KzTQrunspBSY7rZSrtqt",
+      "text": "Why can't I sleep at night?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "L27s36ulzmSA7tVp1As7",
+      "text": "White privilege.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "L37i9MjwogU0ImNQKu4z",
+      "text": "Team-building exercises.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "l4UV1X12Ke7M4y1FFXsR",
+      "text": "The thing that electrocutes your abs.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "L9EhB3aP7ni5mRawzgy4",
+      "text": "All-you-can-eat shrimp for $4.99.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "lcDAu50yCPXLcMM3jrLF",
+      "text": "Teaching a robot to love.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "lCJAkuNH6WbNXUrhBxPI",
+      "text": "Studies show that lab rats navigate mazes 50% faster after being exposed to _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "Lh1Rz4qQPzJFvNRuOOiO",
+      "text": "_.  Becha can't have just one!",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "liyY2z8ybn8WXnwyFzyy",
+      "text": "Guys who don't call.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "lNLB2nMd0zoT2thf6nbs",
+      "text": "Mutually-assured destruction.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "lnzn4DfhmQgCh6NvtBzE",
+      "text": "God.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "LOeS2hRacp7PbRCRwwkL",
+      "text": "Cockfights.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "lPi47vt2yMj2crq9TxSc",
+      "text": "Vikings.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "LrdFmOTF5gyTdBqbWCiz",
+      "text": "Unfathomable stupidity.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "LU2ldxGxYFav5mzFMI3R",
+      "text": "Parting the Red Sea.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "LUzJO6FBXIytuBNmiQ8j",
+      "text": "A time travel paradox.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "M1a9g783XUDlBJIplPWl",
+      "text": "Leprosy.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "m1FVnxVtRSPIX1Yv04E4",
+      "text": "Poor life choices.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "M2J5dGtoFdFaRZyvJt2N",
+      "text": "Cybernetic enhancements.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "m7e5p8JGDzmPBMxdR92G",
+      "text": "Same-sex ice dancing.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "m9vd5rdBE5t6jo25RArn",
+      "text": "Mouth herpes.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "MAVWpf8dveFZejzmHjGa",
+      "text": "Eating the last known bison.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "MB3EOF2efA1XQFyJs2dy",
+      "text": "What's that smell?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "MChEx7S8Hwz6rIz2BYth",
+      "text": "Children on leashes.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "mcRogPsMibw9Q1uqzUsD",
+      "text": "The milk man.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "me3BCljBFUa7FgRkO0t2",
+      "text": "Tom Cruise.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "MFWrKr5YcyrSqN5PJnIb",
+      "text": "Spectacular abs.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "mKNtERWdO51JKEgAKGoW",
+      "text": "Republicans.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": true,
+        "sex": false
+      }
+    },
+    {
+      "id": "mP0hcyc5ZYgwzVMEeprd",
+      "text": "Agriculture.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "MQs0WL67tcZsCoagD4fa",
+      "text": "What's my anti-drug?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "mrn561noGSV2LSTlV4vI",
+      "text": "White people like _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "MRyX75OG6lK2cW77cGFJ",
+      "text": "Giving 110%.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "mtErrzpLoIcGQyMScmj8",
+      "text": "What am I giving up for Lent?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "MUikKD4CqWZcybUzgGFu",
+      "text": "Geese.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "mxHshsMGqTrnOHtHIYfx",
+      "text": "Shaquille O'Neal's acting career.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Myc0hoMmLpEAPvT2fBSL",
+      "text": "Five-Dollar Footlongs™.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "MYHB8WWJGZ5Vw4F6MLAJ",
+      "text": "My soul.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "mZ5VjbNWU2lEFawcdq2u",
+      "text": "Another goddamn vampire movie.",
+      "type": "answer",
+      "flags": {
+        "language": true,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "NeNjfmSOjSuLZETfM03K",
+      "text": "Public ridicule.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "NHI3hjRp8kckCQuEEWv0",
+      "text": "Natalie Portman.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "NI9lP4IQxXWJg6G62csI",
+      "text": "The Amish.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "nIOS70pX5uEzvPyFJ0s7",
+      "text": "Hope.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "NiZtu3qoa2bkRlmjdMMz",
+      "text": "Inappropriate yodeling.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "NJvyvbiM3YdJBu3eSv7m",
+      "text": "A drive-by shooting.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "nM7Qy5zCBQ3qs8osJkz9",
+      "text": "Not giving a shit about the Third World.",
+      "type": "answer",
+      "flags": {
+        "language": true,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "nTptk4z9Seo0iU5NvP6K",
+      "text": "Object permanence.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "NTYewMGZGUbIZXvd1EDm",
+      "text": "Count Chocula.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "NXKLiTUxACEWbjeSUUUm",
+      "text": "Hormone injections.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": true,
+        "sex": false
+      }
+    },
+    {
+      "id": "nZ97t0GiJiVmgvdF6weJ",
+      "text": "Whipping it out.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "o5HTcmXgUVMLAL39H1CN",
+      "text": "Women's suffrage.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "o97hZ0y76TMuogCX3P7f",
+      "text": "Serfdom.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "oCzGGMBEQxp3y7dvXYyH",
+      "text": "A brain tumor.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "odce3bhuS0JHeFXMVz1q",
+      "text": "The Dance of the Sugar Plum Fairy.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "oHaHXbj50e9HwewqQwMA",
+      "text": "A zesty breakfast burrito.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "oLAxIqRi8Po7OxI9uH1N",
+      "text": "Oversized lollipops.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "OlP7UpQf9sB8zCmVEJXz",
+      "text": "While the United States raced the Soviet Union to the moon, the Mexican government funneled millions of pesos into research on _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "OMOexqjlkFO5m3VYCFNy",
+      "text": "Tangled Slinkys.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "OnTTfpl4h4RVeT3GdIxq",
+      "text": "Sexy pillow fights.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "ONzfoBkcFkjMsJw78acY",
+      "text": "Jewish fraternities.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "oOlbqISqkehcgO9LFLQv",
+      "text": "Toni Morrison's vagina.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "ORmXzr3C5vbmMLw5t5eA",
+      "text": "World peace.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "oUMtFrBnpR8W4u65KMWN",
+      "text": "This is the way the world ends; Not with a bang but with _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "OvfPt3viyzTF8qdGjqI3",
+      "text": "What don't you want to find in your Chinese food?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "OyNH1n00OTm4jUK7edas",
+      "text": "War!  What is it good for?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "oYQwzsTFhH0VHC8tKcyM",
+      "text": "Being a motherfucking sorcerer.",
+      "type": "answer",
+      "flags": {
+        "language": true,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "oZXgeP1wE87KaaGIHNHU",
+      "text": "Mathletes.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "p0tWTxWQRK55dzTwJJ4M",
+      "text": "A cooler full of organs.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "P767nLNIVG6R2gxaFLvx",
+      "text": "Morgan Freeman's voice.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "p8PoxAXfcEKJk1V1FWy0",
+      "text": "Pabst Blue Ribbon.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "p9FLWjPcOTviR6UrSVd2",
+      "text": "In an attempt to reach a wider audience, the Smithsonian Museum of Natural History has opened an interactive exhibit on _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "pCz0bbf5Y6lgxDjIuTpS",
+      "text": "During sex, I like to think about _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      },
+      "pick": 1
+    },
+    {
+      "id": "piTX6beAvlaasTFVz1rS",
+      "text": "A sad handjob.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "PkmEmiJbbLbpvOfv6kJS",
+      "text": "Lactation.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "plpestel18XDgKbrg9Zw",
+      "text": "A clandestine butt scratch.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "PnI4Fxnv5eS9F0zyN6ww",
+      "text": "Why do I hurt all over?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "PQO50FIjTLR2oUo5mGEU",
+      "text": "Fingering.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "pRFaoacs7OhOeBVhwcWI",
+      "text": "The Make-A-Wish® Foundation.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "prI5OjmJ9zFmQR3fo47O",
+      "text": "Bingeing and purging.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "pu6LEyE9yh4C5aH6Z2lN",
+      "text": "Daddy issues.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "pvx5HVkD2WAl93lKs4Mu",
+      "text": "It's a pity that kids these days are all getting involved with _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "pwsHn0ntz6HTWHNCG7FS",
+      "text": "A mating display.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "PxFGgtnfiM3RLpp8X00N",
+      "text": "The Chronic.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "pY2fH2wdtE6FFiujPvCQ",
+      "text": "The American Dream",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "pyR5VN7sCs29wPIvRp7K",
+      "text": "Puppies!",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Q1eYrOVO1V65zlWXrcl9",
+      "text": "Adderall™.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "q6pEBRh6aeIvefdluxP4",
+      "text": "My genitals.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "QbMpkILA91ekjyNEln0O",
+      "text": "Elderly Japanese men.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "QBY78Yqa2xudc8zZm52K",
+      "text": "Men.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "QfNjtgx2UP6QDTE011Ah",
+      "text": "The glass ceiling.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": true,
+        "sex": false
+      }
+    },
+    {
+      "id": "QHHuF5z568BklDFcSOpp",
+      "text": "Nazis.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "QHvOmtfOrtmZFWQSDC9y",
+      "text": "Pedophiles.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "qijg2ZEHfLj0xsQgP9HZ",
+      "text": "Winking at old people.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "QK8yQjHyVdtNwAPivotb",
+      "text": "Dry heaving.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "qKHRbD7tUweWTyS5D5Zd",
+      "text": "A robust mongoloid.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "QLZr1mgSdql4q6v2qtkF",
+      "text": "What would grandma find disturbing, yet oddly charming?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "QmFscJoHkQJ65ME24Lmm",
+      "text": "The violation of our most basic human rights.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "QmWWg4RXQ8W8yFTNOqcP",
+      "text": "Exchanging pleasantries.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "qNB7AV20D5lFGaVKOIBu",
+      "text": "_?  There's an app for that.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "qxSITjdAU9yXniwgIJ5P",
+      "text": "A gassy antelope.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "qy48IZrU7yF7jhgXk83E",
+      "text": "Dick fingers.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "qyn20rp9J9gznoANyUDU",
+      "text": "Her Royal Highness, Queen Elizabeth II.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "qYqAxQfysInXExvwN3W5",
+      "text": "Waking up half-naked in a Denny's parking lot.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "r17ur9v4WmxQUjw2bYW0",
+      "text": "Waiting 'til marriage.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "r19AfH0SiZXfGGAIDYbO",
+      "text": "Genital piercings.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "R7KV6RixR4g1JVsCxRYz",
+      "text": "Pac-Man uncontrollably guzzling cum.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "R8IODLHphwS6hTDkwWKf",
+      "text": "Cheating in the Special Olympics.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "R9DPORL2ZfabBWfbp8Xo",
+      "text": "Anal beads.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "RBW2MnigQygribMJkXnX",
+      "text": "Viagra®.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "RdMe25Yqmt5OU8y3gNq2",
+      "text": "Grave robbing.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "ReWs7RSWDkv16jt8eIIC",
+      "text": "What do old people smell like?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "rLyHHSBR5qqlXlDyRG1Y",
+      "text": "The forbidden fruit.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "RnCNBwcKC2JNlrecLgYq",
+      "text": "Natural selection.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "RnmRAxwRsCJvbaLTsZ7F",
+      "text": "A can of whoop-ass.",
+      "type": "answer",
+      "flags": {
+        "language": true,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "RrDQwpfqV6oi3E972B8N",
+      "text": "Chainsaws for hands.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "RSnljHblfUrnYvP1YeLU",
+      "text": "The folly of man.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "rW6POYodEF7eCRf0Qrbn",
+      "text": "Switching to Geico®.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "rxUw0uUZlZ6148UaXp4I",
+      "text": "What's a girl's best friend?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      },
+      "pick": 1
+    },
+    {
+      "id": "RY6KTNwwBUDgEUKOD2vC",
+      "text": "In L.A. County Jail, word is you can trade 200 cigarettes for _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "RyFid4sbubQDRFUTsPzq",
+      "text": "Centaurs.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "s1iWbNvovYqMZxVzqVxM",
+      "text": "Alternative medicine is now embracing the curative powers of _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "S1r1FZ6qnBlfVtEPxHvS",
+      "text": "A salty surprise.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "s3ALM590YeaTuuxemvAL",
+      "text": "Home video of Oprah sobbing into a Lean Cuisine®.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "s50wvVQCwJMQgyjzmVyi",
+      "text": "The clitoris.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "S90BDaq6USpFL7Pmr3E9",
+      "text": "Estrogen.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "sB6dtmAJIpcWXONjxC4u",
+      "text": "Sniffing glue.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Scaa31ZlTCfWfJY4H1at",
+      "text": "Preteens.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "SCfhmnKaj1oq7NdHllbw",
+      "text": "Euphoria™ by Calvin Klein.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "schCFcl70j1myBQUOWe9",
+      "text": "What did the U.S. airdrop to the children of Afghanistan?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "sCyCFCplubW1Gh9DRxtj",
+      "text": "The Tempur-Pedic® Swedish Sleep System™.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Sd0yDmuAo8SQITG2jiz4",
+      "text": "Free samples.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "SikNdcCrxGjn5YSIssrK",
+      "text": "What gets better with age?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "SnZB0PyWo1OsFco8Sm9R",
+      "text": "What never fails to liven up the party?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "sPpqdnISqwwK75SOReQN",
+      "text": "Explosions.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "sQDUulEXcUGyNjaiENvi",
+      "text": "Dying of dysentery.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "SUXISSMN2uaQnaShet1r",
+      "text": "Being marginalized.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "sVRjuaDYSPKgIyZirbin",
+      "text": "Being a dick to children.",
+      "type": "answer",
+      "flags": {
+        "language": true,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "SweYYFqfcUp4G3bWAOzn",
+      "text": "The token minority.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "sxbyT7EOdX4pgQxCNA0e",
+      "text": "Mr. Clean, right behind you.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Sxg7KotxwftS4KcqVIcQ",
+      "text": "I'm sorry professor, but I couldn't complete my homework because of _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "SXKda4Dw6hUljufb0mHy",
+      "text": "What will always get you laid?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      },
+      "pick": 1
+    },
+    {
+      "id": "SxR8c0VsH5551kON5N6v",
+      "text": "Booby-trapping the house to foil burglars.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "sY4RwzUj1hTUXfTolgel",
+      "text": "Frolicking.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "t0ZM7sBj6ijgNAC0I1Cs",
+      "text": "Bitches.",
+      "type": "answer",
+      "flags": {
+        "language": true,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "T1Aklt5o07DASROMRM29",
+      "text": "Charisma.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "T5AoasIMPpoFFzZMvDJR",
+      "text": "Hurricane Katrina.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Ta7xpeeltp58nTLUp0od",
+      "text": "Michelle Obama's arms.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "tagwJM6Qm1dijwdkyx7e",
+      "text": "A thermonuclear detonation.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "tB9I3CJEV9N31r8qrGMg",
+      "text": "An honest cop with nothing left to lose.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "TDaEQIgxg2K2nR8W7B8D",
+      "text": "Authentic Mexican cuisine.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "tfiSilLikry1Mw7cS2QE",
+      "text": "During Picasso's often-overlooked Brown Period, he produced hundreds of paintings of _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "tj3AQZ9qJcrMFNeRB6GH",
+      "text": "The placenta.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "tjuVZmU4EY2dqwsOQWcB",
+      "text": "Powerful thighs.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "TKNGVMcj7ZOyhbWK3TBx",
+      "text": "Queefing.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "TlaqJQdsgb7IhgSVPAs9",
+      "text": "Science.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "TLHoDOuMiceeL7QcGvzW",
+      "text": "Emotions.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "to39DYQtQWZQu4F2Wh0m",
+      "text": "William Shatner.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "tsdIpHU0vd82lG687GzU",
+      "text": "Glenn Beck catching his scrotum on a curtain hook.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": true,
+        "sex": true
+      }
+    },
+    {
+      "id": "TZvKLAxkTz1s6UrsWt6j",
+      "text": "A homoerotic volleyball montage.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "TzVs14n1SdfuiJ2vXP2v",
+      "text": "Pooping back and forth. Forever.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "U1ClTFu14Hqx3lpbKJeH",
+      "text": "Bees?",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "U1Vw1Tqe0StU4VycXCD2",
+      "text": "Crippling debt.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "UBccNaBBZ5BtqpAPWXOy",
+      "text": "Jew-fros.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "ubxwu4CpfQfDhJrGAPRU",
+      "text": "What did Vin Diesel eat for dinner?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "UmAVKvXnq5nj80FvMNh5",
+      "text": "A tiny horse.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "unIVDh3ku3fiXa5QZuMJ",
+      "text": "Sean Penn.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "uS5QzmlkJIa26KlIuHuR",
+      "text": "Global warming.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "uSDEoUugvzwsQPQs731K",
+      "text": "Chivalry.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "uudmfHFsqnvXaqKaUlXj",
+      "text": "Half-assed foreplay.",
+      "type": "answer",
+      "flags": {
+        "language": true,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "uvHaicLOMaSxcbucTwO7",
+      "text": "Panda sex.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "UwHpBpY59pAV6vyy5EEH",
+      "text": "Harry Potter erotica.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "uYbBtcybVXNTIOz7IhhI",
+      "text": "Flying sex snakes.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "uYVbvyCiGDLyNoQNPF7F",
+      "text": "MTV's new reality show features eight washed-up celebrities living with _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "uzkDXhZiOwEZqe6lBHIe",
+      "text": "Italians.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "vAaOg6IUdoXTc4GsTjOr",
+      "text": "Me time.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "VaGQqeez0fHt17do7Dxr",
+      "text": "A good sniff.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "vDrNYf3t1NgUKTQGAXB7",
+      "text": "Stranger danger.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "vdz8xbYCoGtjOKkzCr7d",
+      "text": "Self-loathing.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "VE4D7DwG8wyQgtA92P4v",
+      "text": "Major League Baseball has banned _ for giving players an unfair advantage.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "VG2z3SKYiqzsm07WScT2",
+      "text": "Instead of coal, Santa now gives the bad children _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "VGyOEqUvRxt7wp0yHIvM",
+      "text": "Copping a feel.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "VHVnEeVzc8UW7bOYu6Vg",
+      "text": "Next on ESPN2, the World Series of _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "ViTxVaRgvD91dLR3Wl49",
+      "text": "The inevitable heat death of the universe.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "vJV9ZwZK0XlANNCnwJrA",
+      "text": "Pretending to care.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "VkGfZdYvCtIHYG8u1fRl",
+      "text": "Horse meat.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "VLMAe8wuBRYbb4GgZSid",
+      "text": "Ethnic cleansing.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "vlMZcRebzkfX6u4bIEYh",
+      "text": "Domino's™ Oreo™ Dessert Pizza.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "vo62mOBbKb1UOJtwfhCV",
+      "text": "A snapping turtle biting the tip of your penis.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "VqDjEC0wIzdtArCGqJjU",
+      "text": "Sweet, sweet vengeance.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "VswKk77HbNU1JdfF6Csg",
+      "text": "Lumberjack fantasies.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "vt4WMt1kinGmONWMd6dE",
+      "text": "White people.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "vtgANUlNOP33fHjL7tj9",
+      "text": "Britney Spears at 55.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "VVIzwqvGsDgxUdQavGdx",
+      "text": "The heart of a child.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "vVpus3mMBIvsHilChVgK",
+      "text": "Ronald Reagan.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "W3HiQy99qZTdHdsUrTNM",
+      "text": "Soup that is too hot.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "W5TAc4jKZBsCsiTrrPxN",
+      "text": "Passive-aggressive Post-it notes.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "W76567vyGC70Uc7azwvN",
+      "text": "Attitude.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "WA1jeS55Aa76WBO7VtYp",
+      "text": "Racially-biased SAT questions.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "wBaew7u3eMNSzZ4fYB5X",
+      "text": "Nicolas Cage.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "wd3rleFUROq7uSqeByDv",
+      "text": "A monkey smoking a cigar.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "WDDkyU0WZWAsOBgkM1Gy",
+      "text": "American Gladiators.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "WdxsFtNUDTEPapleZBCL",
+      "text": "Wiping her butt.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "wDyNRe3xCutfDnCE3BWZ",
+      "text": "Kamikaze pilots.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "wfxyfGNYH1I3w1ZHlA26",
+      "text": "A death ray.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "WH7MimEW8TJKtMFFVk4s",
+      "text": "Doing the right thing.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "wiJO4giBVfqMRAqIYL0J",
+      "text": "German dungeon porn.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "Wj4P8Z75rMzwo72KCXMS",
+      "text": "Jerking off into a pool of children's tears.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "wpstx7mSU8LO2pq6WMO4",
+      "text": "I drink to forget _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "wsS3sdGrAtsOGTHqeRwS",
+      "text": "Breaking out into song and dance.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "wVRL2nvpgFvbR8WBJM9h",
+      "text": "BILLY MAYS HERE FOR _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "WvSyiSUpBqh3JClXTJgI",
+      "text": "YOU MUST CONSTRUCT ADDITIONAL PYLONS.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "WvXwe1ELQ5v0o90s0Fv1",
+      "text": "A romantic, candlelit dinner would be incomplete without _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "wwkblB9DKAWrxbO7jme6",
+      "text": "72 virgins.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "WwlCMKmhqgsDg0xqKUk3",
+      "text": "My vagina.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "WX58BcE41pdpbBibJPPU",
+      "text": "Lunchables™.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "X2jRKz8YmlnVKqvIvu2k",
+      "text": "Consultants.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "x31t9ndRFl1vYN1oqdFq",
+      "text": "What ended my last relationship?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "x5LEzURjztUMVNieTaRg",
+      "text": "Hot people.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "X9jYtQha1EVfET2VQgYf",
+      "text": "Exactly what you'd expect.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "xAr0d6HdL2bO3vjuyqSX",
+      "text": "Being rich.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "xdf0DeSVh9pNMwyrkymY",
+      "text": "When I am President of the United States, I will create the Department of _.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "xE9QEzGUUG86V4QwxoWq",
+      "text": "Classist undertones.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "XERe1nNmg0CYxmFdPdnA",
+      "text": "Flightless birds.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Xf2ankbZSAcMEArkHeHv",
+      "text": "Natural male enhancement.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "xi3wQoMkt5R9AyIqBgVX",
+      "text": "The Care Bear Stare.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "XiUVvow4eIMobmtxHXFZ",
+      "text": "Kim Jong-il.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "XJNxCqWKuPU73mQGNFmR",
+      "text": "Lance Armstrong's missing testicle.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Xkxe04wogwrIKrp06E35",
+      "text": "Heteronormativity.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "xmdxNwPvU7cRtABo5rAg",
+      "text": "Multiple stab wounds.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "XN6ZPggpbpMZomfOqM8r",
+      "text": "Shapeshifters.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "xPUsVSMIBUsz8IxcApQT",
+      "text": "8 oz. of sweet Mexican black-tar heroin.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "XQS6W6pALJ11tLB4j6PR",
+      "text": "Uppercuts.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "xQzHz2uQtdSwWDknNMiW",
+      "text": "New Age music.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "xrAIP2r0S6CSuBfTwKkR",
+      "text": "Edible underpants.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "XRQ089p97ej2xjfWb8AY",
+      "text": "Dropping a chandelier on your enemies and riding the rope up.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "xs8gKbeDW5T8jj997Pcd",
+      "text": "Historically black colleges.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "xUYQRmSH9DXxzN1qWdst",
+      "text": "Dead babies.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "xXDgtXMD6z0MrgqbofDy",
+      "text": "AIDS",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "XyP5Ieu1NCjVbUmvM75N",
+      "text": "Sarah Palin.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": true,
+        "sex": false
+      }
+    },
+    {
+      "id": "xz5c4hKBJHHhfK2sXWXV",
+      "text": "An Oedipus complex.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "Y0NCimJuIyiSmjzRKy4H",
+      "text": "Hulk Hogan.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "YB6FQuSbLcbo7ak5rjHt",
+      "text": "Muhammad (Praise Be Unto Him).",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Ye7J5xmgO3ECIvUgGnJx",
+      "text": "A defective condom.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "YHeM3rgLtbpYqanBVlUw",
+      "text": "Lady Gaga.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "YMMUXqiIuU71SdNOM4EF",
+      "text": "Surprise sex!",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "YPmiwFQJOR2a6uaBkzD2",
+      "text": "Keanu Reeves.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "yqMcneEJCsWYVwyZeYWK",
+      "text": "Dick Cheney.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "ySKi7gwTkXVR7IW1uLG4",
+      "text": "Judge Judy.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "yu9di8cS1UN26TlQp04K",
+      "text": "Jibber-jabber.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "YuP7Zo1OUDKdXWenLYqS",
+      "text": "What will I bring back in time to convince people that I am a powerful wizard?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "yWPK2DtdYvsUM2NPtmVM",
+      "text": "Wifely duties.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "z2bs1OWMmDvvOodQFlOT",
+      "text": "Coat hanger abortions.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "z2lRPfzAfC64Jxyce2tx",
+      "text": "Goblins.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Zb6NWLpbqplYjrqHJvMu",
+      "text": "What's that sound?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "zddTATKKGykKpuGZ4ueu",
+      "text": "The Big Bang.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "zDzDL3XRwPz5wH0144OE",
+      "text": "_.  That's how I want to die.",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "ZhUzzu5qJ5BJEylB6zeJ",
+      "text": "How am I maintaining my relationship status?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "zmYRGirP6kydH6QAjizs",
+      "text": "Glenn Beck being harried by a swarm of buzzards.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": true,
+        "sex": false
+      }
+    },
+    {
+      "id": "zNzsuuLzuJ6wOxNIg61E",
+      "text": "Intelligent design.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "zpa4leynkPOi7BSEuAU0",
+      "text": "Scalping.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "zPIzet5smNaM6FWhWust",
+      "text": "Yeast.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "zppec7qKOwe2RIRx3eM8",
+      "text": "Full frontal nudity.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "ZpYIBrIwPxhAumqTupBi",
+      "text": "A Super Soaker™ full of cat pee.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": true,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "zQcD0aIu7XJDwH2giUfg",
+      "text": "Saxophone solos.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "ZrSxl4vOa4xd7lMAVwNO",
+      "text": "Poor people.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "ztYDn2cBzxa1op69hpvs",
+      "text": "Foreskin.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "zUHmf5C57vxgVWFk9doa",
+      "text": "The Little Engine That Could.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "Zv7p1Wk4SuRl4byu0mBB",
+      "text": "Steven Hawking talking dirty.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "zvW1vcquaLKz8538emaf",
+      "text": "Repression.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      }
+    },
+    {
+      "id": "zxC7wIhODFULJSPHt05K",
+      "text": "What's the next Happy Meal® toy?",
+      "type": "question",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": false
+      },
+      "pick": 1
+    },
+    {
+      "id": "zXnEMzH1lsLQJM7mIHaG",
+      "text": "An erection that lasts longer than four hours.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": false,
+        "politics": false,
+        "sex": true
+      }
+    },
+    {
+      "id": "zYrETPMdn2uQjkjczDgS",
+      "text": "The KKK.",
+      "type": "answer",
+      "flags": {
+        "language": false,
+        "obscene": false,
+        "offensive": true,
+        "politics": false,
+        "sex": false
+      }
+    }
+  ]
+}

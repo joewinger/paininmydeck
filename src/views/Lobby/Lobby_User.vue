@@ -1,30 +1,21 @@
 <template>
 	<div class="lobbyUser" :style="{ '--color-from': user.colorSet[0], '--color-to': user.colorSet[1] }" :class="{ 'kickable': isKickable }" :title="title" @click="kickPlayer">
-		{{user.username}}
+		{{ user.displayName }}
 	</div>
 </template>
 
-<script>
-export default {
-	name: 'LobbyUser',
-	props: {
-		user: Object
-	},
-	methods: {
-		kickPlayer() {
-			if (!this.isKickable) return;
+<script setup lang="ts">
+import { computed } from 'vue';
+import type { PlayerSummary } from '@/shared/protocol';
+import { useGameStore } from '@/stores/game';
 
-			this.$store.dispatch('room/kickPlayer', this.user.username);
-		}
-	},
-	computed: {
-		isKickable() {
-			return this.$store.state.user.isPrivileged && this.user.username !== this.$store.state.user.username;
-		},
-		title() {
-			return this.isKickable ? `Kick ${this.user.username}` : '';
-		}
-	}
+const props = defineProps<{ user: PlayerSummary }>();
+const game = useGameStore();
+const isKickable = computed(() => game.isPrivileged && props.user.playerId !== game.self?.playerId);
+const title = computed(() => isKickable.value ? `Kick ${props.user.displayName}` : '');
+
+function kickPlayer() {
+	if (isKickable.value) void game.kickPlayer(props.user.playerId).catch(() => undefined);
 }
 </script>
 

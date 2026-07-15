@@ -1,5 +1,5 @@
 <template>
-  <div class="carousel">
+  <div ref="root" class="carousel">
     <div class="btn-left" @click="moveCarousel(-1)"><ion-icon name="arrow-back" /></div>
     <div class="btn-right" @click="moveCarousel(1)"><ion-icon name="arrow-forward" /></div>
     <div class="scroll-port">
@@ -13,73 +13,72 @@
   </div>
 </template>
 
-<script>
-import LandingCarouselSlide from "./LandingCarouselSlide";
+<script setup lang="ts">
+import { onBeforeUnmount, onMounted, ref } from 'vue';
+import LandingCarouselSlide, { type LandingSlide } from './LandingCarouselSlide.vue';
 
-export default {
-  name: 'LandingCarousel',
-  props: ['slidesArray'],
-  components: {
-    LandingCarouselSlide,
-  },
-	data() {
-		return {
-			mounted: false,
-			slideIndex: 0,
-			mouseHovering: false
-		}
-	},
-  methods: {
-    moveCarousel(change) {
-			if (!this.mounted) return;
-			const scrollPort = this.$el.querySelector('.scroll-port');
+const props = defineProps<{ slidesArray: LandingSlide[] }>();
+const root = ref<HTMLElement | null>(null);
+const slideIndex = ref(0);
+const mouseHovering = ref(false);
+let mounted = false;
+let autoTimer: number | undefined;
+let initialFrame: number | undefined;
+let layoutFrame: number | undefined;
 
-			const slideStyle = getComputedStyle(this.$el.querySelector('.carousel-slide'));
-			const slideWidth = this.$el.querySelector('.carousel-slide').offsetWidth + (parseInt(slideStyle.marginLeft) + parseInt(slideStyle.marginRight));
+function moveCarousel(change: number) {
+	if (!mounted || !root.value) return;
+	const scrollPort = root.value.querySelector<HTMLElement>('.scroll-port');
+	const slide = root.value.querySelector<HTMLElement>('.carousel-slide');
+	if (!scrollPort || !slide) return;
+	const slideStyle = getComputedStyle(slide);
+	const slideWidth = slide.offsetWidth + parseInt(slideStyle.marginLeft) + parseInt(slideStyle.marginRight);
 
-			if (change < 0 && scrollPort.scrollLeft < slideWidth) {
-				scrollPort.scrollTo(scrollPort.scrollWidth, 0);
-				return;
-			}
-			if (change > 0 && (scrollPort.scrollWidth - scrollPort.scrollLeft - scrollPort.offsetWidth) < slideWidth) {
-				scrollPort.scrollTo(0, 0);
-				return;
-			}
-
-			scrollPort.scrollTo(scrollPort.scrollLeft + slideWidth * change, 0);
-    },
-		autoMoveCarousel(delay) {
-			setTimeout(() => {
-				// Don't progress carousel if mouse is on a slide.
-				if (!this.mouseHovering) this.moveCarousel(1);
-				
-				this.autoMoveCarousel(delay);
-			}, delay);
-		}
-  },
-	mounted() {
-		this.mounted = true;
-		this.moveCarousel(1);
-
-		const scrollPort = this.$el.querySelector('.scroll-port');
-		const scrollPortStyle = getComputedStyle(scrollPort);
-
-		const slide = this.$el.querySelector('.carousel-slide');
-		const slideStyle = getComputedStyle(slide);
-		const slideWidth = slide.clientWidth + parseInt(slideStyle.marginLeft) + parseInt(slideStyle.marginRight);
-
-		scrollPort.addEventListener('scroll', () => {
-			this.slideIndex = Math.round((scrollPort.scrollLeft - parseInt(scrollPortStyle.paddingLeft) - parseInt(slideStyle.marginLeft)) / slideWidth);
-			if (this.slideIndex < 0) this.slideIndex = 0;
-			if (this.slideIndex > this.slidesArray.length-1) this.slideIndex = this.slidesArray.length-1;
-		});
-
-		this.$el.onmouseover = () => this.mouseHovering = true;
-		this.$el.onmouseout = () => this.mouseHovering = false;
-
-		this.autoMoveCarousel(5000);
+	if (change < 0 && scrollPort.scrollLeft < slideWidth) {
+		scrollPort.scrollTo(scrollPort.scrollWidth, 0);
+		return;
 	}
-};
+	if (change > 0 && scrollPort.scrollWidth - scrollPort.scrollLeft - scrollPort.offsetWidth < slideWidth) {
+		scrollPort.scrollTo(0, 0);
+		return;
+	}
+	scrollPort.scrollTo(scrollPort.scrollLeft + slideWidth * change, 0);
+}
+
+onMounted(() => {
+	mounted = true;
+	const scrollPort = root.value?.querySelector<HTMLElement>('.scroll-port');
+	const slide = root.value?.querySelector<HTMLElement>('.carousel-slide');
+	if (!scrollPort || !slide || !root.value) return;
+	const scrollPortStyle = getComputedStyle(scrollPort);
+	const slideStyle = getComputedStyle(slide);
+	const slideWidth = slide.clientWidth + parseInt(slideStyle.marginLeft) + parseInt(slideStyle.marginRight);
+
+	scrollPort.onscroll = () => {
+		slideIndex.value = Math.round((scrollPort.scrollLeft - parseInt(scrollPortStyle.paddingLeft) - parseInt(slideStyle.marginLeft)) / slideWidth);
+		slideIndex.value = Math.max(0, Math.min(slideIndex.value, props.slidesArray.length - 1));
+	};
+	root.value.onmouseover = () => { mouseHovering.value = true; };
+	root.value.onmouseout = () => { mouseHovering.value = false; };
+	// Vue 2 mounted after the browser had resolved the initial snap position.
+	// Waiting for layout preserves its initial one-slide advance under Vue 3.
+	initialFrame = window.requestAnimationFrame(() => {
+		layoutFrame = window.requestAnimationFrame(() => {
+			const firstSlideCenter = slide.offsetLeft - (scrollPort.clientWidth - slide.clientWidth) / 2;
+			scrollPort.scrollTo(firstSlideCenter + slideWidth, 0);
+		});
+	});
+	autoTimer = window.setInterval(() => {
+		if (!mouseHovering.value) moveCarousel(1);
+	}, 5_000);
+});
+
+onBeforeUnmount(() => {
+	mounted = false;
+	if (initialFrame !== undefined) window.cancelAnimationFrame(initialFrame);
+	if (layoutFrame !== undefined) window.cancelAnimationFrame(layoutFrame);
+	if (autoTimer !== undefined) window.clearInterval(autoTimer);
+});
 </script>
 
 <style lang="scss" scoped>

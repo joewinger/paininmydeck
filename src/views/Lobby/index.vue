@@ -1,58 +1,50 @@
 <template>
 	<div id="lobby">
-		<set-username-modal v-if="username == ''" />
+		<set-username-modal v-if="game.needsProfile || game.username === ''" />
 		
 		<h3>Players</h3>
+		<info-bar :text="connectionInfo" v-if="connectionInfo" />
 		<ul>
-			<li v-for="user in allUsers" :key="user.username">
+			<li v-for="user in game.users" :key="user.playerId">
 				<lobby-user :user="user" />
 			</li>
 		</ul>
 		
-		<div v-if="username != ''">
-			<button-loadable @click="startGame" v-if="isPrivileged">Start Game</button-loadable>
+		<div v-if="game.username !== ''">
+			<button-loadable @click="startGame" v-if="game.isPrivileged">Start Game</button-loadable>
 		</div>
 	</div>
 </template>
 
-<script>
-import SetUsernameModal from './Lobby_SetUsernameModal';
-import LobbyUser from './Lobby_User';
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import SetUsernameModal from './Lobby_SetUsernameModal.vue';
+import LobbyUser from './Lobby_User.vue';
 import ButtonLoadable from '@/components/ButtonLoadable.vue';
-import { mapState } from 'vuex';
+import InfoBar from '@/components/InfoBar.vue';
+import { useGameStore } from '@/stores/game';
 
-export default {
-	name: 'Lobby',
-	components: {
-		SetUsernameModal,
-		LobbyUser,
-		ButtonLoadable
-	},
-	data() {
-		return {
-			minPlayers: 3,
-			starting: false
-		}
-	},
-	computed: {
-		...mapState('user', [ 'username', 'isPrivileged' ]),
-		...mapState('room', { allUsers: state => state.users })
-	},
-	methods: {
-		async startGame(btnCallback) {
-			if (this.starting) return;
-			// if (this.$store.state.room.users.length < this.minPlayers) {
-			// 	this.$store.dispatch('error', { message: `At least ${this.minPlayers} players are needed to start a game!` });
-			// 	btnCallback();
-			// 	return;
-			// }
+const game = useGameStore();
+const starting = ref(false);
+const connectionInfo = computed(() => {
+	if (game.connectionState === 'connecting') return 'Connecting to the room...';
+	if (game.connectionState === 'reconnecting') return 'Reconnecting to the room...';
+	const disconnected = game.users.filter((player) => !player.connected).map((player) => player.displayName);
+	if (disconnected.length === 1) return `Waiting for ${disconnected[0]} to reconnect...`;
+	if (disconnected.length > 1) return `Waiting for ${disconnected.join(', ')} to reconnect...`;
+	return '';
+});
 
-			console.debug("Starting the game!");
-			this.starting = true;
-			await this.$game.startGame();
-			this.starting = false;
-			btnCallback();
-		}
+async function startGame(done: () => void) {
+	if (starting.value) return;
+	starting.value = true;
+	try {
+		await game.startGame();
+	} catch {
+		// The store reports command failures in the existing toast.
+	} finally {
+		starting.value = false;
+		done();
 	}
 }
 </script>

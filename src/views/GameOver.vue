@@ -1,43 +1,32 @@
 <template>
-  <div id="gameover">
-		<h1>{{ roomData.winner.username }} won!</h1>
+	<div id="gameover" v-if="roomData">
+		<h1>{{ roomData.outcome === 'cancelled' ? 'Game cancelled' : `${roomData.winner?.displayName} won!` }}</h1>
 		<p id="final-rounds">&mdash; The game lasted {{ roomData.rounds }} rounds &mdash;</p>
 		<ol id="final-leaderboard">
-			<li class="final-leaderboard_player" v-for="(player, index) in roomData.leaderboard" :key="player.username">
+			<li class="final-leaderboard_player" v-for="(player, index) in roomData.leaderboard" :key="player.playerId">
 				<div class="rank">{{ index+1 }}<sup>{{ getOrdinalSuffix(index+1) }}</sup></div>
-				<div class="username">{{ player.username }}</div>
+				<div class="username">{{ player.displayName }}</div>
 				<div class="points">{{ player.points }}pts</div>
 			</li>
 		</ol>
-    <button @click="$router.replace('/')">Leave Game</button>
+		<button @click="router.replace('/')">Leave Game</button>
   </div>
 </template>
 
-<script>
-export default {
-	name: 'GameOver',
-	data() {
-		return {
-			roomData: {}
-		}
-	},
-	methods: {
-		getOrdinalSuffix(number) {
-			switch(number) {
-				case 1:
-					return 'st';
-				case 2:
-					return 'nd';
-				case 3:
-					return 'rd';
-				default:
-					return 'th';
-			}
-		}
-	},
-	async mounted() {
-		this.roomData = await this.$game.getFinalRecordData();
-	}
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useGameStore } from '@/stores/game';
+
+const router = useRouter();
+const game = useGameStore();
+const roomData = computed(() => game.room.finalRecord);
+
+function getOrdinalSuffix(number: number): string {
+	if (number === 1) return 'st';
+	if (number === 2) return 'nd';
+	if (number === 3) return 'rd';
+	return 'th';
 }
 </script>
 

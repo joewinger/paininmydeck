@@ -3,19 +3,19 @@
 		
 		<button class="btn-trash" v-if="isTrashable" @click="trashCard"><ion-icon name="trash"></ion-icon></button>
 		
-		<div class="whiteCard" ref="card" :class=classList @click="onClick">	
-			<div class="card-text" v-if="!facedown && !isBlank">{{ this.text }}</div>
+		<div class="whiteCard" ref="cardElement" :class="classList" @click="onClick">
+			<div class="card-text" v-if="!effectiveFacedown && !isEditableBlank">{{ card.text }}</div>
 			
-			<textarea class="blank-input" v-if="isBlank" v-model="blanktext" placeholder="Blank Card" maxlength="60" @blur="onBlur" />
-			<span class="char-limit" v-if="isBlank && editing && blanktext.length > 30">{{blanktext.length}}/60</span>
+			<textarea class="blank-input" v-if="isEditableBlank && !pending" v-model="blanktext" placeholder="Blank Card" maxlength="60" @blur="onBlur" />
+			<span class="char-limit" v-if="isEditableBlank && !pending && editing && blanktext.length > 30">{{blanktext.length}}/60</span>
 			<transition name="save-btn">
-				<button class="btn-save" v-if="isBlank && editing" @click="submitBlankCard"><ion-icon name="checkmark" /></button>
+				<button class="btn-save" v-if="isEditableBlank && !pending && editing" @pointerdown="preserveBlankSave" @click.stop="submitBlankCard"><ion-icon name="checkmark" /></button>
 			</transition>
 			
-			<div class="ribbon" v-if="this.isWinner">
+			<div class="ribbon" v-if="isWinner">
 				<div class="ribbon-content">
 					<small>Played by</small>
-					{{ this.$store.state.room.turn.winningCard.playedBy }}
+					{{ game.turn.winningCard?.playedByDisplayName }}
 				</div>
 			</div>
 
@@ -23,138 +23,155 @@
 	</div>
 </template>
 
-<script>
-import '@interactjs/auto-start'
-import '@interactjs/actions/drag'
-import interact from '@interactjs/interact';
+<script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import interact from 'interactjs';
+import type { Card, PlayedCard } from '@/shared/protocol';
+import { useGameStore } from '@/stores/game';
+import { useUiStore } from '@/stores/ui';
 
-export default {
-	name: 'WhiteCard',
-	props: {
-		text: String,
-		facedown: Boolean,
-		index: Number
-	},
-	data() {
-		return {
-			blanktext_: '',
-			editing: false,
-			disableClicks: false,
-			isDragging: false,
-			trashMode: false // true = keep card rotated to access trash button
+const props = withDefaults(defineProps<{ card: Card | PlayedCard; facedown?: boolean; index?: number }>(), {
+	facedown: false,
+	index: 0,
+});
+const game = useGameStore();
+const ui = useUiStore();
+const cardElement = ref<HTMLElement | null>(null);
+const blanktext = ref('');
+const editing = ref(false);
+const disableClicks = ref(false);
+const pending = ref(false);
+const isDragging = ref(false);
+const trashMode = ref(false);
+const isEditableBlank = computed(() => props.card.text.startsWith('%BLANK%'));
+const usesBlankFont = computed(() => Boolean(props.card.blank));
+const isWinner = computed(() => game.turn.winningCard?.id === props.card.id);
+const effectiveFacedown = computed(() => props.facedown || pending.value);
+const isTrashable = computed(() => !pending.value && !isEditableBlank.value && !usesBlankFont.value && !game.playedThisTurn && !game.isCzar);
+const classList = computed(() => ({
+	facedown: effectiveFacedown.value,
+	winner: isWinner.value,
+	blank: isEditableBlank.value,
+	blankfont: usesBlankFont.value && !isEditableBlank.value,
+}));
+let peekTimer: number | undefined;
+let closePeekTimer: number | undefined;
+let blankSavePointerDown = false;
+
+async function onClick(mouseEvent: MouseEvent) {
+	if (!props.card.text || effectiveFacedown.value || isDragging.value || disableClicks.value || game.cardActionPending) return;
+	if (trashMode.value) {
+		trashMode.value = false;
+		return;
+	}
+	if (isEditableBlank.value) {
+		const target = mouseEvent.target as HTMLElement;
+		if (target.classList.contains('whiteCard')) target.querySelector<HTMLTextAreaElement>('.blank-input')?.focus();
+		editing.value = true;
+		return;
+	}
+
+	disableClicks.value = true;
+	pending.value = true;
+	game.cardActionPending = true;
+	try {
+		if (game.isCzar) {
+			if (game.phase === 'JUDGING' && game.turn.winningCard === null) {
+				await game.chooseWinner(props.card.id);
+			}
+		} else if (game.phase === 'COLLECTING' && !game.playedThisTurn) {
+			await game.submitCard(props.card.id);
 		}
-	},
-	computed: {
-		classList() {
-			return {
-				facedown: this.facedown,
-				winner: this.isWinner,
-				blank: this.isBlank
-			}
-		},
-		blanktext: {
-			get() {
-				return this.blanktext_;
-			},
-			set(value) {
-				this.blanktext_ = value.substring(0, 60);
-			}
-		},
-		isBlank() {
-			return this.text.startsWith('%BLANK%');
-		},
-		isWinner() {
-			if (this.$store.state.room.turn.winningCard !== null) {
-				return this.$store.state.room.turn.winningCard.text === this.text;
-			} else return false;
-		},
-		isTrashable() {
-			// Only non-blank cards that are in our hand are trashable
-			return !this.isBlank && !this.$store.state.user.playedThisTurn && !this.$store.getters['user/isCzar'];
-		}
-	},
-	methods: {
-		onClick(mouseEvent) {
-			if (this.text == null || this.facedown) return;
-			if (this.isDragging) return;
-
-			if (this.trashMode) { // Click card to get out of trash mode
-				this.trashMode = false;
-				return;
-			}
-
-			if (this.isBlank) {
-				let card = mouseEvent.target;
-				if (card.classList.contains('whiteCard')) card.querySelector('.blank-input').focus();
-				this.editing = true;
-				return;
-			}
-
-			if (this.$store.getters['user/isCzar'] && !this.disableClicks && this.$store.state.room.turn.winningCard == null) {
-				this.disableClicks = true;
-				this.$game.chooseCard(this.text);
-			} else {
-				if (this.$store.state.user.playedThisTurn) return;
-
-				this.$game.submitCard(this.text);
-			}
-		},
-		onBlur(e) {
-			// If we stop editing, the save button vanishes. If we click the
-			// save button, don't stop editing until we've finished saving.
-			if (e.relatedTarget && e.relatedTarget.classList.contains('btn-save')) return;
-			this.editing = false;
-		},
-		submitBlankCard() {
-			this.editing = false;
-			this.blanktext = this.blanktext.trim();
-
-			if (this.blanktext == '') {
-				this.$store.dispatch('error', {message: "Blank cards can't be blank!"});
-				return;
-			}
-			if (this.blanktext.startsWith('%BLANK%')) {
-				this.$store.dispatch('error', {message: "Blank cards can't begin like that!"});
-				this.blanktext = '';
-				return;
-			}
-			this.$game.submitBlankCard(this.text, this.blanktext);
-		},
-		trashCard() {
-			this.$store.dispatch('user/trashCard', this.text);
-			this.trashMode = false;
-		}
-	},
-	mounted() {
-		// Peek trash mode on round 1 so people know it's there.
-		// Wait 4s for the interstitial to finish
-		if (this.isTrashable && this.index === 0 && this.$store.state.room.turn.round === 1) {
-			window.setTimeout(() => {
-				this.trashMode = true;
-				window.setTimeout(() => this.trashMode = false, 600);
-			}, 4000);
-		}
-
-		interact(this.$refs.card).draggable({
-			startAxis: 'x', // Only worry about it if the drag was horizontal
-			onstart: (event) => {
-				if (this.isTrashable) {
-					this.isDragging = true;
-					this.trashMode = event.velocityX > 0;
-				}
-			},
-			onend: () => {
-				// Wait 1ms to disable drag mode, so our click handler knows we were just dragging
-				window.setTimeout(() => {
-					this.isDragging = false
-				}, 1);
-			}
-		}).styleCursor(false);
-	},
-	beforeDestroy() {
-		interact(this.$refs.card).unset();
+	} catch {
+		// The store reports command failures in the existing toast.
+	} finally {
+		pending.value = false;
+		disableClicks.value = false;
+		game.cardActionPending = false;
 	}
 }
+
+function onBlur(event: FocusEvent) {
+	if (blankSavePointerDown) return;
+	if ((event.relatedTarget as HTMLElement | null)?.classList.contains('btn-save')) return;
+	editing.value = false;
+}
+
+function preserveBlankSave() {
+	blankSavePointerDown = true;
+	window.setTimeout(() => {
+		blankSavePointerDown = false;
+	}, 500);
+}
+
+async function submitBlankCard() {
+	editing.value = false;
+	blanktext.value = blanktext.value.trim().slice(0, 60);
+	if (!blanktext.value) {
+		ui.notify({ message: "Blank cards can't be blank!" });
+		return;
+	}
+	if (blanktext.value.startsWith('%BLANK%')) {
+		ui.notify({ message: "Blank cards can't begin like that!" });
+		blanktext.value = '';
+		return;
+	}
+	disableClicks.value = true;
+	pending.value = true;
+	game.cardActionPending = true;
+	try {
+		await game.submitBlank(props.card.id, blanktext.value);
+	} catch {
+		// The store reports command failures in the existing toast.
+	} finally {
+		pending.value = false;
+		disableClicks.value = false;
+		game.cardActionPending = false;
+	}
+}
+
+async function trashCard() {
+	if (game.cardActionPending) return;
+	trashMode.value = false;
+	pending.value = true;
+	game.cardActionPending = true;
+	try {
+		await game.redrawCard(props.card.id);
+	} catch {
+		// The store reports command failures in the existing toast.
+	} finally {
+		pending.value = false;
+		game.cardActionPending = false;
+	}
+}
+
+onMounted(() => {
+	if (isTrashable.value && props.index === 0 && game.turn.round === 1) {
+		peekTimer = window.setTimeout(() => {
+			trashMode.value = true;
+			closePeekTimer = window.setTimeout(() => { trashMode.value = false; }, 600);
+		}, 4_000);
+	}
+	if (!cardElement.value) return;
+	interact(cardElement.value).draggable({
+		startAxis: 'x',
+		listeners: {
+			start: (event) => {
+				if (isTrashable.value) {
+					isDragging.value = true;
+					trashMode.value = event.velocityX > 0;
+				}
+			},
+			end: () => window.setTimeout(() => { isDragging.value = false; }, 1),
+		},
+	}).styleCursor(false);
+});
+
+onBeforeUnmount(() => {
+	if (peekTimer !== undefined) window.clearTimeout(peekTimer);
+	if (closePeekTimer !== undefined) window.clearTimeout(closePeekTimer);
+	if (cardElement.value) interact(cardElement.value).unset();
+});
 </script>
 
 <style>
@@ -199,6 +216,7 @@ export default {
 	-webkit-transform-style: preserve-3d;
 
 	z-index: 1200;
+	touch-action: pan-y;
 }
 .whiteCard:hover {
 	transform: scale(1.03);
@@ -336,7 +354,7 @@ export default {
 	transition: transform 0.2s ease;
 	color: #fff;
 }
-.save-btn-enter, .save-btn-leave-to {
+.save-btn-enter-from, .save-btn-leave-to {
 	transform: scale(0);
 }
 .save-btn-enter-to {

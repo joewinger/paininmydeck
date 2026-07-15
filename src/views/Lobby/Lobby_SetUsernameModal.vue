@@ -3,7 +3,7 @@
 		<div id="modalWrapper">
 			<div id="setUsernameModal">
 				<h3>What should we call you?</h3>
-				<input type="text" v-model="username" @keyup.enter="addUser" placeholder="Your username" autofocus>
+				<input type="text" v-model="username" @keyup.enter="addUser" placeholder="Your username" maxlength="12" autofocus>
 				<div id="colorSelector">
 					<div
 						v-for="colorSet in colorSets"
@@ -12,7 +12,7 @@
 						:style="{ '--color': colorSet.split(',')[0] }"
 						:class="{
 							'swatch': true,
-							'taken': $store.getters['room/getUsedColorSets'].includes(colorSet),
+							'taken': game.usedColorSets.includes(colorSet),
 							'selected': myColorSet === colorSet
 						}">
 					</div>
@@ -23,56 +23,68 @@
 	</transition>
 </template>
 
-<script>
-export default {
-	name: 'SetUsernameModal',
-	data () {
-		return {
-			// Prioritize session store, useful for testing in different tabs
-			username: sessionStorage.getItem('username') || localStorage.getItem('username') || '',
-			colorSets: [
-				'#EE796E,#FAB4AD',
-				'#F2A971,#FCD4B5',
-				'#F4C876,#FDE6B9',
-				'#ADD787,#CAEBAD',
-				'#65C294,#96DFBB',
-				'#5E87C5,#8FAFE0',
-				'#5561AF,#808BD0',
-				'#7E67AF,#A793D2',
-				'#BE7CB5,#DEABD7'
-			],
-			myColorSet: null
-		}
-	},
-	methods: {
-		selectColor(colorSet) {
-			if (this.$store.getters['room/getUsedColorSets'].includes(colorSet)) return;
-			this.myColorSet = colorSet;
-		},
-		addUser() {
-			if (this.username == '') {
-				this.$store.dispatch('error', { message: 'Username can not be blank!', title: 'Invalid Username' });
-				return;
-			}
-			if (this.$store.state.room.users.some((user) => user.username == this.username)) { // Is there already a user with this name?
-				this.$store.dispatch('error', { message: `The username ${this.username} has already been taken!`, title: 'Invalid Username' });
-				this.username = '';
-				return;
-			}
-			if (this.username.length > 12) {
-				this.$store.dispatch('error', { message: `The username ${this.username} is too long! 12 characters max, please :)`, title: 'Invalid Username' });
-				this.username = '';
-				return;
-			}
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useGameStore } from '@/stores/game';
+import { useUiStore } from '@/stores/ui';
 
-			sessionStorage.setItem('username', this.username);
-			localStorage.setItem('username', this.username);
-			if (this.myColorSet == null) {
-				let availableColorSets = this.colorSets.filter(colorSet => !this.$store.getters['room/getUsedColorSets'].includes(colorSet))
-				this.myColorSet = availableColorSets[Math.floor(Math.random() * availableColorSets.length)];
-			}
-			this.$game.addUser(this.username, this.myColorSet);
-		}
+const game = useGameStore();
+const ui = useUiStore();
+const username = ref(rememberedUsername());
+const colorSets = [
+	'#EE796E,#FAB4AD', '#F2A971,#FCD4B5', '#F4C876,#FDE6B9',
+	'#ADD787,#CAEBAD', '#65C294,#96DFBB', '#5E87C5,#8FAFE0',
+	'#5561AF,#808BD0', '#7E67AF,#A793D2', '#BE7CB5,#DEABD7',
+];
+const myColorSet = ref<string | null>(null);
+
+function rememberedUsername(): string {
+	try {
+		const sessionName = sessionStorage.getItem('username');
+		if (sessionName) return sessionName;
+	} catch {
+		// Storage is optional in hardened/private browser contexts.
+	}
+	try {
+		return localStorage.getItem('username') ?? '';
+	} catch {
+		return '';
+	}
+}
+
+function selectColor(colorSet: string) {
+	if (!game.usedColorSets.includes(colorSet)) myColorSet.value = colorSet;
+}
+
+async function addUser() {
+	const displayName = username.value.trim();
+	if (!displayName) {
+		ui.notify({ message: 'Username can not be blank!', title: 'Invalid Username' });
+		return;
+	}
+	if (game.users.some((user) => user.displayName.toLocaleLowerCase() === displayName.toLocaleLowerCase())) {
+		ui.notify({ message: `The username ${displayName} has already been taken!`, title: 'Invalid Username' });
+		username.value = '';
+		return;
+	}
+	if (displayName.length > 12) {
+		ui.notify({ message: `The username ${displayName} is too long! 12 characters max, please :)`, title: 'Invalid Username' });
+		return;
+	}
+
+	if (myColorSet.value === null) {
+		const available = colorSets.filter((colorSet) => !game.usedColorSets.includes(colorSet));
+		myColorSet.value = available[Math.floor(Math.random() * available.length)] ?? null;
+	}
+	if (!myColorSet.value) {
+		ui.notify({ message: 'This room has no player colors left.', title: 'Room Full' });
+		return;
+	}
+	const [from, to] = myColorSet.value.split(',');
+	try {
+		await game.setProfile(displayName, [from, to]);
+	} catch {
+		// The store reports profile failures and exits terminal provisional sessions.
 	}
 }
 </script>
@@ -121,12 +133,12 @@ export default {
   transition: all 0.3s ease;
 }
 
-.modal-enter,
+.modal-enter-from,
 .modal-leave-to {
   opacity: 0;
 }
 
-.modal-enter #setUsernameModal,
+.modal-enter-from #setUsernameModal,
 .modal-leave-to #setUsernameModal {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);

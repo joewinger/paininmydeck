@@ -1,13 +1,11 @@
 <template>
-	<div class="statusBarButton">
+	<div class="statusBarButton" @click="$emit('click', $event)">
 		<slot></slot>
 	</div>
 </template>
 
-<script>
-export default {
-	name: 'StatusBarButton'
-}
+<script setup lang="ts">
+defineEmits<{ click: [event: MouseEvent] }>();
 </script>
 
 <style scoped>

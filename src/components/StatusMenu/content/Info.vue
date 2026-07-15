@@ -4,30 +4,33 @@
 		<table>
 			<tr>
 				<td>Room ID</td>
-				<td>{{ $store.state.room.roomId }}</td>
+				<td>{{ game.roomId }}</td>
 			</tr>
 			<tr>
 				<td>Version</td>
-				<td>{{ $commitHash }}</td>
+				<td>{{ commitHash }}</td>
 			</tr>
-			<tr v-if="$store.state.room.gameState === 'PLAYING'">
+			<tr v-if="game.gameState === 'PLAYING'">
 				<td>Czar</td>
-				<td>{{ $store.state.room.turn.czar }}</td>
+				<td>{{ game.czar?.displayName }}</td>
 			</tr>
-			<tr v-if="$store.state.room.gameState === 'PLAYING'">
+			<tr v-if="game.gameState === 'PLAYING'">
 				<td>Round</td>
-				<td>{{ $store.state.room.turn.round }}</td>
+				<td>{{ game.turn.round }}</td>
 			</tr>
 		</table>
 		<br>
-		<button @click="$router.replace('/')">Leave Room</button>
+		<button @click="router.replace('/')">Leave Room</button>
 	</div>
 </template>
 
-<script>
-export default {
-	name: 'StatusMenuContentInfo'
-}
+<script setup lang="ts">
+import { useRouter } from 'vue-router';
+import { commitHash } from '@/config';
+import { useGameStore } from '@/stores/game';
+
+const router = useRouter();
+const game = useGameStore();
 </script>
 
 <style>
