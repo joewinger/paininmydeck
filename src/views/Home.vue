@@ -17,7 +17,13 @@
 		</div>
 
 		<span class="commitHash" v-if="showVersion">{{ $commitHash }}</span>
-		
+
+		<section id="features">
+			<h2 class="features-header">Features</h2>
+
+			<landing-carousel :slides-array="features" />
+		</section>
+
 		<footer>
 			<img class="footer-logo" src="@/assets/logo-white.svg" alt="Pain In My Deck!" />
 			<div class="left">
@@ -34,17 +40,45 @@
 <script>
 import ButtonLoadable from '@/components/ButtonLoadable';
 import LinkLoadable from '@/components/LinkLoadable.vue';
+import LandingCarousel from '@/components/LandingCarousel.vue';
 
 export default {
 	name: 'Home',
 	components: {
 		ButtonLoadable,
-		LinkLoadable
+		LinkLoadable,
+		LandingCarousel
 	},
 	data () {
 		return {
 			roomId: '',
-			showVersion: false
+			showVersion: false,
+			features: [
+				{
+					color: "#B1E8FC",
+					imgSrc: "https://via.placeholder.com/566x400/FFFFFF",
+					title: "Family Mode",
+					description: "Enable family mode in the settings menu to remove cards that might upset grandma."
+				},
+				{
+					color: "#ADD787",
+					imgSrc: "https://via.placeholder.com/566x400/FFFFFF",
+					title: "Blank Cards",
+					description: "Oh we got a funny guy here? Try your hand and see if you can make your friends giggle (spoiler: you won’t)."
+				},
+				{
+					color: "#D98CCE",
+					imgSrc: "https://via.placeholder.com/566x400/FFFFFF",
+					title: "Card Trashing",
+					description: "The polls are in: our cards suck."
+				},
+				{
+					color: "#F1AA71",
+					imgSrc: "https://via.placeholder.com/566x400/FFFFFF",
+					title: "Round History",
+					description: "The polls are in: our cards suck."
+				}
+			]
 		}
 	},
 	methods: {
@@ -185,6 +219,19 @@ export default {
 
 				cursor: pointer;
 			}
+		}
+	}
+
+	#features {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+		h2.features-header {
+			margin-top: 130px;
+
+			font: 48px "Bungee";
+			color: #6e6e75;
 		}
 	}
 }
