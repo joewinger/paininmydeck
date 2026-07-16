@@ -1,39 +1,115 @@
 <template>
-	<div id="statusMenuContent-settings" class="statusMenuContent">
-		<h1>Settings</h1>
-		<table>
-			<tr>
-				<td>Cards Per Hand</td>
-				<td><input type="number" v-model.number="cardsPerHand" :disabled="!canEdit" /></td>
-			</tr>
-			<tr>
-				<td>Points To Win</td>
-				<td><input type="number" v-model.number="pointsToWin" :disabled="!canEdit" /></td>
-			</tr>
-			<tr>
-				<td>Deck Blank Cards</td>
-				<td><input type="number" v-model.number="numBlankCards" :disabled="!canEdit" /></td>
-			</tr>
-			<tr>
-				<td>Guaranteed Blanks</td>
-				<td><input type="number" v-model.number="guaranteedBlanks" :disabled="!canEdit" /></td>
-			</tr>
-			<tr>
-				<td>All Blanks!</td>
-				<td><input type="checkbox" v-model="allBlanks" :disabled="!canEdit" /></td>
-			</tr>
-			<tr>
-				<td>Family Mode</td>
-				<td><input type="checkbox" v-model="familyMode" :disabled="!canEdit" /></td>
-			</tr>
-			<tr>
-				<td>Allowed Re-draws</td>
-				<td><input type="number" v-model.number="numRedraws" :disabled="!canEdit" /></td>
-			</tr>
-		</table>
-		<br>
-		<button @click=updateSettings v-if="canEdit">Save</button>
-	</div>
+  <section
+    id="statusMenuContent-settings"
+    class="statusMenuContent"
+    aria-labelledby="room-settings-title"
+  >
+    <h1 id="room-settings-title">Settings</h1>
+    <table>
+      <caption class="settings-table-caption">
+        Game settings for this room
+      </caption>
+      <tbody>
+        <tr>
+          <th scope="row"><label for="cards-per-hand">Cards Per Hand</label></th>
+          <td>
+            <input
+              id="cards-per-hand"
+              v-model.number="cardsPerHand"
+              type="number"
+              min="3"
+              max="30"
+              :disabled="!canEdit"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th scope="row"><label for="points-to-win">Points To Win</label></th>
+          <td>
+            <input
+              id="points-to-win"
+              v-model.number="pointsToWin"
+              type="number"
+              min="1"
+              max="100"
+              :disabled="!canEdit"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th scope="row"><label for="blank-cards">Deck Blank Cards</label></th>
+          <td>
+            <input
+              id="blank-cards"
+              v-model.number="numBlankCards"
+              type="number"
+              min="0"
+              max="2000"
+              :disabled="!canEdit"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th scope="row"><label for="guaranteed-blanks">Guaranteed Blanks</label></th>
+          <td>
+            <input
+              id="guaranteed-blanks"
+              v-model.number="guaranteedBlanks"
+              type="number"
+              min="0"
+              :max="cardsPerHand"
+              :disabled="!canEdit"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th scope="row"><label for="all-blanks">All blanks!</label></th>
+          <td>
+            <input
+              id="all-blanks"
+              v-model="allBlanks"
+              class="settings-toggle"
+              type="checkbox"
+              :disabled="!canEdit"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th scope="row"><label for="family-mode">Family mode</label></th>
+          <td>
+            <input
+              id="family-mode"
+              v-model="familyMode"
+              class="settings-toggle"
+              type="checkbox"
+              :disabled="!canEdit"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th scope="row"><label for="allowed-redraws">Allowed Re-draws</label></th>
+          <td>
+            <input
+              id="allowed-redraws"
+              v-model.number="numRedraws"
+              type="number"
+              min="0"
+              max="30"
+              :disabled="!canEdit"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <button
+      v-if="canEdit"
+      type="button"
+      class="status-menu-action"
+      @click="updateSettings"
+    >
+      Save
+    </button>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -53,88 +129,190 @@ const changedAllBlanks = ref<boolean | null>(null);
 const changedFamilyMode = ref<boolean | null>(null);
 
 function clamp(value: number, min: number, max: number): number {
-	return Math.min(Math.max(Number(value) || 0, min), max);
+  return Math.min(Math.max(Number(value) || 0, min), max);
 }
 
 const cardsPerHand = computed<number>({
-	get: () => changedCardsPerHand.value ?? game.settings.cardsPerHand,
-	set: (value) => { changedCardsPerHand.value = clamp(value, 3, 30); },
+  get: () => changedCardsPerHand.value ?? game.settings.cardsPerHand,
+  set: (value) => {
+    changedCardsPerHand.value = clamp(value, 3, 30);
+  },
 });
 const pointsToWin = computed<number>({
-	get: () => changedPointsToWin.value ?? game.settings.pointsToWin,
-	set: (value) => { changedPointsToWin.value = clamp(value, 1, 100); },
+  get: () => changedPointsToWin.value ?? game.settings.pointsToWin,
+  set: (value) => {
+    changedPointsToWin.value = clamp(value, 1, 100);
+  },
 });
 const numBlankCards = computed<number>({
-	get: () => changedNumBlankCards.value ?? game.settings.numBlankCards,
-	set: (value) => { changedNumBlankCards.value = clamp(value, 0, 2_000); },
+  get: () => changedNumBlankCards.value ?? game.settings.numBlankCards,
+  set: (value) => {
+    changedNumBlankCards.value = clamp(value, 0, 2_000);
+  },
 });
 const guaranteedBlanks = computed<number>({
-	get: () => changedGuaranteedBlanks.value ?? game.settings.guaranteedBlanks,
-	set: (value) => { changedGuaranteedBlanks.value = clamp(value, 0, cardsPerHand.value); },
+  get: () => changedGuaranteedBlanks.value ?? game.settings.guaranteedBlanks,
+  set: (value) => {
+    changedGuaranteedBlanks.value = clamp(value, 0, cardsPerHand.value);
+  },
 });
 const numRedraws = computed<number>({
-	get: () => changedNumRedraws.value ?? game.settings.numRedraws,
-	set: (value) => { changedNumRedraws.value = clamp(value, 0, 30); },
+  get: () => changedNumRedraws.value ?? game.settings.numRedraws,
+  set: (value) => {
+    changedNumRedraws.value = clamp(value, 0, 30);
+  },
 });
 const allBlanks = computed<boolean>({
-	get: () => changedAllBlanks.value ?? game.settings.allBlanks,
-	set: (value) => { changedAllBlanks.value = value; },
+  get: () => changedAllBlanks.value ?? game.settings.allBlanks,
+  set: (value) => {
+    changedAllBlanks.value = value;
+  },
 });
 const familyMode = computed<boolean>({
-	get: () => changedFamilyMode.value ?? game.settings.familyMode,
-	set: (value) => { changedFamilyMode.value = value; },
+  get: () => changedFamilyMode.value ?? game.settings.familyMode,
+  set: (value) => {
+    changedFamilyMode.value = value;
+  },
 });
 
 async function updateSettings() {
-	if (!canEdit.value) return;
-	const settings: GameSettings = {
-		cardsPerHand: cardsPerHand.value,
-		pointsToWin: pointsToWin.value,
-		numBlankCards: numBlankCards.value,
-		guaranteedBlanks: Math.min(guaranteedBlanks.value, cardsPerHand.value),
-		numRedraws: numRedraws.value,
-		allBlanks: allBlanks.value,
-		familyMode: familyMode.value,
-	};
-	try {
-		await game.updateSettings(settings);
-		emit('close-menu');
-	} catch {
-		// The store reports command failures in the existing toast.
-	}
+  if (!canEdit.value) return;
+  const settings: GameSettings = {
+    cardsPerHand: cardsPerHand.value,
+    pointsToWin: pointsToWin.value,
+    numBlankCards: numBlankCards.value,
+    guaranteedBlanks: Math.min(guaranteedBlanks.value, cardsPerHand.value),
+    numRedraws: numRedraws.value,
+    allBlanks: allBlanks.value,
+    familyMode: familyMode.value,
+  };
+  try {
+    await game.updateSettings(settings);
+    emit('close-menu');
+  } catch {
+    // The store reports command failures in the existing toast.
+  }
 }
 </script>
 
 <style>
 #statusMenuContent-settings {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  flex-direction: column;
 }
 
-#statusMenuContent-settings table tr td:nth-of-type(2) {
-	width: 60px;
-	text-align: center;
+#statusMenuContent-settings table th {
+  width: auto;
+  padding-right: 12px;
 }
 
-#statusMenuContent-settings input[type="number"] {
-	padding: 7px;
-	margin: 0;
-	height: auto;
-	width: 100%;
-	border-radius: 0;
-  -moz-appearance: textfield;
+#statusMenuContent-settings table td {
+  width: 88px;
+  text-align: right;
 }
-#statusMenuContent-settings input[type="number"]::-webkit-outer-spin-button,
-#statusMenuContent-settings input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
+
+#statusMenuContent-settings input[type='number'] {
+  width: 76px;
+  min-height: 40px;
   margin: 0;
+  padding: 6px 7px;
+  border: 3px solid var(--pimd-ink);
+  border-radius: 0;
+  background: var(--pimd-paper);
+  box-shadow: 2px 3px 0 var(--pimd-meta);
+  color: var(--pimd-ink);
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.95rem;
+  font-weight: 900;
+  text-align: right;
+  appearance: textfield;
 }
 
-#statusMenuContent-settings input[type="checkbox"] {
-	margin: 7px 0;
-	height: 20px;
-	box-sizing: content-box;
+#statusMenuContent-settings input[type='number']::-webkit-outer-spin-button,
+#statusMenuContent-settings input[type='number']::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+#statusMenuContent-settings input:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+#statusMenuContent-settings .settings-toggle {
+  display: inline-grid;
+  width: 48px;
+  height: 28px;
+  min-height: 28px;
+  margin: 0;
+  padding: 2px;
+  border: 3px solid var(--pimd-ink);
+  border-radius: 0;
+  background: var(--pimd-paper-shadow);
+  color: var(--pimd-ink);
+  cursor: pointer;
+  appearance: none;
+}
+
+#statusMenuContent-settings .settings-toggle::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  transform: translateX(0) rotate(-3deg);
+  background: var(--pimd-ink-soft);
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease;
+}
+
+#statusMenuContent-settings .settings-toggle:checked {
+  background: var(--pimd-highlight);
+}
+
+#statusMenuContent-settings .settings-toggle:checked::before {
+  transform: translateX(20px) rotate(3deg);
+  background: var(--pimd-action);
+}
+
+.settings-table-caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 360px) {
+  #statusMenuContent-settings table th,
+  #statusMenuContent-settings table td {
+    padding-block: 8px;
+  }
+
+  #statusMenuContent-settings table th {
+    font-size: 0.84rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #statusMenuContent-settings .settings-toggle::before {
+    transition-duration: 0.01ms;
+  }
+}
+
+@media (forced-colors: active) {
+  #statusMenuContent-settings input[type='number'],
+  #statusMenuContent-settings .settings-toggle {
+    border-color: FieldText;
+    background: Field;
+    box-shadow: none;
+    color: FieldText;
+    forced-color-adjust: auto;
+  }
 }
 </style>

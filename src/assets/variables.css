@@ -1,44 +1,59 @@
 :root {
-  --navbar-height: 42px;
+  --navbar-height: 68px;
+  --content-gutter-top: 18px;
+  --ui-border-width: 3px;
+  --ui-font-weight: 700;
 
-  --ui-border-width: 2px;
-  --ui-font-weight: 500;
+  /* Pain in my Deck! visual system */
+  --pimd-ink: #2d2540;
+  --pimd-ink-soft: #544b67;
+  --pimd-canvas: #fff8e8;
+  --pimd-paper: #fffaf0;
+  --pimd-paper-shadow: #e8ddc8;
+  --pimd-highlight: #ffd64a;
+  --pimd-action: #c83f31;
+  --pimd-action-dark: #8f2b25;
+  --pimd-status: #57cdbd;
+  --pimd-status-dark: #2d8e82;
+  --pimd-meta: #a98af2;
+  --pimd-wood: #78421f;
+  --pimd-wood-dark: #4e2914;
+  --pimd-grid: rgb(87 169 191 / 22%);
+  --pimd-shadow: 7px 8px 0 rgb(45 37 64 / 22%);
+  --pimd-focus: 0 0 0 4px var(--pimd-highlight), 0 0 0 7px var(--pimd-ink);
 
-  /* Used to define margin-top when an element bumps up
-   * against the nav bar. Not defined on the #row-content
-   * element because not every view will require the margin. */
-  --content-gutter-top: 10px;
+  /* Legacy aliases while the remaining game surfaces migrate. */
+  --gray-500: var(--pimd-ink);
+  --gray-400: var(--pimd-ink-soft);
+  --gray-300: #81788e;
+  --gray-200: #d9cfbd;
+  --gray-100: var(--pimd-paper);
 
-  /** Colors **/
-  
-  --_gray-hue: 215;
-  --gray-500: hsl(215, 15%, 15%);
-  --gray-400: hsl(215, 15%, 28%);
-  --gray-300: hsl(215, 5%, 55%);
-  --gray-200: hsl(215, 15%, 85%);
-  --gray-100: hsl(215, 15%, 95%);
+  --primary: #ffe88e;
+  --primary-500: #5d4700;
+  --primary-400: #a77d00;
+  --primary-300: var(--pimd-highlight);
+  --primary-200: #ffeb9f;
+  --primary-100: #fff9df;
 
-  /* Old primary: hsl(42, 70%, 62%) or #F9C545 */
-  --_primary-hue: 45;
-  --primary: hsl(32, 100%, 80%);
-  --primary-500: hsl(45, 100%, 15%);
-  --primary-400: hsl(45, 100%, 28%);
-  --primary-300: hsl(45, 100%, 60%);
-  --primary-200: hsl(45, 90%, 85%);
-  --primary-100: hsl(45, 90%, 97%);
+  --accent-500: #5f1d19;
+  --accent-400: var(--pimd-action-dark);
+  --accent-300: var(--pimd-action);
+  --accent-200: #e9a29d;
+  --accent-100: #fff3f1;
 
-  --_accent-hue: calc(var(--_primary-hue) - 60);
-  --accent-500: hsl(345, 85%, 15%);
-  --accent-400: hsl(345, 85%, 28%);
-  --accent-300: hsl(345, 85%, 60%);
-  --accent-200: hsl(345, 80%, 85%);
-  --accent-100: hsl(345, 80%, 97%);
+  --error-500: #681b23;
+  --error-400: #952934;
+  --error-300: #cf3e4e;
+  --error-200: #efa9b0;
+  --error-100: #fff2f3;
 
-  --error-500: hsl(350, 100%, 20%);
-  --error-400: hsl(350, 100%, 30%);
-  --error-300: hsl(350, 85%, 50%);
-  --error-200: hsl(350, 75%, 80%);
-  --error-100: hsl(350, 100%, 97%);
+  --white: #fff;
+}
 
-  --white: hsl(0, 0, 100%);
+@media (min-width: 780px) {
+  :root {
+    --navbar-height: 82px;
+    --content-gutter-top: 24px;
+  }
 }

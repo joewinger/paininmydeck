@@ -7,6 +7,7 @@ import { useUiStore } from '@/stores/ui';
 import 'normalize.css';
 import '@/assets/variables.css';
 import '@/assets/global.css';
+import '@/assets/brand.css';
 import './preview.css';
 
 import {

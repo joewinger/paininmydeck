@@ -6,6 +6,7 @@ import { pinia } from '@/stores';
 import 'normalize.css';
 import '@/assets/variables.css';
 import '@/assets/global.css';
+import '@/assets/brand.css';
 
 const app = createApp(App);
 app.component('ion-icon', IonIcon);

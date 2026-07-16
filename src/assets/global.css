@@ -1,14 +1,26 @@
 html {
-  overflow: hidden;
-  height: 100%;
-
+  min-height: 100%;
   font: 14px 'Inter', system-ui, sans-serif;
-  color: var(--gray-400);
+  color: var(--pimd-ink-soft);
+  background: var(--pimd-canvas);
 }
+
 body {
-  height: 100%;
-  overflow: auto;
+  min-width: 320px;
+  min-height: 100%;
+  overflow-x: hidden;
   margin: 0;
+  background: var(--pimd-canvas);
+}
+
+#app {
+  min-height: 100svh;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 /* Exact Ionicons 5 host/shadow styles, applied to the locally bundled
@@ -49,10 +61,6 @@ h1, h2, h3, h4, h5 {
   color: var(--gray-500);
 }
 
-div {
-  box-sizing: border-box;
-}
-
 ul {
 	list-style: none;
 	padding: 0;
@@ -61,18 +69,13 @@ ul {
 input, button {
   box-sizing: border-box;
   
-  height: 42px;
+  min-height: 44px;
   padding: 15px;
   margin: 0;
 
   font-weight: var(--ui-font-weight);
   font-size: 1rem;
 }
-input:hover, input:active, input:focus,
-button:hover, button:active, button:focus {
-  outline: none;
-}
-
 input {
   background: var(--gray-100);
   border: var(--ui-border-width) solid var(--gray-200);
@@ -104,8 +107,14 @@ button {
 
   transition: all 0.2s ease;
 }
-button:focus {
-  outline: none;
+
+input:focus-visible,
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--pimd-ink);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 7px var(--pimd-highlight);
 }
 button:hover {
   transform: scale(1.08);
