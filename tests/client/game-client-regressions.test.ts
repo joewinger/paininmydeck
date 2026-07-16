@@ -2,49 +2,11 @@ import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { gameApi, GameApiError, RoomSocket } from '@/api/gameClient';
-import type { GameSnapshot } from '@/shared/protocol';
 import { useGameStore } from '@/stores/game';
 import { useUiStore } from '@/stores/ui';
+import { makeGameSnapshot } from '../support/gameSnapshot';
 
 const ROOM_ID = 'ABCDE';
-
-function makeSnapshot(revision = 1): GameSnapshot {
-  return {
-    protocolVersion: 1,
-    revision,
-    serverTime: 1_000,
-    room: {
-      roomId: ROOM_ID,
-      phase: 'LOBBY',
-      gameState: 'LOBBY',
-      players: [],
-      settings: {
-        cardsPerHand: 7,
-        pointsToWin: 10,
-        numBlankCards: 0,
-        guaranteedBlanks: 0,
-        allBlanks: false,
-        familyMode: false,
-        numRedraws: 4,
-      },
-      turn: {
-        roundId: '',
-        revealDeadline: null,
-        round: 0,
-        status: 'WAITING_FOR_CARDS',
-        questionCard: '',
-        czarPlayerId: '',
-        playedCards: [],
-        submittedPlayerIds: [],
-        winningCard: null,
-      },
-      chatMessages: [],
-      roundHistory: [],
-      finalRecord: null,
-    },
-    me: null,
-  };
-}
 
 describe('provisional profile failures', () => {
   beforeEach(() => {
@@ -182,7 +144,7 @@ describe('RoomSocket replacement races', () => {
     const frame = {
       protocolVersion: 1,
       type: 'snapshot',
-      snapshot: makeSnapshot(),
+      snapshot: makeGameSnapshot(),
     };
     first.receive(frame);
 

@@ -11,6 +11,7 @@ export default tseslint.config(
       'node_modules/**',
       'output/**',
       'playwright-report/**',
+      'storybook-static/**',
       'test-results/**',
       'worker-configuration.d.ts',
     ],

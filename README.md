@@ -28,6 +28,14 @@ Local configuration sets `TURNSTILE_REQUIRED=false`, so a real Turnstile widget 
 
 The browser-facing `VITE_TURNSTILE_SITE_KEY` is documented in `.env.example`. Leave it unset during normal Vite development to use Cloudflare's always-pass test widget. A remote build must provide the public key for that environment; unlike the secret key, the site key is intentionally embedded in the browser bundle.
 
+### UI workbench
+
+Run `npm run storybook` to open the isolated UI workbench at `http://localhost:6006`. Its screen stories hydrate a Storybook-only Pinia instance from deterministic protocol snapshots and use a guard-free memory router, so they never create a room, call the API, or open a socket.
+
+Add full-screen states to `src/stories/AppScreens.stories.ts` and reusable snapshot data to `src/stories/fixtures/gameScenarios.ts`. Use `npm run test:storybook` to run every story and interaction in headless Chromium; install the pinned browser once with `npx playwright install chromium`.
+
+The workbench intentionally loads the same remote fonts as the current app. Use it for interaction and responsive review now, but do not establish durable pixel baselines until the refresh chooses and self-hosts its production fonts.
+
 ## Room IDs
 
 Every room ID is exactly five uppercase letters matching:
@@ -47,8 +55,10 @@ npm run cf:types:check
 npm run typecheck
 npm test
 npm run test:worker
+npm run test:storybook
 npm run test:e2e
 npm run build
+npm run storybook:build
 npm run cf:startup
 npm run deploy:dry-run
 ```

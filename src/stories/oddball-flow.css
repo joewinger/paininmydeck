@@ -1,0 +1,1606 @@
+.oddball-flow-stage {
+  min-height: 100svh;
+  overflow-x: clip;
+  overflow-y: visible;
+  background: var(--oddball-cream);
+}
+
+.oddball-flow-stage :where(h1, h2, h3, p, ol, ul, dl, dd, blockquote, fieldset) {
+  margin: 0;
+}
+
+.oddball-flow-stage :where(ol, ul) {
+  padding: 0;
+  list-style: none;
+}
+
+.oddball-flow-stage :where(button, input) {
+  border-radius: 0;
+  font-weight: inherit;
+  line-height: normal;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.oddball-flow-stage :where(button, input):focus-visible {
+  outline: 3px solid var(--oddball-aubergine);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 7px var(--oddball-yellow);
+}
+
+.oddball-flow-stage :where(button:disabled) {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.oddball-flow-frame {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  min-height: 100svh;
+  overflow-x: clip;
+  border: 2px solid var(--oddball-aubergine);
+  background-color: var(--oddball-cream);
+  background-image:
+    linear-gradient(rgb(87 169 191 / 11%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(87 169 191 / 11%) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+.oddball-flow-frame--player,
+.oddball-flow-frame--waiting,
+.oddball-flow-frame--judging,
+.oddball-flow-frame--reveal {
+  background:
+    radial-gradient(circle at 28% 18%, rgb(255 255 255 / 4%), transparent 31%),
+    repeating-linear-gradient(104deg, rgb(255 255 255 / 2%) 0 1px, transparent 1px 13px),
+    var(--oddball-aubergine);
+}
+
+.oddball-flow-frame--results {
+  background:
+    linear-gradient(rgb(87 169 191 / 10%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(87 169 191 / 10%) 1px, transparent 1px), var(--oddball-yellow);
+  background-size: 26px 26px;
+}
+
+.oddball-flow-clubhouse {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 94px;
+  padding: 10px 12px;
+  border-bottom: 4px solid var(--oddball-aubergine);
+  background: #78421f;
+  box-shadow: 0 4px 0 rgb(0 0 0 / 18%);
+}
+
+.oddball-flow-clubhouse::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: '';
+  opacity: 0.42;
+  background:
+    repeating-linear-gradient(83deg, rgb(40 18 8 / 34%) 0 2px, transparent 2px 13px),
+    repeating-linear-gradient(101deg, rgb(255 207 140 / 10%) 0 1px, transparent 1px 17px);
+}
+
+.oddball-flow-club-badge {
+  display: grid;
+  place-content: center;
+  width: 68px;
+  height: 68px;
+  transform: rotate(-4deg);
+  border: 3px solid var(--oddball-paper);
+  border-radius: 50%;
+  background: var(--oddball-red);
+  box-shadow: 3px 4px 0 var(--oddball-aubergine);
+  color: var(--oddball-paper);
+  font-family: 'Bungee', sans-serif;
+  font-size: 10px;
+  line-height: 0.92;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.oddball-flow-club-badge span {
+  display: block;
+}
+
+.oddball-flow-room-slip,
+.oddball-flow-phase-card {
+  position: relative;
+  min-width: 0;
+  color: var(--oddball-aubergine);
+}
+
+.oddball-flow-room-slip {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 8px;
+  padding: 11px 14px 8px;
+  transform: rotate(0.6deg);
+  background: var(--oddball-paper);
+  box-shadow: 3px 4px 0 rgb(45 37 64 / 32%);
+  clip-path: polygon(1% 5%, 99% 0, 100% 92%, 70% 97%, 39% 93%, 0 100%);
+}
+
+.oddball-flow-room-slip p,
+.oddball-flow-phase-card span,
+.oddball-flow-phase-card small {
+  font-family: 'Bungee', sans-serif;
+  text-transform: uppercase;
+}
+
+.oddball-flow-room-slip p {
+  font-size: 10px;
+}
+
+.oddball-flow-room-slip strong {
+  overflow: hidden;
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(22px, 7vw, 32px);
+  line-height: 0.9;
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+}
+
+.oddball-flow-phase-card {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 10px;
+  padding: 9px 12px 8px;
+  transform: rotate(-0.4deg);
+  border: 3px solid var(--oddball-aubergine);
+  background: var(--oddball-yellow);
+  box-shadow: 3px 4px 0 rgb(0 0 0 / 23%);
+}
+
+.oddball-flow-phase-card span {
+  grid-row: 1 / 3;
+  align-self: center;
+  padding-right: 10px;
+  border-right: 2px solid var(--oddball-aubergine);
+  font-size: 9px;
+}
+
+.oddball-flow-phase-card strong {
+  font-family: 'Bungee', sans-serif;
+  font-size: 14px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.oddball-flow-phase-card small {
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.oddball-flow-tape {
+  width: 58px;
+  height: 24px;
+}
+
+.oddball-flow-tape--header {
+  top: -9px;
+  left: 44%;
+  transform: rotate(-7deg);
+}
+
+.oddball-flow-paper {
+  position: relative;
+  color: var(--oddball-aubergine);
+  background-color: var(--oddball-paper);
+  background-image:
+    linear-gradient(var(--oddball-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--oddball-grid) 1px, transparent 1px);
+  background-size: 18px 18px;
+  filter: drop-shadow(4px 7px 0 rgb(45 37 64 / 22%));
+  clip-path: polygon(
+    0 2%,
+    8% 0,
+    17% 2%,
+    26% 0,
+    36% 2%,
+    47% 0,
+    58% 2%,
+    69% 0,
+    80% 2%,
+    90% 0,
+    100% 2%,
+    99% 97%,
+    88% 100%,
+    77% 97%,
+    65% 100%,
+    53% 97%,
+    41% 100%,
+    29% 97%,
+    17% 100%,
+    1% 97%
+  );
+}
+
+.oddball-flow-eyebrow {
+  color: var(--oddball-aubergine);
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(10px, 2.9vw, 13px);
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.oddball-flow-feedback {
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 2px solid var(--oddball-aubergine);
+  background: var(--oddball-yellow);
+  color: var(--oddball-aubergine);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.oddball-flow-primary-button {
+  width: 100%;
+  min-height: 58px;
+  padding: 12px 16px;
+  border: 4px solid var(--oddball-aubergine);
+  background: var(--oddball-red);
+  box-shadow: 5px 7px 0 var(--oddball-yellow);
+  color: var(--oddball-paper) !important;
+  font-family: 'Bungee', sans-serif !important;
+  font-size: clamp(18px, 5.2vw, 26px) !important;
+  line-height: 1 !important;
+  text-transform: uppercase;
+}
+
+.oddball-flow-primary-button:not(:disabled):hover {
+  transform: translateY(-2px) rotate(-0.3deg);
+  border-color: var(--oddball-aubergine);
+  background: var(--oddball-red);
+  color: var(--oddball-paper);
+}
+
+.oddball-flow-primary-button:not(:disabled):active {
+  transform: translate(4px, 5px);
+  box-shadow: 1px 2px 0 var(--oddball-yellow);
+}
+
+.oddball-flow-section-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--oddball-teal);
+  font-family: 'Bungee', sans-serif;
+}
+
+.oddball-flow-section-label h2 {
+  padding: 8px 12px 6px;
+  transform: rotate(-0.5deg);
+  background: var(--oddball-teal);
+  color: var(--oddball-aubergine);
+  font-family: inherit;
+  font-size: clamp(13px, 3.7vw, 19px);
+  font-weight: 400;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  clip-path: polygon(2% 0, 99% 4%, 97% 100%, 0 94%);
+}
+
+.oddball-flow-section-label > span {
+  font-size: 25px;
+}
+
+.oddball-flow-footer {
+  position: relative;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 34px;
+  padding: 7px 12px;
+  border-top: 3px solid var(--oddball-aubergine);
+  background: var(--oddball-paper);
+  color: var(--oddball-aubergine);
+  font-family: 'Bungee', sans-serif;
+  font-size: 8px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* Profile */
+
+.oddball-flow-profile {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  padding: 22px 14px 30px;
+}
+
+.oddball-flow-profile-intro,
+.oddball-flow-profile-form,
+.oddball-flow-members {
+  width: 100%;
+  max-width: 620px;
+  margin-inline: auto;
+}
+
+.oddball-flow-profile-intro {
+  padding: 36px 24px 30px;
+  transform: rotate(-0.7deg);
+}
+
+.oddball-flow-tape--intro {
+  top: -7px;
+  left: 52%;
+  transform: translateX(-50%) rotate(-8deg);
+}
+
+.oddball-flow-profile-intro h1,
+.oddball-flow-profile-form legend,
+.oddball-flow-members h2,
+.oddball-flow-rule-sheet h2 {
+  font-family: 'Bungee', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.oddball-flow-profile-intro h1 {
+  max-width: 12ch;
+  margin: 12px 0 14px;
+  font-size: clamp(34px, 10vw, 58px);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+}
+
+.oddball-flow-profile-intro > p:not(.oddball-flow-eyebrow) {
+  max-width: 42ch;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.oddball-flow-scribble {
+  width: fit-content;
+  margin: 21px 0 0 auto;
+  padding: 6px 10px 5px;
+  transform: rotate(-2deg);
+  background: var(--oddball-lilac);
+  font-family: 'Bungee', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.oddball-flow-profile-form {
+  display: grid;
+  gap: 16px;
+  padding: 31px 22px 28px;
+  transform: rotate(0.45deg);
+}
+
+.oddball-flow-field {
+  display: grid;
+  gap: 8px;
+}
+
+.oddball-flow-field label,
+.oddball-flow-color-picker legend {
+  width: fit-content;
+  padding: 6px 10px 5px;
+  background: var(--oddball-teal);
+  font-family: 'Bungee', sans-serif;
+  font-size: 12px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.oddball-flow-field input {
+  width: 100%;
+  min-height: 58px;
+  padding: 12px 14px;
+  border: 3px solid var(--oddball-aubergine);
+  background: var(--oddball-paper);
+  color: var(--oddball-aubergine);
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.oddball-flow-field input[aria-invalid='true'] {
+  border-color: var(--oddball-red);
+  box-shadow: 0 0 0 3px var(--oddball-yellow);
+}
+
+.oddball-flow-field small {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.oddball-flow-color-picker {
+  padding: 0;
+  border: 0;
+}
+
+.oddball-flow-color-picker > div {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.oddball-flow-color-picker button {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 54px;
+  padding: 5px;
+  border: 3px solid var(--oddball-aubergine);
+  background: var(--oddball-flow-accent);
+  color: var(--oddball-aubergine);
+  font-size: 27px;
+  box-shadow: 3px 4px 0 rgb(45 37 64 / 28%);
+}
+
+.oddball-flow-color-picker button[aria-checked='true'] {
+  transform: translate(3px, 4px) rotate(-2deg);
+  box-shadow: 0 0 0 4px var(--oddball-red);
+}
+
+.oddball-flow-members {
+  padding: 25px 22px 27px;
+  transform: rotate(-0.35deg);
+}
+
+.oddball-flow-members h2 {
+  margin: 7px 0 13px;
+  font-size: 25px;
+  line-height: 1;
+}
+
+.oddball-flow-members ul {
+  display: grid;
+  gap: 8px;
+}
+
+.oddball-flow-members li {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 7px 10px;
+  border-bottom: 2px solid var(--oddball-aubergine);
+}
+
+.oddball-flow-members li i {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--oddball-aubergine);
+  border-radius: 50%;
+}
+
+.oddball-flow-members li small {
+  font-family: 'Bungee', sans-serif;
+  font-size: 9px;
+}
+
+/* Lobby */
+
+.oddball-flow-lobby {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+  padding: 22px 14px 32px;
+}
+
+.oddball-flow-room-poster {
+  width: 100%;
+  max-width: 620px;
+  margin-inline: auto;
+  padding: 37px 22px 31px;
+  transform: rotate(-0.7deg);
+  text-align: center;
+}
+
+.oddball-flow-tape--room {
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-8deg);
+}
+
+.oddball-flow-room-poster h1 {
+  display: grid;
+  margin: 11px 0 14px;
+  color: var(--oddball-aubergine);
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(55px, 18vw, 94px);
+  font-weight: 400;
+  line-height: 0.78;
+  letter-spacing: 0.04em;
+}
+
+.oddball-flow-room-poster h1 small {
+  font-size: 0.24em;
+  letter-spacing: 0;
+}
+
+.oddball-flow-room-poster > p:last-of-type {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.oddball-flow-stamp {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  padding: 7px 9px 5px;
+  transform: rotate(-8deg);
+  border: 3px solid var(--oddball-red);
+  color: var(--oddball-red);
+  font-family: 'Bungee', sans-serif;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.oddball-flow-roster {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+  max-width: 620px;
+  margin-inline: auto;
+}
+
+.oddball-flow-roster ol,
+.oddball-flow-final-board ol {
+  display: grid;
+  gap: 11px;
+}
+
+.oddball-flow-member-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 38px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 62px;
+  padding: 10px 12px;
+  border: 3px solid var(--oddball-aubergine);
+  background: var(--oddball-paper);
+  box-shadow:
+    7px 8px 0 var(--oddball-flow-accent),
+    9px 10px 0 var(--oddball-aubergine);
+  color: var(--oddball-aubergine);
+}
+
+.oddball-flow-member-card:nth-child(odd) {
+  transform: rotate(-0.35deg);
+}
+
+.oddball-flow-member-card:nth-child(even) {
+  transform: rotate(0.35deg);
+}
+
+.oddball-flow-member-card > span,
+.oddball-flow-member-card > small {
+  font-family: 'Bungee', sans-serif;
+  font-size: 10px;
+}
+
+.oddball-flow-member-card > strong {
+  overflow-wrap: anywhere;
+  font-size: 17px;
+}
+
+.oddball-flow-host-controls {
+  display: grid;
+  gap: 15px;
+  width: 100%;
+  max-width: 620px;
+  margin-inline: auto;
+}
+
+.oddball-flow-rule-sheet {
+  padding: 26px 21px 28px;
+  transform: rotate(0.45deg);
+}
+
+.oddball-flow-rule-sheet h2 {
+  margin: 7px 0 15px;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.oddball-flow-rule-sheet dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 2px solid var(--oddball-aubergine);
+  border-left: 2px solid var(--oddball-aubergine);
+}
+
+.oddball-flow-rule-sheet dl div {
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+  border-right: 2px solid var(--oddball-aubergine);
+  border-bottom: 2px solid var(--oddball-aubergine);
+}
+
+.oddball-flow-rule-sheet dt {
+  font-family: 'Bungee', sans-serif;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.oddball-flow-rule-sheet dd {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.oddball-flow-rule-sheet button {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 14px;
+  padding: 8px 10px;
+  border: 3px solid var(--oddball-aubergine);
+  background: var(--oddball-lilac);
+  color: var(--oddball-aubergine);
+  font-family: 'Bungee', sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+/* Round flow */
+
+.oddball-flow-game,
+.oddball-flow-waiting,
+.oddball-flow-reveal {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  padding: 20px 14px 26px;
+}
+
+.oddball-flow-question-sheet {
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+  padding: 29px 22px 25px;
+  transform: rotate(0.45deg);
+}
+
+.oddball-flow-tape--question {
+  top: -8px;
+  right: 14%;
+  transform: rotate(9deg);
+  background: rgb(169 138 242 / 86%);
+}
+
+.oddball-flow-question-sheet > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 13px;
+  font-family: 'Bungee', sans-serif;
+  font-size: 10px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.oddball-flow-question-sheet h1 {
+  color: var(--oddball-aubergine);
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(27px, 7.8vw, 46px);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+}
+
+.oddball-flow-blank-line {
+  display: block;
+  width: 86%;
+  height: 18px;
+  margin: 12px auto 0;
+  transform: rotate(-1deg);
+  border-bottom: 4px solid var(--oddball-aubergine);
+}
+
+.oddball-flow-hand {
+  display: grid;
+  gap: 15px;
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.oddball-flow-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.oddball-flow-card-grid li {
+  position: relative;
+  min-width: 0;
+}
+
+.oddball-flow-card-grid li::before {
+  position: absolute;
+  inset: 8px -7px -9px 7px;
+  z-index: 0;
+  border: 3px solid var(--oddball-aubergine);
+  background: var(--oddball-flow-accent);
+  box-shadow: 2px 3px 0 rgb(0 0 0 / 27%);
+  content: '';
+}
+
+.oddball-flow-card-grid--judging li:nth-child(3) {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: 62%;
+}
+
+.oddball-flow-answer-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 174px;
+  padding: 28px 13px 13px;
+  border: 3px solid var(--oddball-aubergine);
+  background: var(--oddball-paper);
+  color: var(--oddball-aubergine);
+  text-align: left;
+}
+
+.oddball-flow-card-grid li:nth-child(odd) .oddball-flow-answer-card {
+  transform: rotate(-0.7deg);
+}
+
+.oddball-flow-card-grid li:nth-child(even) .oddball-flow-answer-card {
+  transform: rotate(0.7deg);
+}
+
+.oddball-flow-answer-card > span {
+  position: absolute;
+  top: -9px;
+  left: 10px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--oddball-aubergine);
+  border-radius: 50%;
+  background: var(--oddball-flow-accent);
+  font-family: 'Bungee', sans-serif;
+  font-size: 16px;
+}
+
+.oddball-flow-answer-card strong {
+  overflow-wrap: anywhere;
+  font-size: clamp(15px, 4.1vw, 21px);
+  line-height: 1.13;
+  letter-spacing: -0.025em;
+}
+
+.oddball-flow-answer-card small {
+  margin-top: 12px;
+  font-family: 'Bungee', sans-serif;
+  font-size: 8px;
+  line-height: 1;
+}
+
+.oddball-flow-answer-card:not(:disabled):hover {
+  transform: translateY(-4px) rotate(0deg) !important;
+  border-color: var(--oddball-aubergine);
+  background: var(--oddball-paper);
+  color: var(--oddball-aubergine);
+}
+
+.oddball-flow-answer-card--selected {
+  transform: translate(4px, 6px) rotate(0deg) !important;
+  box-shadow: 0 0 0 5px var(--oddball-red);
+}
+
+.oddball-flow-answer-card--blank strong {
+  font-family: 'Nanum Pen Script', 'Inter', sans-serif;
+  font-size: clamp(24px, 7vw, 34px);
+  font-weight: 400;
+}
+
+.oddball-flow-play-slip {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  max-width: 620px;
+  margin-inline: auto;
+  padding: 26px 20px 28px;
+  transform: rotate(-0.5deg);
+}
+
+.oddball-flow-play-slip h2 {
+  font-family: 'Bungee', sans-serif;
+  font-size: 25px;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.oddball-flow-play-slip dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.oddball-flow-play-slip dl div {
+  padding: 8px 10px;
+  border: 2px solid var(--oddball-aubergine);
+}
+
+.oddball-flow-play-slip dt {
+  font-family: 'Bungee', sans-serif;
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+.oddball-flow-play-slip dd {
+  font-weight: 800;
+}
+
+.oddball-flow-judge-slip > p:not(.oddball-flow-eyebrow, .oddball-flow-feedback) {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* Waiting */
+
+.oddball-flow-question-sheet--compact {
+  padding-block: 24px;
+}
+
+.oddball-flow-waiting-note {
+  width: 100%;
+  max-width: 620px;
+  margin-inline: auto;
+  padding: 35px 23px 31px;
+  transform: rotate(-0.65deg);
+}
+
+.oddball-flow-tape--waiting {
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-8deg);
+  background: rgb(255 214 74 / 88%);
+}
+
+.oddball-flow-waiting-note h1 {
+  margin: 9px 0 15px;
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(36px, 10vw, 58px);
+  font-weight: 400;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.oddball-flow-waiting-note blockquote {
+  padding: 15px;
+  border: 3px solid var(--oddball-aubergine);
+  background: var(--oddball-yellow);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.oddball-flow-waiting-note > p:last-child {
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.oddball-flow-waiting-board {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+  max-width: 620px;
+  margin-inline: auto;
+}
+
+.oddball-flow-waiting-board ol {
+  display: grid;
+  gap: 9px;
+}
+
+.oddball-flow-waiting-board li {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 9px 11px;
+  border: 3px solid var(--oddball-aubergine);
+  background: var(--oddball-paper);
+  color: var(--oddball-aubergine);
+  box-shadow: 5px 6px 0 var(--oddball-yellow);
+}
+
+.oddball-flow-waiting-board li.ready {
+  box-shadow: 5px 6px 0 var(--oddball-teal);
+}
+
+.oddball-flow-waiting-board li i {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--oddball-aubergine);
+  border-radius: 50%;
+}
+
+.oddball-flow-waiting-board li small {
+  font-family: 'Bungee', sans-serif;
+  font-size: 9px;
+}
+
+/* Reveal */
+
+.oddball-flow-reveal {
+  position: relative;
+  place-items: center;
+}
+
+.oddball-flow-reveal-question,
+.oddball-flow-score-slip {
+  width: 100%;
+  max-width: 620px;
+}
+
+.oddball-flow-reveal-question {
+  padding: 25px 21px 27px;
+  transform: rotate(0.6deg);
+}
+
+.oddball-flow-reveal-question h1 {
+  margin-top: 10px;
+  font-size: clamp(25px, 7vw, 40px);
+  line-height: 1.05;
+}
+
+.oddball-flow-winning-card {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  gap: 18px;
+  width: min(88%, 430px);
+  min-height: 270px;
+  padding: 44px 25px 24px;
+  transform: rotate(-1.2deg);
+  border: 4px solid var(--oddball-paper);
+  background: var(--oddball-red);
+  box-shadow:
+    0 0 0 5px var(--oddball-aubergine),
+    11px 13px 0 5px var(--oddball-yellow);
+  color: var(--oddball-paper);
+}
+
+.oddball-flow-winning-card > p {
+  overflow-wrap: anywhere;
+  font-size: clamp(25px, 7vw, 39px);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+}
+
+.oddball-flow-winning-number {
+  position: absolute;
+  top: -18px;
+  left: 18px;
+  display: grid;
+  place-items: center;
+  width: 49px;
+  height: 49px;
+  border: 4px solid var(--oddball-aubergine);
+  border-radius: 50%;
+  background: var(--oddball-teal);
+  color: var(--oddball-aubergine);
+  font-family: 'Bungee', sans-serif;
+  font-size: 24px;
+}
+
+.oddball-flow-winning-card > div {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: end;
+  gap: 9px;
+  padding-top: 13px;
+  border-top: 3px solid var(--oddball-paper);
+}
+
+.oddball-flow-winning-card > div span,
+.oddball-flow-winning-card > div small {
+  font-family: 'Bungee', sans-serif;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.oddball-flow-winning-card > div strong {
+  font-family: 'Bungee', sans-serif;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.oddball-flow-score-slip {
+  padding: 31px 21px 28px;
+  transform: rotate(0.45deg);
+}
+
+.oddball-flow-tape--score {
+  top: -8px;
+  right: 18%;
+  transform: rotate(8deg);
+  background: rgb(87 205 189 / 84%);
+}
+
+.oddball-flow-score-slip h2 {
+  margin: 8px 0 13px;
+  font-family: 'Bungee', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.oddball-flow-score-slip ol {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.oddball-flow-score-slip li {
+  display: grid;
+  grid-template-columns: 33px 1fr auto;
+  gap: 9px;
+  padding: 7px 0;
+  border-bottom: 2px solid var(--oddball-aubergine);
+}
+
+.oddball-flow-score-slip li span,
+.oddball-flow-score-slip li small {
+  font-family: 'Bungee', sans-serif;
+  font-size: 9px;
+}
+
+.oddball-flow-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.oddball-flow-confetti i {
+  position: absolute;
+  width: 9px;
+  height: 25px;
+  transform: rotate(18deg);
+  background: var(--oddball-yellow);
+}
+
+.oddball-flow-confetti i:nth-child(3n) {
+  background: var(--oddball-teal);
+}
+
+.oddball-flow-confetti i:nth-child(3n + 2) {
+  background: var(--oddball-lilac);
+}
+
+.oddball-flow-confetti i:nth-child(1) {
+  top: 4%;
+  left: 5%;
+}
+.oddball-flow-confetti i:nth-child(2) {
+  top: 16%;
+  right: 7%;
+}
+.oddball-flow-confetti i:nth-child(3) {
+  top: 33%;
+  left: 2%;
+}
+.oddball-flow-confetti i:nth-child(4) {
+  top: 48%;
+  right: 2%;
+}
+.oddball-flow-confetti i:nth-child(5) {
+  top: 67%;
+  left: 8%;
+}
+.oddball-flow-confetti i:nth-child(6) {
+  top: 78%;
+  right: 9%;
+}
+.oddball-flow-confetti i:nth-child(7) {
+  top: 9%;
+  left: 28%;
+}
+.oddball-flow-confetti i:nth-child(8) {
+  top: 25%;
+  right: 27%;
+}
+.oddball-flow-confetti i:nth-child(9) {
+  bottom: 9%;
+  left: 25%;
+}
+.oddball-flow-confetti i:nth-child(10) {
+  bottom: 4%;
+  right: 30%;
+}
+.oddball-flow-confetti i:nth-child(11) {
+  top: 55%;
+  left: 17%;
+}
+.oddball-flow-confetti i:nth-child(12) {
+  top: 60%;
+  right: 15%;
+}
+
+/* Results */
+
+.oddball-flow-results {
+  display: grid;
+  gap: 21px;
+  align-content: start;
+  padding: 22px 14px 32px;
+}
+
+.oddball-flow-champion-poster {
+  width: 100%;
+  max-width: 650px;
+  margin-inline: auto;
+  padding: 38px 23px 33px;
+  transform: rotate(-0.7deg);
+}
+
+.oddball-flow-tape--champion {
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-8deg);
+}
+
+.oddball-flow-champion-poster h1 {
+  display: grid;
+  margin: 12px 0 18px;
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(64px, 19vw, 102px);
+  font-weight: 400;
+  line-height: 0.76;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}
+
+.oddball-flow-champion-poster h1 small {
+  font-size: 0.25em;
+  letter-spacing: 0;
+}
+
+.oddball-flow-champion-poster > p:last-child {
+  max-width: 36ch;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.oddball-flow-winner-seal {
+  position: absolute;
+  right: 20px;
+  bottom: 22px;
+  display: grid;
+  place-content: center;
+  width: 84px;
+  height: 84px;
+  transform: rotate(8deg);
+  border: 4px solid var(--oddball-paper);
+  border-radius: 50%;
+  background: var(--oddball-red);
+  box-shadow: 0 0 0 3px var(--oddball-aubergine);
+  color: var(--oddball-paper);
+  font-family: 'Bungee', sans-serif;
+  font-size: 11px;
+  line-height: 0.95;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.oddball-flow-final-board {
+  display: grid;
+  gap: 15px;
+  width: 100%;
+  max-width: 650px;
+  margin-inline: auto;
+}
+
+.oddball-flow-final-entry {
+  grid-template-columns: 38px minmax(70px, 0.7fr) 1.3fr auto;
+}
+
+.oddball-flow-final-entry > div {
+  height: 10px;
+  border: 2px solid var(--oddball-aubergine);
+  background: var(--oddball-paper);
+}
+
+.oddball-flow-final-entry > div i {
+  display: block;
+  height: 100%;
+  background: var(--oddball-flow-accent);
+}
+
+/* Persistent game dock */
+
+.oddball-flow-game-nav {
+  position: relative;
+  z-index: 8;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  padding: 10px 12px 12px;
+  border-top: 4px solid var(--oddball-aubergine);
+  background: #78421f;
+}
+
+.oddball-flow-game-nav button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 50px;
+  padding: 7px 4px;
+  border: 3px solid var(--oddball-aubergine);
+  background: var(--oddball-paper);
+  box-shadow: 0 4px 0 rgb(0 0 0 / 25%);
+  color: var(--oddball-aubergine);
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(9px, 2.7vw, 13px);
+  text-transform: uppercase;
+}
+
+.oddball-flow-game-nav button:hover {
+  transform: translateY(-2px);
+  border-color: var(--oddball-aubergine);
+  background: var(--oddball-yellow);
+  color: var(--oddball-aubergine);
+}
+
+.oddball-flow-tool-message {
+  grid-column: 1 / -1;
+  padding: 7px 9px;
+  border: 2px solid var(--oddball-aubergine);
+  background: var(--oddball-yellow);
+  color: var(--oddball-aubergine);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+
+@media (min-width: 780px) {
+  .oddball-flow-stage {
+    padding: 22px 38px 0;
+    background:
+      repeating-linear-gradient(79deg, rgb(46 20 7 / 34%) 0 2px, transparent 2px 14px),
+      linear-gradient(90deg, #673316, #a86433 8%, #7a401e 17%, #945429 83%, #633015);
+  }
+
+  .oddball-flow-frame {
+    grid-template-rows: auto minmax(min-content, 1fr) auto;
+    min-height: calc(100vh - 22px);
+    max-width: 1520px;
+    margin-inline: auto;
+    box-shadow: 0 0 0 8px rgb(45 37 64 / 62%);
+    clip-path: polygon(1.5% 0, 98.5% 0, 100% 96%, 82% 99%, 50% 100%, 18% 99%, 0 96%);
+  }
+
+  .oddball-flow-clubhouse {
+    grid-template-columns: 95px minmax(260px, 0.75fr) minmax(340px, 1.25fr);
+    gap: 20px;
+    min-height: 112px;
+    padding: 14px clamp(28px, 4vw, 64px);
+  }
+
+  .oddball-flow-club-badge {
+    width: 82px;
+    height: 82px;
+    font-size: 12px;
+  }
+
+  .oddball-flow-room-slip {
+    padding: 15px 20px 11px;
+  }
+
+  .oddball-flow-room-slip strong {
+    font-size: clamp(31px, 3vw, 44px);
+  }
+
+  .oddball-flow-phase-card {
+    grid-column: auto;
+    padding: 14px 18px 12px;
+  }
+
+  .oddball-flow-phase-card span {
+    font-size: 10px;
+  }
+
+  .oddball-flow-phase-card strong {
+    font-size: clamp(17px, 1.45vw, 22px);
+  }
+
+  .oddball-flow-phase-card small {
+    font-size: 10px;
+  }
+
+  .oddball-flow-profile,
+  .oddball-flow-lobby,
+  .oddball-flow-results {
+    grid-template-columns: minmax(300px, 0.85fr) minmax(380px, 1.15fr);
+    gap: clamp(28px, 4vw, 62px);
+    align-items: center;
+    padding: clamp(34px, 5vh, 64px) clamp(46px, 7vw, 110px) clamp(56px, 7vh, 90px);
+  }
+
+  .oddball-flow-profile-intro,
+  .oddball-flow-profile-form,
+  .oddball-flow-members,
+  .oddball-flow-room-poster,
+  .oddball-flow-roster,
+  .oddball-flow-host-controls,
+  .oddball-flow-champion-poster,
+  .oddball-flow-final-board {
+    max-width: none;
+    margin: 0;
+  }
+
+  .oddball-flow-profile-intro {
+    grid-row: 1 / 3;
+    min-height: 470px;
+    padding: 58px 46px 43px;
+  }
+
+  .oddball-flow-profile-intro h1 {
+    font-size: clamp(56px, 5.2vw, 78px);
+  }
+
+  .oddball-flow-profile-form {
+    padding: 40px 38px 36px;
+  }
+
+  .oddball-flow-members {
+    padding: 24px 34px 27px;
+  }
+
+  .oddball-flow-lobby {
+    grid-template-columns: minmax(310px, 0.8fr) minmax(360px, 1fr) minmax(280px, 0.7fr);
+  }
+
+  .oddball-flow-room-poster {
+    min-height: 430px;
+    padding: 64px 34px 42px;
+  }
+
+  .oddball-flow-room-poster h1 {
+    font-size: clamp(68px, 6.5vw, 104px);
+  }
+
+  .oddball-flow-game {
+    grid-template-areas:
+      'question question'
+      'hand slip';
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 0.34fr);
+    gap: clamp(26px, 4vw, 58px);
+    padding: 38px clamp(46px, 7vw, 110px) 44px;
+  }
+
+  .oddball-flow-question-sheet {
+    grid-area: question;
+    max-width: none;
+    padding: 35px 38px 31px;
+  }
+
+  .oddball-flow-question-sheet h1 {
+    font-size: clamp(38px, 3.3vw, 52px);
+  }
+
+  .oddball-flow-hand {
+    grid-area: hand;
+    max-width: none;
+  }
+
+  .oddball-flow-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(18px, 2.2vw, 34px);
+  }
+
+  .oddball-flow-card-grid--judging {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .oddball-flow-card-grid--judging li:nth-child(3) {
+    grid-column: auto;
+    width: auto;
+  }
+
+  .oddball-flow-answer-card {
+    min-height: 245px;
+    padding: 38px 20px 18px;
+  }
+
+  .oddball-flow-answer-card strong {
+    font-size: clamp(17px, 1.45vw, 23px);
+  }
+
+  .oddball-flow-play-slip {
+    grid-area: slip;
+    align-self: start;
+    max-width: none;
+    min-height: 300px;
+    padding: 34px 28px 31px;
+  }
+
+  .oddball-flow-waiting {
+    grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+    gap: clamp(28px, 4vw, 62px);
+    padding: 38px clamp(46px, 7vw, 110px) 45px;
+  }
+
+  .oddball-flow-waiting .oddball-flow-question-sheet {
+    grid-column: 1 / -1;
+  }
+
+  .oddball-flow-waiting-note,
+  .oddball-flow-waiting-board {
+    max-width: none;
+    margin: 0;
+  }
+
+  .oddball-flow-reveal {
+    grid-template-columns: minmax(280px, 0.72fr) minmax(360px, 0.85fr) minmax(280px, 0.72fr);
+    gap: clamp(26px, 4vw, 58px);
+    padding: 44px clamp(46px, 7vw, 110px) 52px;
+  }
+
+  .oddball-flow-reveal-question,
+  .oddball-flow-score-slip {
+    max-width: none;
+  }
+
+  .oddball-flow-winning-card {
+    width: 100%;
+    min-height: 390px;
+  }
+
+  .oddball-flow-winning-card > p {
+    font-size: clamp(29px, 2.5vw, 42px);
+  }
+
+  .oddball-flow-champion-poster {
+    min-height: 440px;
+    padding: 62px 42px 44px;
+  }
+
+  .oddball-flow-champion-poster h1 {
+    font-size: clamp(80px, 7.2vw, 116px);
+  }
+
+  .oddball-flow-final-board {
+    gap: 20px;
+  }
+
+  .oddball-flow-game-nav {
+    width: min(720px, 58%);
+    margin: 0 auto 16px;
+    padding: 10px;
+    border: 4px solid var(--oddball-aubergine);
+    background: var(--oddball-paper);
+  }
+
+  .oddball-flow-game-nav button {
+    font-size: 13px;
+  }
+
+  .oddball-flow-footer {
+    padding-inline: clamp(28px, 4vw, 64px);
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 779px) {
+  .oddball-flow-footer span:nth-child(2) {
+    display: none;
+  }
+
+  .oddball-flow-final-entry {
+    grid-template-columns: 34px minmax(65px, 1fr) auto;
+  }
+
+  .oddball-flow-final-entry > div {
+    display: none;
+  }
+
+  .oddball-flow-winner-seal {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: 74px;
+    height: 74px;
+    margin: 18px 0 10px auto;
+  }
+}
+
+@media (max-width: 370px) {
+  .oddball-flow-clubhouse {
+    grid-template-columns: 68px minmax(0, 1fr);
+    padding-inline: 8px;
+  }
+
+  .oddball-flow-club-badge {
+    width: 61px;
+    height: 61px;
+    font-size: 9px;
+  }
+
+  .oddball-flow-profile,
+  .oddball-flow-lobby,
+  .oddball-flow-game,
+  .oddball-flow-waiting,
+  .oddball-flow-reveal,
+  .oddball-flow-results {
+    padding-inline: 10px;
+  }
+
+  .oddball-flow-card-grid {
+    gap: 13px;
+  }
+
+  .oddball-flow-answer-card {
+    min-height: 160px;
+    padding-inline: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oddball-flow-stage *,
+  .oddball-flow-stage *::before,
+  .oddball-flow-stage *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .oddball-flow-paper,
+  .oddball-flow-answer-card,
+  .oddball-flow-member-card,
+  .oddball-flow-waiting-board li,
+  .oddball-flow-game-nav button {
+    border: 3px solid ButtonText;
+    background: Canvas;
+    color: CanvasText;
+    filter: none;
+  }
+
+  .oddball-flow-primary-button {
+    border-color: ButtonText;
+    background: ButtonFace;
+    box-shadow: none;
+    color: ButtonText !important;
+  }
+}

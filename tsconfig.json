@@ -24,7 +24,10 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.vue",
+    ".storybook/**/*.ts",
     "vite.config.ts",
+    "vite.storybook.config.ts",
+    "vitest.config.ts",
     "tests/cards/**/*.ts",
     "tests/protocol/**/*.ts",
     "tests/e2e/**/*.ts"

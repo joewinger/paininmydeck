@@ -1,16 +1,45 @@
-import { fileURLToPath, URL } from 'node:url';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-import { defineConfig } from 'vitest/config';
+import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
+import { playwright } from '@vitest/browser-playwright';
+import { defineConfig, mergeConfig } from 'vitest/config';
+import storybookViteConfig from './vite.storybook.config';
 
-export default defineConfig({
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default mergeConfig(
+  storybookViteConfig,
+  defineConfig({
+    test: {
+      projects: [
+        {
+          extends: true,
+          test: {
+            name: 'unit',
+            environment: 'node',
+            exclude: ['node_modules/**', 'dist/**', 'worker/**/*.test.ts', 'tests/worker/**'],
+            include: ['tests/**/*.test.ts', 'src/**/*.test.ts'],
+          },
+        },
+        {
+          extends: true,
+          plugins: [
+            storybookTest({
+              configDir: path.join(dirname, '.storybook'),
+            }),
+          ],
+          test: {
+            name: 'storybook',
+            browser: {
+              enabled: true,
+              headless: true,
+              provider: playwright({}),
+              instances: [{ browser: 'chromium' }],
+            },
+          },
+        },
+      ],
     },
-  },
-  test: {
-    environment: 'node',
-    exclude: ['node_modules/**', 'dist/**', 'worker/**/*.test.ts', 'tests/worker/**'],
-    include: ['tests/**/*.test.ts', 'src/**/*.test.ts'],
-  },
-});
+  }),
+);
