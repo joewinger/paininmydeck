@@ -266,7 +266,7 @@ test('approved refresh: mobile first-round Czar', async ({ browser }, testInfo) 
     await expect(host.locator('.whiteCard')).toHaveCount(0);
 
     // Keep generated copy deterministic without hiding the redesigned shell.
-    await host.locator('.questionCard').evaluate((element) => {
+    await host.locator('.questionCard__copy').evaluate((element) => {
       element.textContent = 'A terrible idea involving ____.';
     });
     await host.locator('#navbar-info .navbar-info__code').evaluate((element) => {

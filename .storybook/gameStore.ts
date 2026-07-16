@@ -1,6 +1,7 @@
 import type { ConnectionState, GameSnapshot } from '@/shared/protocol';
 import { useGameStore } from '@/stores/game';
 import { useUiStore, type NotificationOptions } from '@/stores/ui';
+import { fn } from 'storybook/test';
 
 type GameStore = ReturnType<typeof useGameStore>;
 type UiStore = ReturnType<typeof useUiStore>;
@@ -21,12 +22,26 @@ export interface UiStoryFixture {
   interstitial?: UiStore['interstitial'];
 }
 
+/** Observable transport doubles used by interaction stories. */
+export const storyActions = {
+  submitCard: fn(async (cardId: string): Promise<void> => void cardId),
+  submitBlank: fn(async (cardId: string, text: string): Promise<void> => void [cardId, text]),
+  redrawCard: fn(async (cardId: string): Promise<void> => void cardId),
+  chooseWinner: fn(async (cardId: string): Promise<void> => void cardId),
+  sendChat: fn(async (text: string): Promise<void> => void text),
+};
+
+function resetStoryActions(): void {
+  Object.values(storyActions).forEach((action) => action.mockClear());
+}
+
 export function seedStoryStores(
   game: GameStore,
   ui: UiStore,
   fixture?: GameStoryFixture,
   uiFixture?: UiStoryFixture,
 ): void {
+  resetStoryActions();
   game.$reset();
   ui.$reset();
 
@@ -58,11 +73,11 @@ export function stubStoryTransport(game: GameStore): void {
   game.leaveRoom = async () => undefined;
   game.updateSettings = async () => undefined;
   game.startGame = async () => undefined;
-  game.submitCard = async () => undefined;
-  game.submitBlank = async () => undefined;
-  game.redrawCard = async () => undefined;
-  game.chooseWinner = async () => undefined;
-  game.sendChat = async () => undefined;
+  game.submitCard = storyActions.submitCard;
+  game.submitBlank = storyActions.submitBlank;
+  game.redrawCard = storyActions.redrawCard;
+  game.chooseWinner = storyActions.chooseWinner;
+  game.sendChat = storyActions.sendChat;
   game.kickPlayer = async () => undefined;
   game.send = async () => undefined;
 }

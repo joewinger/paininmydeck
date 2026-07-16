@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 import App from '@/App.vue';
+import { storyActions } from '../../.storybook/gameStore';
 import { gameScenarios, ROOM_ID } from './fixtures/gameScenarios';
 
 const lobbyRoute = `/join/${ROOM_ID}`;
@@ -13,6 +14,7 @@ const meta = {
   component: App,
   tags: ['autodocs', 'test'],
   parameters: {
+    a11y: { test: 'error' },
     docs: {
       description: {
         component:
@@ -107,12 +109,51 @@ export const ChatOpen: Story = {
   play: async ({ canvasElement }) => {
     const canvas = await openStatusPanel(canvasElement, 1);
     await waitFor(() => expect(canvas.getByText('This round was made for me.')).toBeVisible());
+    await userEvent.type(canvas.getByRole('textbox', { name: 'Chat message' }), 'Deal me in.');
+    await userEvent.click(canvas.getByRole('button', { name: 'Send message' }));
+    await expect(storyActions.sendChat).toHaveBeenCalledWith('Deal me in.');
   },
 };
 
 export const PlayerCollecting: Story = {
   name: 'Game / player collecting',
   parameters: { route: gameRoute, game: gameScenarios.playerCollecting },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole('button', {
+        name: 'Play answer: An aggressively enthusiastic thumbs-up.',
+      }),
+    );
+    await expect(storyActions.submitCard).toHaveBeenCalledWith('answer-1');
+  },
+};
+
+export const PlayerActionPending: Story = {
+  name: 'Game / player card pending',
+  parameters: { route: gameRoute, game: gameScenarios.playerActionPending },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole('button', {
+        name: 'Play answer: An aggressively enthusiastic thumbs-up.',
+      }),
+    ).toBeDisabled();
+  },
+};
+
+export const PlayerRedraw: Story = {
+  name: 'Game / redraw control',
+  parameters: { route: gameRoute, game: gameScenarios.playerCollecting },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const redraw = canvas.getAllByRole('button', { name: 'Redraw card' })[0];
+    redraw.focus();
+    await expect(redraw).toHaveFocus();
+    await expect(redraw).toBeVisible();
+    await userEvent.keyboard('{Enter}');
+    await expect(storyActions.redrawCard).toHaveBeenCalledWith('answer-1');
+  },
 };
 
 export const BlankCardEditing: Story = {
@@ -124,12 +165,22 @@ export const BlankCardEditing: Story = {
     await userEvent.click(blankCard);
     await userEvent.type(blankCard, 'A suspicious number of tiny cowboy hats');
     await expect(canvas.findByText('39/60')).resolves.toBeVisible();
+    await userEvent.click(canvas.getByRole('button', { name: 'Play blank answer' }));
+    await expect(storyActions.submitBlank).toHaveBeenCalledWith(
+      'blank-1',
+      'A suspicious number of tiny cowboy hats',
+    );
   },
 };
 
 export const PlayerSubmitted: Story = {
   name: 'Game / player submitted',
   parameters: { route: gameRoute, game: gameScenarios.playerSubmitted },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: 'Unpin question' }));
+    await expect(canvas.getByRole('button', { name: 'Pin question' })).toBeVisible();
+  },
 };
 
 export const PlayerReconnecting: Story = {
@@ -150,11 +201,41 @@ export const CzarCollecting: Story = {
 export const CzarJudging: Story = {
   name: 'Game / Czar judging',
   parameters: { route: gameRoute, game: gameScenarios.czarJudging },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole('button', {
+        name: 'Choose winner: A group chat that should have stayed private.',
+      }),
+    );
+    await expect(storyActions.chooseWinner).toHaveBeenCalledWith('played-rowan');
+  },
 };
 
 export const WinnerReveal: Story = {
   name: 'Game / winner reveal',
   parameters: { route: gameRoute, game: gameScenarios.winnerReveal },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Sam wins the round!')).toBeVisible();
+    await expect(canvas.queryByText('Select the winning card!')).not.toBeInTheDocument();
+  },
+};
+
+export const RoundInterstitial: Story = {
+  name: 'Game / round interstitial',
+  parameters: {
+    route: gameRoute,
+    game: gameScenarios.playerCollecting,
+    ui: { interstitial: { title: 'Round 3', subtitle: 'Alex is the Card Czar' } },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const status = await canvas.findByRole('status');
+    await expect(status).toBeVisible();
+    await expect(within(status).getByRole('heading', { name: 'Round 3' })).toBeVisible();
+    await expect(within(status).getByText('Alex is the Card Czar')).toBeVisible();
+  },
 };
 
 export const HistoryOpen: Story = {

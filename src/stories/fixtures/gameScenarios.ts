@@ -182,6 +182,7 @@ function playingFixture(
   options: {
     phase?: 'COLLECTING' | 'JUDGING' | 'REVEAL';
     playedThisTurn?: boolean;
+    cardActionPending?: boolean;
     connectionState?: 'open' | 'reconnecting';
     disconnectedPlayerId?: string;
   } = {},
@@ -228,6 +229,7 @@ function playingFixture(
     }),
     state: {
       connectionState: options.connectionState ?? 'open',
+      cardActionPending: options.cardActionPending ?? false,
     },
   };
 }
@@ -238,6 +240,7 @@ export const gameScenarios = {
   lobbyGuest: lobbyFixture('rowan'),
   lobbyDisconnected: lobbyFixture('alex', { disconnectedPlayerId: 'sam' }),
   playerCollecting: playingFixture('rowan'),
+  playerActionPending: playingFixture('rowan', { cardActionPending: true }),
   playerSubmitted: playingFixture('rowan', { playedThisTurn: true }),
   playerReconnecting: playingFixture('rowan', { connectionState: 'reconnecting' }),
   playerWaitingForReconnect: playingFixture('rowan', { disconnectedPlayerId: 'sam' }),
