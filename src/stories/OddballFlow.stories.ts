@@ -6,7 +6,7 @@ import './oddball-social-club.css';
 import './oddball-flow.css';
 
 const meta = {
-  title: 'Brand exploration/Option C — Oddball Social Club/Flow',
+  title: 'Pain in my Deck!/Game flow',
   component: OddballFlow,
   tags: ['test'],
   parameters: {
@@ -15,7 +15,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'A deterministic, DOM-based vertical slice that carries the handmade Oddball Social Club language through the complete game flow.',
+          'A deterministic, DOM-based vertical slice that carries the handmade Pain in my Deck! visual language through the complete game flow.',
       },
     },
   },

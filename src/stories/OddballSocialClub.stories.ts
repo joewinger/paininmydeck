@@ -77,10 +77,10 @@ const OddballSocialClub = defineComponent({
     >
       <template v-if="screen === 'home'">
         <section class="oddball-home" aria-labelledby="oddball-home-title">
-          <div class="oddball-badge" aria-label="Oddball Social Club">
-            <span>Oddball</span>
-            <span>Social</span>
-            <span>Club</span>
+          <div class="oddball-badge" aria-label="Pain in my Deck!">
+            <span>Pain</span>
+            <span>in my</span>
+            <span>Deck!</span>
           </div>
 
           <div class="oddball-edge-card oddball-edge-card--asterisk" aria-hidden="true">
@@ -229,7 +229,7 @@ const OddballSocialClub = defineComponent({
 });
 
 const meta = {
-  title: 'Brand exploration/Option C — Oddball Social Club',
+  title: 'Pain in my Deck!/Brand reference',
   component: OddballSocialClub,
   tags: ['test'],
   parameters: {
@@ -238,7 +238,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'A DOM/CSS implementation of the Oddball Social Club brand direction. The screens are isolated from live game state so layout and interactions can be reviewed directly.',
+          'A DOM/CSS implementation of the Pain in my Deck! visual direction. The screens are isolated from live game state so layout and interactions can be reviewed directly.',
       },
     },
   },
