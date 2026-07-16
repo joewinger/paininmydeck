@@ -1,16 +1,18 @@
 <template>
-	<div class="chatInput">
-		<div class="chatInput-content">
-			<textarea
-				ref="textarea"
-				v-model="messageText"
-				@keydown.enter.prevent="sendMessage"
-				maxlength=280
-				rows=1
-			/>
-			<button @click="sendMessage" :style="{'--color': game.userColorSet[0], '--color-2': game.userColorSet[1] }"><ion-icon name="send"></ion-icon></button>
-		</div>
-	</div>
+  <form class="chatInput" @submit.prevent="sendMessage">
+    <textarea
+      ref="textarea"
+      v-model="messageText"
+      aria-label="Chat message"
+      placeholder="Message the room…"
+      maxlength="280"
+      rows="1"
+      @keydown.enter.prevent="sendMessage"
+    />
+    <button type="submit" aria-label="Send message">
+      <ion-icon name="send" aria-hidden="true"></ion-icon>
+    </button>
+  </form>
 </template>
 
 <script setup lang="ts">
@@ -22,85 +24,100 @@ const textarea = ref<HTMLTextAreaElement | null>(null);
 const messageText = ref('');
 
 watch(messageText, async () => {
-	await nextTick();
-	if (!textarea.value) return;
-	textarea.value.style.height = 'auto';
-	textarea.value.style.height = `${Math.min(textarea.value.scrollHeight, 80)}px`;
+  await nextTick();
+  if (!textarea.value) return;
+  textarea.value.style.height = 'auto';
+  textarea.value.style.height = `${Math.min(textarea.value.scrollHeight, 92)}px`;
 });
 
 async function sendMessage() {
-	const text = messageText.value.trim();
-	if (!text) return;
-	messageText.value = '';
-	await game.sendChat(text).catch(() => undefined);
+  const text = messageText.value.trim();
+  if (!text) return;
+  messageText.value = '';
+  await game.sendChat(text).catch(() => undefined);
 }
 </script>
 
 <style scoped>
 .chatInput {
-	--button-size: 25px;
-	--border-radius: 10px;
-
-	display: flex;
-	flex-direction: column-reverse;
-
-	min-height: 20px;
-	max-height: 80px;
-	
-	border: solid var(--gray-200) var(--ui-border-width);
-	border-radius: var(--border-radius);
-
-	overflow-y: hidden;
-	z-index: 100;
-}
-.chatInput-content {
-	display: grid;
-	grid-template-columns: 1fr calc( var(--button-size) + 10px );
-	align-items: end; /* Keep our button at the bottom no matter how tall the textarea gets */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px;
+  align-items: end;
+  min-height: 54px;
+  max-height: 104px;
+  padding: 3px;
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-paper);
+  box-shadow: 4px 5px 0 var(--pimd-meta);
 }
 
-.chatInput-content textarea {
-	padding: 8px;
-	margin: 1px 0;
-	box-sizing: border-box;
-
-	border: 0;
-	border-radius: var(--border-radius) 0 0 var(--border-radius);
-
-	text-align: left;
-	font-size: var(--font-size);
-	font-weight: normal;
-	color: #555;
-
-	background: transparent; /* For some reason, this occasionally clips the border on .chatInput by a pixel. This fixes that */
+.chatInput textarea {
+  width: 100%;
+  min-height: 44px;
+  max-height: 92px;
+  padding: 12px 10px 9px;
+  resize: none;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--pimd-ink);
+  font-family: 'Inter', sans-serif;
+  font-size: var(--font-size);
+  font-weight: 700;
+  line-height: 1.35;
 }
 
-.chatInput-content textarea:active, .chatInput-content textarea:focus {
-  outline: none;
+.chatInput textarea::placeholder {
+  color: var(--pimd-ink-soft);
+  opacity: 0.72;
 }
 
-.chatInput-content button {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	
-	width: var(--button-size);
-	height: var(--button-size);
-	margin: 5px;
-	padding: 0;
-
-	color: var(--color);
-
-	border-color: var(--color);
-	border-radius: 100%;
-}
-.chatInput-content button:hover {
-	background-color: var(--color);
-	border-color: var(--color);
-	color: var(--color-2);
+.chatInput:focus-within {
+  outline: 3px solid var(--pimd-ink);
+  outline-offset: 4px;
+  box-shadow: var(--pimd-focus);
 }
 
-.chatInput-content button ion-icon {
-	font-size: var(--font-size);
+.chatInput button {
+  width: 44px;
+  min-height: 44px;
+  margin: 2px;
+  padding: 0;
+  transform: rotate(-2deg);
+  border: 3px solid var(--pimd-ink);
+  border-radius: 0;
+  background: var(--pimd-highlight);
+  box-shadow: 3px 3px 0 var(--pimd-action);
+  color: var(--pimd-ink);
+}
+
+.chatInput button:hover {
+  transform: translateY(-2px) rotate(-2deg);
+  border-color: var(--pimd-ink);
+  background: var(--pimd-status);
+  color: var(--pimd-ink);
+  box-shadow: 3px 5px 0 var(--pimd-action);
+}
+
+.chatInput button:active {
+  transform: translate(2px, 2px) rotate(-2deg);
+  border-color: var(--pimd-ink);
+  background: var(--pimd-status-dark);
+  box-shadow: 1px 1px 0 var(--pimd-action);
+}
+
+.chatInput button ion-icon {
+  font-size: 1.25rem;
+}
+
+@media (forced-colors: active) {
+  .chatInput,
+  .chatInput button {
+    border: 3px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    box-shadow: none;
+  }
 }
 </style>

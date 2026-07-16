@@ -1,18 +1,41 @@
 <template>
-	<div id="statusMenuContent-history" class="statusMenuContent">
-		<h1>Round History</h1>
-		<div class="initial" v-if="game.roundHistory.length === 0">No history to show yet, check back next round!</div>
-		<div class="round-list">
-			<div class="round" v-for="round in game.roundHistory" :key="round.round">
-				<span class="round-number">&ndash; Round {{ round.round }} &ndash;</span>
-				<h4 class="question">{{ blankify(round.question) }}</h4>
-				<ol class="answers">
-					<li class="miniCard winningAnswer" :style="{'--playedBy': `'${round.winningPlayerDisplayName}'`}">{{ round.winningAnswer }}</li>
-					<li class="miniCard" v-for="answer in round.otherAnswers" :key="`${answer.playedByPlayerId}-${answer.text}`" :style="{'--playedBy': `'${answer.playedByDisplayName}'`}">{{ answer.text }}</li>
-				</ol>
-			</div>
-		</div>
-	</div>
+  <section
+    id="statusMenuContent-history"
+    class="statusMenuContent"
+    aria-labelledby="round-history-title"
+  >
+    <h1 id="round-history-title">Round History</h1>
+
+    <div v-if="game.roundHistory.length === 0" class="initial">
+      <span class="pimd-eyebrow">Nothing filed yet</span>
+      <p>Check back after the first round.</p>
+    </div>
+
+    <div v-else class="round-list">
+      <article v-for="round in game.roundHistory" :key="round.round" class="round">
+        <header class="round-heading">
+          <span class="round-number">Round {{ round.round }}</span>
+          <h2 class="question">{{ blankify(round.question) }}</h2>
+        </header>
+
+        <ol class="answers" :aria-label="`Answers from round ${round.round}`" tabindex="0">
+          <li class="miniCard winningAnswer">
+            <span class="miniCard-badge">Winner</span>
+            <strong class="miniCard-text">{{ round.winningAnswer }}</strong>
+            <span class="miniCard-player">{{ round.winningPlayerDisplayName }}</span>
+          </li>
+          <li
+            v-for="answer in round.otherAnswers"
+            :key="`${answer.playedByPlayerId}-${answer.text}`"
+            class="miniCard"
+          >
+            <strong class="miniCard-text">{{ answer.text }}</strong>
+            <span class="miniCard-player">{{ answer.playedByDisplayName }}</span>
+          </li>
+        </ol>
+      </article>
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -22,109 +45,161 @@ import { blankify } from '@/shared/protocol';
 const game = useGameStore();
 </script>
 
-<style>
+<style scoped>
 #statusMenuContent-history {
-	display: flex;
-	align-items: center;
-	justify-content: flex-start;
-	flex-direction: column;
-
-	height: 55vh;
-	overflow-y: auto;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
 }
 
 .initial {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	
-	width: 70%;
-	height: 80%;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  min-height: 190px;
+  padding: 28px 20px;
+  transform: rotate(-0.5deg);
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-highlight);
+  box-shadow: 5px 6px 0 var(--pimd-action);
+  text-align: center;
+}
 
-	text-align: center;
-	font-size: 1.1rem;
+.initial p {
+  max-width: 24ch;
+  margin: 0;
+  color: var(--pimd-ink);
+  font-weight: 800;
 }
 
 .round-list {
-	display: flex;
-	align-items: center;
-	justify-content: flex-start;
-	flex-direction: column-reverse;
+  display: flex;
+  min-height: 0;
+  flex-direction: column-reverse;
+  gap: 18px;
 }
 
 .round {
-	margin-top: 10px;
-	margin-bottom: 5px;
+  min-width: 0;
+  padding: 16px 0 18px;
+  border-bottom: 3px dashed rgb(45 37 64 / 32%);
 }
 
-.round .round-number {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	
-	height: 18px;
-	margin-bottom: 5px;
-	
-	background: var(--primary-200);
-	border-radius: 9px;
-	
-	text-align: center;
-	color: var(--primary-500);
+.round:first-child {
+  border-bottom: 0;
+}
+
+.round-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.round-number {
+  display: inline-flex;
+  align-items: center;
+  min-height: 29px;
+  padding: 6px 8px 5px;
+  transform: rotate(-1deg);
+  background: var(--pimd-status);
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: 0.61rem;
+  line-height: 1;
+  text-transform: uppercase;
+  clip-path: polygon(2% 0, 100% 5%, 96% 100%, 0 92%);
 }
 
 .round .question {
-	font-weight: 600;
-	margin: 0 0 5px 0;
+  margin: 0;
+  color: var(--pimd-ink);
+  font-size: 0.96rem;
+  font-weight: 900;
+  line-height: 1.35;
 }
 
-ol.answers {
-	display: flex;
-	justify-content: flex-start;
-	align-items: flex-start;
-	flex-direction: row;
-	gap: 5px;
-
-	width: 278px;
-	padding: 0;
-	padding-bottom: 6px; /* So we don't clip the shadow under the card */
-	margin: 8px 0;
-
-	overflow-x: auto;
-
-	list-style: none;
-
-	scroll-snap-type: x proximity;
+.answers {
+  display: flex;
+  gap: 13px;
+  width: 100%;
+  padding: 6px 7px 12px 3px;
+  margin: 14px 0 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  list-style: none;
+  scroll-padding-inline: 3px;
+  scroll-snap-type: x proximity;
 }
 
 .miniCard {
-	position: relative;
-	min-width: 75px;
-	max-width: 75px;
-	height: 105px;
-	padding: 7.5px;
-	margin-right: 20px;
-
-	border: var(--ui-border-width) solid var(--gray-200);
-	box-shadow: 0px 2px 4px rgba(177, 177, 177, 0.25);
-	border-radius: 10px;
-
-	color: var(--gray-500);
-  font-family: aktiv-grotesk, Helvetica, sans-serif;
-	/* font-weight: bold; */
-	font-size: 0.9em;
-
-	scroll-snap-align: start;
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-width: 134px;
+  min-height: 150px;
+  padding: 29px 13px 11px;
+  transform: rotate(0.6deg);
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-paper);
+  box-shadow: 4px 5px 0 var(--pimd-meta);
+  color: var(--pimd-ink);
+  scroll-snap-align: start;
 }
-.miniCard::after {
-	content: var(--playedBy);
-	position: absolute;
-	right: -20px;
-	top: 5px;
-	writing-mode: vertical-rl;
-	text-orientation: mixed;
-	color: var(--gray-300);
+
+.miniCard:nth-child(even) {
+  transform: rotate(-0.75deg);
+  box-shadow: 4px 5px 0 var(--pimd-status);
 }
+
+.miniCard-text {
+  font-size: 0.87rem;
+  font-weight: 850;
+  line-height: 1.26;
+  overflow-wrap: anywhere;
+}
+
+.miniCard-player {
+  align-self: end;
+  padding-top: 11px;
+  border-top: 2px solid currentColor;
+  font-family: 'Bungee', sans-serif;
+  font-size: 0.54rem;
+  font-weight: 400;
+  line-height: 1.15;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.miniCard-badge {
+  position: absolute;
+  top: 8px;
+  left: 9px;
+  padding: 4px 6px 3px;
+  transform: rotate(-2deg);
+  background: var(--pimd-highlight);
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: 0.49rem;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
 .miniCard.winningAnswer {
-	border-color: var(--primary-200);
+  border-color: var(--pimd-ink);
+  background: var(--pimd-action);
+  box-shadow: 4px 5px 0 var(--pimd-highlight);
+  color: var(--pimd-paper);
+}
+
+@media (forced-colors: active) {
+  .initial,
+  .miniCard {
+    border: 3px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    box-shadow: none;
+  }
 }
 </style>

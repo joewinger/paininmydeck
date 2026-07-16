@@ -1,15 +1,77 @@
 <template>
-	<div id="gameover" v-if="roomData">
-		<h1>{{ roomData.outcome === 'cancelled' ? 'Game cancelled' : `${roomData.winner?.displayName} won!` }}</h1>
-		<p id="final-rounds">&mdash; The game lasted {{ roomData.rounds }} rounds &mdash;</p>
-		<ol id="final-leaderboard">
-			<li class="final-leaderboard_player" v-for="(player, index) in roomData.leaderboard" :key="player.playerId">
-				<div class="rank">{{ index+1 }}<sup>{{ getOrdinalSuffix(index+1) }}</sup></div>
-				<div class="username">{{ player.displayName }}</div>
-				<div class="points">{{ player.points }}pts</div>
-			</li>
-		</ol>
-		<button @click="router.replace('/')">Leave Game</button>
+  <div
+    v-if="roomData"
+    id="gameover"
+    class="pimd-screen"
+    :class="{ 'gameover--cancelled': roomData.outcome === 'cancelled' }"
+    aria-labelledby="gameover-title"
+  >
+    <div v-if="roomData.outcome === 'won'" class="gameover-confetti" aria-hidden="true">
+      <i v-for="piece in 12" :key="piece" />
+    </div>
+
+    <section class="gameover-poster pimd-paper">
+      <span class="pimd-tape gameover-poster__tape" aria-hidden="true" />
+      <p class="pimd-eyebrow">
+        {{ roomData.outcome === 'cancelled' ? 'Room closed' : 'Final score' }}
+      </p>
+
+      <h1 id="gameover-title">
+        <template v-if="roomData.outcome === 'cancelled'">
+          <span>Game</span>
+          <span>cancelled</span>
+        </template>
+        <template v-else>
+          <span class="gameover-title__name">{{ roomData.winner?.displayName }}</span>
+          <span>won!</span>
+        </template>
+      </h1>
+
+      <p id="final-rounds">The game lasted {{ roomData.rounds }} rounds.</p>
+      <p class="gameover-poster__note">
+        {{
+          roomData.outcome === 'cancelled'
+            ? 'No champion was crowned, but the receipts are still here.'
+            : 'Officially the biggest Pain in my Deck! in the room.'
+        }}
+      </p>
+
+      <div v-if="roomData.outcome === 'won'" class="gameover-winner-seal" aria-hidden="true">
+        Room<br />champ
+      </div>
+    </section>
+
+    <section class="gameover-standings" aria-labelledby="final-standings-title">
+      <div class="gameover-standings__heading">
+        <p class="pimd-eyebrow">The receipts</p>
+        <h2 id="final-standings-title">Final standings</h2>
+      </div>
+
+      <ol id="final-leaderboard">
+        <li
+          v-for="(player, index) in roomData.leaderboard"
+          :key="player.playerId"
+          class="final-leaderboard_player"
+          :class="{ 'final-leaderboard_player--winner': roomData.winner?.playerId === player.playerId }"
+        >
+          <div class="rank" :aria-label="`Rank ${index + 1}`">
+            {{ index + 1 }}<sup>{{ getOrdinalSuffix(index + 1) }}</sup>
+          </div>
+          <div class="username">
+            <strong>{{ player.displayName }}</strong>
+            <span v-if="roomData.winner?.playerId === player.playerId">Room champion</span>
+          </div>
+          <div class="points">
+            <strong>{{ player.points }}</strong>
+            <span>{{ player.points === 1 ? 'point' : 'points' }}</span>
+          </div>
+        </li>
+      </ol>
+
+      <button type="button" class="pimd-primary-button gameover-leave" @click="router.replace('/')">
+        Leave Game
+      </button>
+    </section>
   </div>
 </template>
 
@@ -23,170 +85,389 @@ const game = useGameStore();
 const roomData = computed(() => game.room.finalRecord);
 
 function getOrdinalSuffix(number: number): string {
-	if (number === 1) return 'st';
-	if (number === 2) return 'nd';
-	if (number === 3) return 'rd';
-	return 'th';
+  if (number === 1) return 'st';
+  if (number === 2) return 'nd';
+  if (number === 3) return 'rd';
+  return 'th';
 }
 </script>
 
-<style>
+<style scoped>
 #gameover {
-	display: flex;
-	justify-content: flex-start;
-	align-items: center;
-	flex-direction: column;
+  isolation: isolate;
+  display: grid;
+  gap: clamp(24px, 5vw, 52px);
+  align-content: start;
+  padding: clamp(28px, 6vw, 72px) clamp(16px, 6vw, 96px) 132px;
 }
-#gameover h1 {
-	margin: 50px 0 5px 0;
+
+.gameover-poster,
+.gameover-standings {
+  z-index: 1;
+  width: min(100%, 660px);
+  margin-inline: auto;
+}
+
+.gameover-poster {
+  min-height: 390px;
+  padding: clamp(42px, 8vw, 70px) clamp(24px, 7vw, 48px) 42px;
+  transform: rotate(-0.65deg);
+}
+
+.gameover-poster__tape {
+  top: -6px;
+  left: 50%;
+  width: 82px;
+  transform: translateX(-50%) rotate(-7deg);
+}
+
+.gameover-poster h1 {
+  display: grid;
+  gap: 5px;
+  margin: 17px 0 25px;
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(3.7rem, 17vw, 7.25rem);
+  font-weight: 400;
+  line-height: 0.78;
+  letter-spacing: -0.055em;
+  text-transform: uppercase;
+}
+
+.gameover-title__name {
+  max-width: 8ch;
+  color: var(--pimd-action);
+  font-size: 0.54em;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
 }
 
 #final-rounds {
-	margin: 0 0 10px 0;
-	font-size: 1.1rem;
-	font-style: italic;
+  margin: 0;
+  color: var(--pimd-ink);
+  font-size: clamp(1rem, 4vw, 1.25rem);
+  font-weight: 900;
+}
+
+.gameover-poster__note {
+  max-width: 35ch;
+  margin: 10px 92px 0 0;
+  color: var(--pimd-ink-soft);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.gameover-winner-seal {
+  position: absolute;
+  right: clamp(20px, 6vw, 42px);
+  bottom: 29px;
+  display: grid;
+  place-content: center;
+  width: 82px;
+  height: 82px;
+  transform: rotate(8deg);
+  border: 4px solid var(--pimd-paper);
+  border-radius: 50%;
+  background: var(--pimd-action);
+  box-shadow: 0 0 0 3px var(--pimd-ink);
+  color: var(--pimd-paper);
+  font-family: 'Bungee', sans-serif;
+  font-size: 0.69rem;
+  font-weight: 400;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.gameover-standings {
+  padding: clamp(22px, 5vw, 34px);
+  border: 4px solid var(--pimd-ink);
+  background: var(--pimd-paper);
+  box-shadow: 8px 9px 0 var(--pimd-meta);
+}
+
+.gameover-standings__heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 13px;
+  border-bottom: 3px solid var(--pimd-ink);
+}
+
+.gameover-standings__heading h2 {
+  margin: 0;
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(1.15rem, 5vw, 1.7rem);
+  font-weight: 400;
+  line-height: 1;
+  text-align: right;
+  text-transform: uppercase;
 }
 
 #final-leaderboard {
-	display: grid;
-	grid-template-areas:
-										'silver gold bronze'
-										'd d d';
-	grid-template-columns: 1fr 1fr 1fr;
-	grid-template-rows: 150px repeat(auto-fit, 50px);
-	align-items: end;
-	gap: 10px;
-
-	width: min(90vw, 400px);
-	padding: 0;
-	margin-top: 50px;
-
-	list-style: none;
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  margin: 18px 0 0;
+  list-style: none;
 }
 
 .final-leaderboard_player {
-	display: flex;
-	justify-content: space-between;
-
-	height: 50px;
-	width: 100%;
-	box-sizing: border-box;
-
-  background-origin: border-box;
-	border-radius: 8px;
-
-	font-size: 1.1rem;
-	font-weight: 600;
-	grid-column: 1/-1;
-}
-.final-leaderboard_player:nth-last-child(2n-1) {
-	background-color: var(--gray-100);
-}
-.final-leaderboard_player > div {
-	margin: auto 0;
-}
-.final-leaderboard_player > .rank,
-.final-leaderboard_player > .points {
-	text-align: center;
-}
-.final-leaderboard_player > .rank {
-	width: 50px;
-
-	opacity: 0.8;
-
-  color: hsl(0, 0%, 100%);
-	font-size: 1.9rem;
-	font-weight: 800;
-  text-shadow:
-    1px  1px var(--gray-400),
-    -1px -1px var(--gray-400),
-    -1px  1px var(--gray-400),
-    1px -1px var(--gray-400);
-}
-.final-leaderboard_player > .rank > sup {
-	top: -10px;
-	left: 1px;
-
-	font-size: 0.55em;
-}
-.final-leaderboard_player > .points {
-	width: 80px;
-
-	font-size: 0.9em;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 72px;
+  padding: 9px 12px 9px 8px;
+  transform: rotate(0.2deg);
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-paper);
+  box-shadow: 4px 5px 0 var(--pimd-status);
+  color: var(--pimd-ink);
 }
 
-.final-leaderboard_player:nth-of-type(1),
-.final-leaderboard_player:nth-of-type(2),
-.final-leaderboard_player:nth-of-type(3) {
-	position: relative;
-	flex-direction: column;
-	align-items: center;
-
-	border: solid 3px var(--border-color);
-  background-origin: border-box;
-	box-shadow:
-		0 1px var(--border-color),
-		0 1.5px var(--border-color),
-		0 2px var(--border-color),
-		0 2.5px var(--border-color),
-		0 3px var(--border-color),
-		0 3.5px var(--border-color),
-		0 4px 10px var(--border-color);
+.final-leaderboard_player:nth-child(even) {
+  transform: rotate(-0.25deg);
+  box-shadow: 4px 5px 0 var(--pimd-highlight);
 }
-.final-leaderboard_player:nth-of-type(1) .username,
-.final-leaderboard_player:nth-of-type(2) .username,
-.final-leaderboard_player:nth-of-type(3) .username {
-	position: absolute;
-	top: -30px;
+
+.final-leaderboard_player--winner {
+  background: var(--pimd-highlight);
+  box-shadow: 5px 6px 0 var(--pimd-action);
 }
-.final-leaderboard_player:nth-of-type(1) .rank,
-.final-leaderboard_player:nth-of-type(2) .rank,
-.final-leaderboard_player:nth-of-type(3) .rank {
-	opacity: 1;
 
-	font-size: 2em;
-	text-shadow: 
-		0px 1px var(--shadow-color),
-		1px 2px var(--shadow-color),
-		-1px 2px var(--shadow-color),
-		0 5px 10px var(--shadow-color);
+.final-leaderboard_player .rank {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: 2rem;
+  line-height: 1;
 }
-.final-leaderboard_player:nth-of-type(1) .points,
-.final-leaderboard_player:nth-of-type(2) .points,
-.final-leaderboard_player:nth-of-type(3) .points {
-	height: 20px;
-	margin: 0 0 5px 0;
 
-	color: var(--points-color);
+.final-leaderboard_player .rank sup {
+  margin: 1px 0 0 1px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.32em;
+  font-weight: 900;
+  line-height: 1;
 }
-.final-leaderboard_player:nth-of-type(1) {
-	grid-area: gold;
 
-	height: 100%;
-
-	background-color: hsl(49, 92%, 63%);
-	--shadow-color: hsla(42, 80%, 40%, 80%);
-	--points-color: hsla(42, 80%, 30%, 80%);
-	--border-color: hsla(42, 80%, 40%, 20%);
+.final-leaderboard_player .username {
+  display: grid;
+  min-width: 0;
 }
-.final-leaderboard_player:nth-of-type(2) {
-	grid-area: silver;
 
-	height: 75%;
-
-	background-color: hsl(225, 20%, 82%);
-	--shadow-color: hsla(222, 14%, 68%, 80%);
-	--points-color: hsla(222, 12%, 40%, 80%);
-	--border-color: hsla(222, 14%, 50%, 20%);
+.final-leaderboard_player .username strong {
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.final-leaderboard_player:nth-of-type(3) {
-	grid-area: bronze;
 
-	height: 60%;
+.final-leaderboard_player .username span {
+  margin-top: 2px;
+  color: var(--pimd-action-dark);
+  font-family: 'Bungee', sans-serif;
+  font-size: 0.56rem;
+  font-weight: 400;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
 
-	background-color: hsl(32, 55%, 56%);
-	--shadow-color: hsla(31, 46%, 40%, 80%);
-	--points-color: hsla(31, 46%, 30%, 80%);
-	--border-color: hsla(31, 46%, 30%, 20%)
+.final-leaderboard_player .points {
+  display: grid;
+  justify-items: end;
+  min-width: 54px;
+}
+
+.final-leaderboard_player .points strong {
+  font-family: 'Bungee', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.final-leaderboard_player .points span {
+  margin-top: 3px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.gameover-leave {
+  margin-top: 24px;
+}
+
+.gameover--cancelled .gameover-poster {
+  background-color: var(--accent-100);
+  filter: drop-shadow(7px 8px 0 rgb(200 63 49 / 24%));
+}
+
+.gameover--cancelled .gameover-poster h1 {
+  color: var(--pimd-action);
+  font-size: clamp(3.15rem, 14vw, 6.7rem);
+}
+
+.gameover--cancelled .gameover-poster__tape {
+  background: rgb(255 214 74 / 88%);
+}
+
+.gameover--cancelled .gameover-poster__note {
+  margin-right: 0;
+}
+
+.gameover-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.gameover-confetti i {
+  position: absolute;
+  width: 10px;
+  height: 27px;
+  transform: rotate(18deg);
+  background: var(--pimd-highlight);
+}
+
+.gameover-confetti i:nth-child(3n) {
+  background: var(--pimd-status);
+}
+
+.gameover-confetti i:nth-child(3n + 2) {
+  background: var(--pimd-meta);
+}
+
+.gameover-confetti i:nth-child(1) {
+  top: 4%;
+  left: 5%;
+}
+
+.gameover-confetti i:nth-child(2) {
+  top: 14%;
+  right: 7%;
+}
+
+.gameover-confetti i:nth-child(3) {
+  top: 32%;
+  left: 2%;
+}
+
+.gameover-confetti i:nth-child(4) {
+  top: 48%;
+  right: 2%;
+}
+
+.gameover-confetti i:nth-child(5) {
+  top: 67%;
+  left: 8%;
+}
+
+.gameover-confetti i:nth-child(6) {
+  top: 78%;
+  right: 9%;
+}
+
+.gameover-confetti i:nth-child(7) {
+  top: 9%;
+  left: 28%;
+}
+
+.gameover-confetti i:nth-child(8) {
+  top: 25%;
+  right: 27%;
+}
+
+.gameover-confetti i:nth-child(9) {
+  bottom: 9%;
+  left: 25%;
+}
+
+.gameover-confetti i:nth-child(10) {
+  right: 30%;
+  bottom: 4%;
+}
+
+.gameover-confetti i:nth-child(11) {
+  top: 55%;
+  left: 17%;
+}
+
+.gameover-confetti i:nth-child(12) {
+  top: 60%;
+  right: 15%;
+}
+
+@media (min-width: 900px) {
+  #gameover {
+    grid-template-columns: minmax(330px, 0.9fr) minmax(410px, 1.1fr);
+    align-items: center;
+    min-height: calc(100svh - var(--navbar-height));
+  }
+
+  .gameover-poster,
+  .gameover-standings {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .gameover-poster {
+    min-height: 470px;
+  }
+}
+
+@media (max-width: 430px) {
+  .gameover-poster__note {
+    max-width: 24ch;
+    margin-right: 70px;
+  }
+
+  .gameover-winner-seal {
+    right: 17px;
+    width: 70px;
+    height: 70px;
+    font-size: 0.6rem;
+  }
+
+  .gameover-standings {
+    padding-inline: 16px;
+  }
+
+  .gameover-standings__heading {
+    display: grid;
+    justify-items: start;
+  }
+
+  .gameover-standings__heading h2 {
+    text-align: left;
+  }
+
+  .final-leaderboard_player {
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+}
+
+@media (forced-colors: active) {
+  .gameover-poster,
+  .gameover-standings,
+  .final-leaderboard_player {
+    border: 3px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    filter: none;
+    box-shadow: none;
+  }
 }
 </style>
