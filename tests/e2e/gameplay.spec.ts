@@ -36,7 +36,7 @@ test('three friends can complete a game and reload the results', async ({ browse
 
   try {
     await host.goto('/');
-    await host.getByText('START A NEW GAME', { exact: true }).click();
+    await host.getByRole('button', { name: 'Start a new game' }).click();
     await expect(host).toHaveURL(/\/join\/[A-HJ-NP-Z]{5}$/, { timeout: 65_000 });
     const roomId = host.url().split('/').at(-1);
     expect(roomId).toMatch(/^[A-HJ-NP-Z]{5}$/);
@@ -93,22 +93,22 @@ test('three friends can complete a game and reload the results', async ({ browse
   }
 });
 
-test('Home keeps the five-letter input and carousel interaction contract', async ({
+test('Home keeps the five-letter input and manual carousel interaction contract', async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium-desktop');
   await page.goto('/');
 
-  const input = page.locator('input.room-input');
+  const input = page.getByRole('textbox', { name: 'Enter room code' });
   await input.fill('abcde');
   await expect(input).toHaveValue('ABCDE');
   await expect(input).toHaveAttribute('maxlength', '5');
   await expect(page.locator('ion-icon[name="shuffle"]')).toHaveCount(0);
 
   await page.waitForTimeout(750);
-  const scrollPort = page.locator('.scroll-port');
+  const scrollPort = page.locator('.pimd-carousel__track');
   const before = await scrollPort.evaluate((element) => element.scrollLeft);
-  await page.locator('.btn-right').click();
+  await page.getByRole('button', { name: 'Next feature' }).click();
   await expect
     .poll(() => scrollPort.evaluate((element) => element.scrollLeft))
     .toBeGreaterThan(before + 100);

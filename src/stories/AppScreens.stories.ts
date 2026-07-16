@@ -36,27 +36,60 @@ async function openStatusPanel(
 }
 
 export const Home: Story = {
-  parameters: { route: '/' },
+  parameters: { route: '/', a11y: { test: 'error' } },
+};
+
+export const HomeRoomCodeValidation: Story = {
+  name: 'Home / room code validation',
+  parameters: { route: '/', a11y: { test: 'error' } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const roomCode = canvas.getByRole('textbox', { name: 'Enter room code' });
+
+    await userEvent.type(roomCode, 'i0d3e');
+    await expect(roomCode).toHaveValue('DE');
+    await userEvent.click(canvas.getByRole('button', { name: 'Play' }));
+    await expect(roomCode).toHaveAttribute('aria-invalid', 'true');
+    await expect(
+      canvas.findByText('That room code needs five valid letters.'),
+    ).resolves.toBeVisible();
+    await expect(canvas.findByRole('alert')).resolves.toHaveTextContent(
+      'Enter the five-letter room ID (without I or O).',
+    );
+
+    await userEvent.clear(roomCode);
+    await userEvent.type(roomCode, 'd-e c_k!s9');
+    await expect(roomCode).toHaveValue('DECKS');
+    await expect(roomCode).toHaveAttribute('aria-invalid', 'false');
+  },
 };
 
 export const ProfileRequired: Story = {
   name: 'Lobby / profile required',
-  parameters: { route: lobbyRoute, game: gameScenarios.profileRequired },
+  parameters: {
+    route: lobbyRoute,
+    game: gameScenarios.profileRequired,
+    a11y: { test: 'error' },
+  },
 };
 
 export const LobbyHost: Story = {
   name: 'Lobby / host',
-  parameters: { route: lobbyRoute, game: gameScenarios.lobbyHost },
+  parameters: { route: lobbyRoute, game: gameScenarios.lobbyHost, a11y: { test: 'error' } },
 };
 
 export const LobbyGuest: Story = {
   name: 'Lobby / guest',
-  parameters: { route: lobbyRoute, game: gameScenarios.lobbyGuest },
+  parameters: { route: lobbyRoute, game: gameScenarios.lobbyGuest, a11y: { test: 'error' } },
 };
 
 export const LobbyDisconnected: Story = {
   name: 'Lobby / player disconnected',
-  parameters: { route: lobbyRoute, game: gameScenarios.lobbyDisconnected },
+  parameters: {
+    route: lobbyRoute,
+    game: gameScenarios.lobbyDisconnected,
+    a11y: { test: 'error' },
+  },
 };
 
 export const SettingsOpen: Story = {

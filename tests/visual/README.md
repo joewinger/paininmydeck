@@ -1,18 +1,31 @@
-# Legacy visual baselines
+# Visual release-gate baselines
 
-These screenshots were captured from the archived Firebase build at commit
-`b4ba1e1` with Chromium at the two release-gate viewports:
+The refresh screenshots capture the approved entry-flow redesign:
 
-- mobile: 390 x 844
-- desktop: 1280 x 800
+- Home at 390 x 844 and 1280 x 800
+- profile, lobby, and Settings at 390 x 844
+- the first-round Czar state at 390 x 844
 
-They are evidence for the Vue 3 port's visual freeze. Automated comparisons
-must use a maximum differing-pixel ratio of `0.002` after masking dynamic room,
-player, card, and timer text. The only accepted product differences are those
-listed in the overhaul specification: five-letter codes, removal of shuffle and
-Public Game controls, the card-license footer link, and server/reconnect copy
-shown through existing components.
+The Czar fixture records the current transitional state: the shared branded
+shell is approved, while the card surface is intentionally still awaiting its
+gameplay redesign. Generated room and question copy are normalized or masked;
+the product UI remains part of the pixel comparison. The gate uses a maximum
+differing-pixel ratio of `0.002` after dynamic regions are excluded.
 
-The fixtures intentionally preserve several state-specific captures in addition
-to Home. New baselines must never be accepted merely because a test failed;
-compare them against the archived build and document the approved exception.
+Baseline changes are deliberately opt-in. After visually reviewing an
+intentional refresh, regenerate only this collection with:
+
+```sh
+UPDATE_VISUAL_BASELINES=1 npx playwright test tests/e2e/visual.spec.ts --grep "approved refresh"
+```
+
+Then inspect the image diff in `tests/visual/refresh/` and run the same tests
+without update mode before committing:
+
+```sh
+npx playwright test tests/e2e/visual.spec.ts --grep "approved refresh"
+```
+
+Never accept a new baseline merely because a test failed. The changed images
+should be reviewed alongside the corresponding intentional UI change so the
+approval remains auditable in Git.
