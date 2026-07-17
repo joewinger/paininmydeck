@@ -69,7 +69,7 @@ withDefaults(defineProps<{ variant?: 'hero' | 'compact' }>(), {
 
   display: inline-flex;
   align-items: center;
-  gap: 0.22em;
+  gap: 0.15em;
   font-size: clamp(14px, 3.8vw, 21px);
   line-height: 1;
 }
@@ -80,18 +80,26 @@ withDefaults(defineProps<{ variant?: 'hero' | 'compact' }>(), {
 
 .pimd-product-mark--compact .pimd-product-mark__in-my {
   display: grid;
-  gap: 0.04em;
-  min-width: 2.15em;
-  padding: 0.18em 0.24em 0.16em;
-  transform: rotate(-2deg);
-  border: 0.12em solid currentColor;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  width: 0.86em;
+  height: 1.04em;
+  min-width: 0;
+  padding: 0.08em 0.04em 0.06em;
+  transform: rotate(-1deg);
+  border: 0;
+  border-radius: 0.05em;
   background: currentColor;
-  font-size: 0.48em;
-  line-height: 0.72;
+  font-size: inherit;
+  line-height: 1;
   text-align: center;
 }
 
 .pimd-product-mark--compact .pimd-product-mark__in-my > span {
+  display: grid;
+  min-height: 0;
+  place-items: center;
   color: var(--pimd-mark-card-text);
+  font-size: 0.42em;
+  line-height: 1;
 }
 </style>
