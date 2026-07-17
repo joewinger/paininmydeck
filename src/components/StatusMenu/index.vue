@@ -285,9 +285,9 @@ watch(
   padding: 11px 16px;
   border: 3px solid var(--pimd-ink);
   border-radius: 0;
-  background: var(--pimd-highlight);
+  background: var(--pimd-primary);
   box-shadow: 4px 5px 0 var(--pimd-ink);
-  color: var(--pimd-ink);
+  color: var(--pimd-on-primary);
   font-family: 'Bungee', sans-serif;
   font-size: 0.85rem;
   font-weight: 400;

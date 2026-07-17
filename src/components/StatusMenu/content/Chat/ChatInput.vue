@@ -87,9 +87,9 @@ async function sendMessage() {
   transform: rotate(-2deg);
   border: 3px solid var(--pimd-ink);
   border-radius: 0;
-  background: var(--pimd-highlight);
+  background: var(--pimd-primary);
   box-shadow: 3px 3px 0 var(--pimd-primary-dark);
-  color: var(--pimd-ink);
+  color: var(--pimd-on-primary);
 }
 
 .chatInput button:hover {
