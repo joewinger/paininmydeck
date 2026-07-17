@@ -40,7 +40,7 @@
       </p>
 
       <div v-if="roomData.outcome === 'won'" class="gameover-winner-seal" aria-hidden="true">
-        Room<br />champ
+        <span>Room<br />champ</span>
       </div>
     </section>
 
@@ -155,7 +155,7 @@ function getOrdinalSuffix(number: number): string {
 
 .gameover-poster__note {
   max-width: 35ch;
-  margin: 10px 92px 0 0;
+  margin: 10px 130px 0 0;
   color: var(--pimd-ink-soft);
   font-size: 0.92rem;
   font-weight: 700;
@@ -165,23 +165,61 @@ function getOrdinalSuffix(number: number): string {
 .gameover-winner-seal {
   position: absolute;
   right: clamp(20px, 6vw, 42px);
-  bottom: 29px;
+  bottom: 18px;
   display: grid;
   place-content: center;
-  width: 82px;
-  height: 82px;
+  width: 122px;
+  height: 122px;
   transform: rotate(8deg);
-  border: 4px solid var(--pimd-paper);
-  border-radius: 50%;
-  background: var(--pimd-primary-dark);
-  box-shadow: 0 0 0 3px var(--pimd-ink);
-  color: var(--pimd-paper);
+  background: var(--pimd-ink);
+  clip-path: polygon(
+    50% 0,
+    61% 34%,
+    98% 35%,
+    68% 56%,
+    79% 92%,
+    50% 70%,
+    21% 92%,
+    32% 56%,
+    2% 35%,
+    39% 34%
+  );
+  filter: drop-shadow(4px 5px 0 rgb(45 37 64 / 38%));
+  color: var(--pimd-ink);
   font-family: 'Bungee', sans-serif;
-  font-size: 0.69rem;
   font-weight: 400;
-  line-height: 1;
   text-align: center;
   text-transform: uppercase;
+}
+
+.gameover-winner-seal::before {
+  position: absolute;
+  inset: 5px;
+  background: var(--pimd-highlight);
+  clip-path: inherit;
+  content: '';
+}
+
+.gameover-winner-seal::after {
+  position: absolute;
+  top: 22px;
+  left: 40px;
+  width: 14px;
+  height: 4px;
+  transform: rotate(-35deg);
+  border-radius: 999px;
+  background: rgb(255 250 240 / 72%);
+  content: '';
+}
+
+.gameover-winner-seal span {
+  position: relative;
+  z-index: 1;
+  transform: translateY(-1px) rotate(-2deg);
+  font-size: 0.8rem;
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
 }
 
 .gameover-standings {
@@ -533,15 +571,19 @@ function getOrdinalSuffix(number: number): string {
 
 @media (max-width: 430px) {
   .gameover-poster__note {
-    max-width: 24ch;
-    margin-right: 70px;
+    max-width: 22ch;
+    margin-right: 104px;
   }
 
   .gameover-winner-seal {
     right: 17px;
-    width: 70px;
-    height: 70px;
-    font-size: 0.6rem;
+    bottom: 22px;
+    width: 102px;
+    height: 102px;
+  }
+
+  .gameover-winner-seal span {
+    font-size: 0.68rem;
   }
 
   .gameover-standings {
