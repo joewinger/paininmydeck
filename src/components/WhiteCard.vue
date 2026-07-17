@@ -42,7 +42,14 @@
         <span class="card-index" aria-hidden="true">{{ displayIndex }}</span>
         <span class="card-meta" aria-hidden="true">{{ cardMeta }}</span>
 
-        <span v-if="!isEditableBlank" class="card-text">{{ card.text }}</span>
+        <span
+          v-if="!isEditableBlank"
+          ref="cardTextElement"
+          class="card-text"
+          :class="{ 'is-overflowing': cardTextOverflows }"
+        >
+          {{ card.text }}
+        </span>
 
         <template v-else-if="!pending">
           <textarea
@@ -88,8 +95,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import interact from 'interactjs';
+import { hasScrollableCardText } from '@/components/cardTextOverflow';
 import type { Card, PlayedCard } from '@/shared/protocol';
 import { useGameStore } from '@/stores/game';
 import { useUiStore } from '@/stores/ui';
@@ -102,6 +110,8 @@ const game = useGameStore();
 const ui = useUiStore();
 const wrapperElement = ref<HTMLElement | null>(null);
 const cardElement = ref<HTMLElement | null>(null);
+const cardTextElement = ref<HTMLElement | null>(null);
+const cardTextOverflows = ref(false);
 const blanktext = ref('');
 const editing = ref(false);
 const disableClicks = ref(false);
@@ -191,6 +201,20 @@ const classList = computed(() => ({
 let peekTimer: number | undefined;
 let closePeekTimer: number | undefined;
 let blankSavePointerDown = false;
+let cardTextResizeObserver: ResizeObserver | undefined;
+
+function measureCardTextOverflow() {
+  cardTextOverflows.value = hasScrollableCardText(cardTextElement.value);
+}
+
+function observeCardText() {
+  cardTextResizeObserver?.disconnect();
+  cardTextResizeObserver = undefined;
+  measureCardTextOverflow();
+  if (!cardTextElement.value || typeof ResizeObserver === 'undefined') return;
+  cardTextResizeObserver = new ResizeObserver(measureCardTextOverflow);
+  cardTextResizeObserver.observe(cardTextElement.value);
+}
 
 function clearPeekTimers() {
   if (peekTimer !== undefined) window.clearTimeout(peekTimer);
@@ -319,6 +343,10 @@ async function trashCard() {
 }
 
 onMounted(() => {
+  void nextTick(() => {
+    observeCardText();
+    if (document.fonts) void document.fonts.ready.then(measureCardTextOverflow);
+  });
   if (isTrashable.value && props.index === 0 && game.turn.round === 1) {
     peekTimer = window.setTimeout(() => {
       trashMode.value = true;
@@ -368,8 +396,14 @@ onMounted(() => {
     .styleCursor(false);
 });
 
+watch([() => props.card.text, effectiveFacedown], async () => {
+  await nextTick();
+  observeCardText();
+});
+
 onBeforeUnmount(() => {
   clearPeekTimers();
+  cardTextResizeObserver?.disconnect();
   document.removeEventListener('pointerdown', handleOutsideInteraction);
   document.removeEventListener('focusin', handleOutsideInteraction);
   document.removeEventListener('keydown', handleEscape);
@@ -526,8 +560,14 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
   padding: 45px 13px 38px;
-  overflow: auto;
-  overscroll-behavior: contain;
+  overflow: clip;
+  scrollbar-width: none;
+}
+
+.card-text.is-overflowing {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
   scrollbar-width: thin;
 }
 
