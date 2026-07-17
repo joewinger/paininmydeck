@@ -35,7 +35,7 @@
         {{
           roomData.outcome === 'cancelled'
             ? 'No champion was crowned, but the receipts are still here.'
-            : 'Officially the biggest Pain in my Deck! in the room.'
+            : 'Good company. Terrible answers. A deserved victory.'
         }}
       </p>
 
