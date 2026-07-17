@@ -14,6 +14,7 @@ type Rectangle = { x: number; y: number; width: number; height: number };
 
 async function settleVisualState(page: Page, delay = 750): Promise<void> {
   await expect(page.locator('vite-error-overlay')).toHaveCount(0);
+  await page.mouse.move(0, 0);
   await page.evaluate(async () => document.fonts.ready);
   const visibleIcons = page.locator('ion-icon:visible');
   if ((await visibleIcons.count()) > 0) {
@@ -227,6 +228,12 @@ test('approved refresh: mobile Settings', async ({ page }, testInfo) => {
     .toEqual(['7', '10', '0', '0', '4']);
   await expect(settings.locator('input[type="checkbox"]')).toHaveCount(2);
   await expect(settings.getByRole('button', { name: 'Save' })).toBeVisible();
+  await page.locator('.lobby-room-card h1 strong').evaluate((element) => {
+    element.textContent = 'ABCDE';
+  });
+  await page.locator('#navbar-info .navbar-info__code').evaluate((element) => {
+    element.textContent = 'ABCDE';
+  });
   await settleVisualState(page);
 
   await compareRefreshFixture(page, testInfo, 'settings-mobile.png', [
