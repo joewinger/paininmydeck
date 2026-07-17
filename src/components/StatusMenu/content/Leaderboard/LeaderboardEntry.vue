@@ -62,7 +62,7 @@ const status = computed(() => {
 
 .leaderboardEntry:nth-child(even) {
   transform: rotate(-0.25deg);
-  box-shadow: 4px 5px 0 var(--pimd-status);
+  box-shadow: 4px 5px 0 var(--pimd-primary);
 }
 
 .leaderboardEntry--self {
@@ -95,7 +95,7 @@ const status = computed(() => {
   height: 42px;
   transform: rotate(-4deg);
   border: 3px solid var(--pimd-ink);
-  background: var(--pimd-status);
+  background: var(--pimd-primary);
   color: var(--pimd-ink);
   font-family: 'Bungee', sans-serif;
   font-size: 1.35rem;
@@ -128,7 +128,7 @@ const status = computed(() => {
 .leaderboardEntry-username span {
   flex: none;
   padding: 3px 5px 2px;
-  background: var(--pimd-action);
+  background: var(--pimd-primary-dark);
   color: var(--pimd-paper);
   font-family: 'Bungee', sans-serif;
   font-size: 0.48rem;

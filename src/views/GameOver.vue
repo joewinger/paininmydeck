@@ -136,7 +136,7 @@ function getOrdinalSuffix(number: number): string {
 
 .gameover-title__name {
   max-width: 8ch;
-  color: var(--pimd-action);
+  color: var(--pimd-primary-dark);
   font-size: 0.54em;
   line-height: 0.95;
   letter-spacing: -0.03em;
@@ -170,7 +170,7 @@ function getOrdinalSuffix(number: number): string {
   transform: rotate(8deg);
   border: 4px solid var(--pimd-paper);
   border-radius: 50%;
-  background: var(--pimd-action);
+  background: var(--pimd-primary-dark);
   box-shadow: 0 0 0 3px var(--pimd-ink);
   color: var(--pimd-paper);
   font-family: 'Bungee', sans-serif;
@@ -227,7 +227,7 @@ function getOrdinalSuffix(number: number): string {
   transform: rotate(0.2deg);
   border: 3px solid var(--pimd-ink);
   background: var(--pimd-paper);
-  box-shadow: 4px 5px 0 var(--pimd-status);
+  box-shadow: 4px 5px 0 var(--pimd-primary);
   color: var(--pimd-ink);
 }
 
@@ -238,7 +238,7 @@ function getOrdinalSuffix(number: number): string {
 
 .final-leaderboard_player--winner {
   background: var(--pimd-highlight);
-  box-shadow: 5px 6px 0 var(--pimd-action);
+  box-shadow: 5px 6px 0 var(--pimd-primary-dark);
 }
 
 .final-leaderboard_player .rank {
@@ -274,7 +274,7 @@ function getOrdinalSuffix(number: number): string {
 
 .final-leaderboard_player .username span {
   margin-top: 2px;
-  color: var(--pimd-action-dark);
+  color: var(--pimd-ink);
   font-family: 'Bungee', sans-serif;
   font-size: 0.56rem;
   font-weight: 400;
@@ -312,8 +312,15 @@ function getOrdinalSuffix(number: number): string {
 }
 
 .gameover--cancelled .gameover-poster h1 {
-  color: var(--pimd-action);
-  font-size: clamp(3.15rem, 14vw, 6.7rem);
+  color: var(--pimd-danger);
+  font-size: clamp(2.3rem, 5vw, 3.8rem);
+  line-height: 0.9;
+  letter-spacing: -0.065em;
+}
+
+.gameover--cancelled .gameover-poster h1 span {
+  max-width: 100%;
+  white-space: nowrap;
 }
 
 .gameover--cancelled .gameover-poster__tape {
@@ -341,7 +348,7 @@ function getOrdinalSuffix(number: number): string {
 }
 
 .gameover-confetti i:nth-child(3n) {
-  background: var(--pimd-status);
+  background: var(--pimd-primary);
 }
 
 .gameover-confetti i:nth-child(3n + 2) {
@@ -456,6 +463,13 @@ function getOrdinalSuffix(number: number): string {
   .final-leaderboard_player {
     grid-template-columns: 42px minmax(0, 1fr) auto;
     gap: 8px;
+  }
+}
+
+@media (max-width: 899px) {
+  .gameover-standings {
+    justify-self: center;
+    box-shadow: 0 9px 0 var(--pimd-meta);
   }
 }
 

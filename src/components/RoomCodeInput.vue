@@ -69,7 +69,7 @@ function updateValue(event: Event): void {
   justify-self: center;
   padding: 7px 11px 6px;
   transform: rotate(-0.7deg);
-  background: var(--pimd-status);
+  background: var(--pimd-primary);
   color: var(--pimd-ink);
   font-family: 'Bungee', sans-serif;
   font-size: clamp(11px, 3.2vw, 15px);
@@ -120,7 +120,7 @@ function updateValue(event: Event): void {
 }
 
 .pimd-room-code__control--invalid > span {
-  border-color: var(--pimd-action);
+  border-color: var(--pimd-danger);
 }
 
 .pimd-room-code__underline {
@@ -128,7 +128,11 @@ function updateValue(event: Event): void {
   height: 4px;
   margin: -3px auto 0;
   transform: rotate(-1.5deg);
-  background: var(--pimd-action);
+  background: var(--pimd-primary-dark);
+}
+
+.pimd-room-code__control--invalid + .pimd-room-code__underline {
+  background: var(--pimd-danger);
 }
 
 .pimd-room-code small {

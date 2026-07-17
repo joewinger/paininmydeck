@@ -1,13 +1,21 @@
 <template>
-  <span class="pimd-product-mark" :class="`pimd-product-mark--${variant}`" role="img" aria-label="Pain in my Deck!">
+  <span
+    class="pimd-product-mark"
+    :class="`pimd-product-mark--${variant}`"
+    role="img"
+    aria-label="Pain in my Deck!"
+  >
     <span class="pimd-product-mark__pain">Pain</span>
-    <span class="pimd-product-mark__in-my">in my</span>
+    <span class="pimd-product-mark__in-my">
+      <span>in</span>
+      <span>my</span>
+    </span>
     <span class="pimd-product-mark__deck">Deck!</span>
   </span>
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{ variant?: 'hero' | 'compact' | 'badge' }>(), {
+withDefaults(defineProps<{ variant?: 'hero' | 'compact' }>(), {
   variant: 'compact',
 });
 </script>
@@ -37,11 +45,18 @@ withDefaults(defineProps<{ variant?: 'hero' | 'compact' | 'badge' }>(), {
 }
 
 .pimd-product-mark--hero .pimd-product-mark__in-my {
+  display: flex;
+  justify-content: center;
+  gap: 0.24em;
   margin: 0.24em 0 0.16em;
   transform: rotate(1deg);
   font-size: 0.42em;
   line-height: 0.7;
   letter-spacing: -0.04em;
+}
+
+.pimd-product-mark--hero .pimd-product-mark__in-my > span {
+  display: inline;
 }
 
 .pimd-product-mark--hero .pimd-product-mark__deck {
@@ -50,42 +65,33 @@ withDefaults(defineProps<{ variant?: 'hero' | 'compact' | 'badge' }>(), {
 }
 
 .pimd-product-mark--compact {
-  display: flex;
-  align-items: baseline;
-  gap: 0.28em;
+  --pimd-mark-card-text: var(--pimd-highlight);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22em;
   font-size: clamp(14px, 3.8vw, 21px);
   line-height: 1;
 }
 
-.pimd-product-mark--compact span {
+.pimd-product-mark--compact > span {
   display: inline;
 }
 
 .pimd-product-mark--compact .pimd-product-mark__in-my {
-  font-size: 0.72em;
-}
-
-.pimd-product-mark--badge {
   display: grid;
-  place-content: center;
-  width: 56px;
-  height: 56px;
-  transform: rotate(-4deg);
-  border: 3px solid var(--pimd-paper);
-  border-radius: 50%;
-  background: var(--pimd-action);
-  box-shadow: 3px 4px 0 var(--pimd-ink);
-  color: var(--pimd-paper);
-  font-size: 8px;
-  line-height: 0.92;
+  gap: 0.04em;
+  min-width: 2.15em;
+  padding: 0.18em 0.24em 0.16em;
+  transform: rotate(-2deg);
+  border: 0.12em solid currentColor;
+  background: currentColor;
+  font-size: 0.48em;
+  line-height: 0.72;
   text-align: center;
 }
 
-@media (min-width: 780px) {
-  .pimd-product-mark--badge {
-    width: 66px;
-    height: 66px;
-    font-size: 9px;
-  }
+.pimd-product-mark--compact .pimd-product-mark__in-my > span {
+  color: var(--pimd-mark-card-text);
 }
 </style>

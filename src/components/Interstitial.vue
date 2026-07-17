@@ -60,7 +60,7 @@ const ui = useUiStore();
 
 .interstitial-slip h1 {
   margin: 22px 0 15px;
-  color: var(--pimd-action);
+  color: var(--pimd-primary-dark);
   font-family: 'Bungee', sans-serif;
   font-size: clamp(3.35rem, 15vw, 7rem);
   font-weight: 400;
@@ -85,7 +85,7 @@ const ui = useUiStore();
   height: 8px;
   margin-top: 28px;
   transform: rotate(-1deg);
-  background: var(--pimd-status);
+  background: var(--pimd-primary);
   clip-path: polygon(0 24%, 100% 0, 95% 100%, 3% 75%);
 }
 
@@ -95,13 +95,13 @@ const ui = useUiStore();
   width: 142vw;
   height: 90px;
   border-block: 4px solid var(--pimd-ink);
-  background: var(--pimd-action);
+  background: var(--pimd-primary-dark);
   box-shadow: 0 14px 0 rgb(45 37 64 / 24%);
 }
 
 .interstitial-stripe--status {
   transform: rotate(-11deg);
-  background: var(--pimd-status);
+  background: var(--pimd-primary);
 }
 
 .interstitial-stripe--meta {

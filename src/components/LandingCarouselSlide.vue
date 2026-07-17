@@ -5,7 +5,9 @@
     :style="{ '--feature-color': slideData.color }"
     :aria-current="active ? 'true' : undefined"
   >
-    <div class="carousel-slide__symbol" aria-hidden="true">{{ slideData.symbol }}</div>
+    <div class="carousel-slide__symbol" aria-hidden="true">
+      <ion-icon :name="slideData.icon" />
+    </div>
     <div class="carousel-slide__copy">
       <p>{{ slideData.eyebrow }}</p>
       <h3>{{ slideData.title }}</h3>
@@ -18,7 +20,7 @@
 <script setup lang="ts">
 export interface LandingSlide {
   color: string;
-  symbol: string;
+  icon: string;
   eyebrow: string;
   title: string;
   description: string;
@@ -76,8 +78,13 @@ defineProps<{ slideData: LandingSlide; active: boolean }>();
   border-radius: 7px;
   background: var(--feature-color);
   box-shadow: 4px 5px 0 rgb(45 37 64 / 22%);
-  font-family: 'Bungee', sans-serif;
-  font-size: 72px;
+  color: var(--pimd-ink);
+}
+
+.carousel-slide__symbol ion-icon {
+  width: 68%;
+  height: 68%;
+  --ionicon-stroke-width: 34px;
 }
 
 .carousel-slide__copy {
@@ -133,7 +140,6 @@ defineProps<{ slideData: LandingSlide; active: boolean }>();
 
   .carousel-slide__symbol {
     width: 104px;
-    font-size: 58px;
   }
 }
 </style>

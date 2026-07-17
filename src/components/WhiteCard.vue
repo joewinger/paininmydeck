@@ -1,9 +1,11 @@
 <template>
   <div
+    ref="wrapperElement"
     class="whiteCard-wrapper"
     :class="{
       trashable: isTrashable,
       trashMode,
+      'is-dragging': isDragging,
       'is-winner': isWinner,
       'is-facedown': effectiveFacedown,
     }"
@@ -98,6 +100,7 @@ const props = withDefaults(defineProps<{ card: Card | PlayedCard; facedown?: boo
 });
 const game = useGameStore();
 const ui = useUiStore();
+const wrapperElement = ref<HTMLElement | null>(null);
 const cardElement = ref<HTMLElement | null>(null);
 const blanktext = ref('');
 const editing = ref(false);
@@ -105,6 +108,8 @@ const disableClicks = ref(false);
 const pending = ref(false);
 const pendingAction = ref<'play' | 'choose-winner' | 'blank' | 'redraw' | null>(null);
 const isDragging = ref(false);
+const swipeOffset = ref(0);
+const trashOpenOffset = ref(64);
 const trashMode = ref(false);
 const isEditableBlank = computed(() => props.card.text.startsWith('%BLANK%'));
 const usesBlankFont = computed(() => Boolean(props.card.blank));
@@ -138,12 +143,14 @@ const cardMeta = computed(() => {
     : `Hand ${displayIndex.value}`;
 });
 const cardAccent = computed(() => {
-  const accents = ['var(--pimd-meta)', 'var(--pimd-status)', 'var(--pimd-highlight)'];
+  const accents = ['var(--pimd-meta)', 'var(--pimd-primary)', 'var(--pimd-highlight)'];
   return accents[props.index % accents.length];
 });
 const cardStyle = computed<Record<string, string>>(() => ({
   '--card-accent': cardAccent.value,
   '--card-tilt': props.index % 2 === 0 ? '-0.65deg' : '0.65deg',
+  '--swipe-x': `${swipeOffset.value}px`,
+  '--trash-open-offset': `${trashOpenOffset.value}px`,
 }));
 const facedownStamp = computed(() => {
   if (!pending.value) return 'Under wraps';
@@ -180,6 +187,29 @@ let peekTimer: number | undefined;
 let closePeekTimer: number | undefined;
 let blankSavePointerDown = false;
 
+function clearPeekTimers() {
+  if (peekTimer !== undefined) window.clearTimeout(peekTimer);
+  if (closePeekTimer !== undefined) window.clearTimeout(closePeekTimer);
+  peekTimer = undefined;
+  closePeekTimer = undefined;
+}
+
+function closeTrashMode() {
+  clearPeekTimers();
+  trashMode.value = false;
+  swipeOffset.value = 0;
+}
+
+function handleOutsideInteraction(event: Event) {
+  const target = event.target;
+  if (target instanceof Node && wrapperElement.value?.contains(target)) return;
+  closeTrashMode();
+}
+
+function handleEscape(event: KeyboardEvent) {
+  if (event.key === 'Escape') closeTrashMode();
+}
+
 async function onClick(mouseEvent: MouseEvent) {
   if (
     !props.card.text ||
@@ -189,8 +219,9 @@ async function onClick(mouseEvent: MouseEvent) {
     game.cardActionPending
   )
     return;
+  clearPeekTimers();
   if (trashMode.value) {
-    trashMode.value = false;
+    closeTrashMode();
     return;
   }
   if (isEditableBlank.value) {
@@ -267,7 +298,7 @@ async function submitBlankCard() {
 
 async function trashCard() {
   if (game.cardActionPending) return;
-  trashMode.value = false;
+  closeTrashMode();
   pendingAction.value = 'redraw';
   pending.value = true;
   game.cardActionPending = true;
@@ -292,28 +323,51 @@ onMounted(() => {
     }, 4_000);
   }
   if (!cardElement.value) return;
+  document.addEventListener('pointerdown', handleOutsideInteraction);
+  document.addEventListener('focusin', handleOutsideInteraction);
+  document.addEventListener('keydown', handleEscape);
   interact(cardElement.value)
     .draggable({
       startAxis: 'x',
       listeners: {
-        start: (event) => {
+        start: () => {
           if (isTrashable.value) {
+            clearPeekTimers();
             isDragging.value = true;
-            trashMode.value = event.velocityX > 0;
+            const cardWidth = cardElement.value?.getBoundingClientRect().width ?? 140;
+            trashOpenOffset.value = Math.min(76, Math.max(58, cardWidth * 0.46));
+            swipeOffset.value = trashMode.value ? trashOpenOffset.value : 0;
+            trashMode.value = false;
           }
         },
-        end: () =>
+        move: (event) => {
+          if (!isDragging.value) return;
+          swipeOffset.value = Math.min(
+            trashOpenOffset.value,
+            Math.max(0, swipeOffset.value + event.dx),
+          );
+        },
+        end: (event) => {
+          if (!isDragging.value) return;
+          const shouldOpen =
+            swipeOffset.value >= trashOpenOffset.value * 0.48 || event.velocityX > 0.45;
+          trashMode.value = shouldOpen;
+          swipeOffset.value = shouldOpen ? trashOpenOffset.value : 0;
           window.setTimeout(() => {
             isDragging.value = false;
-          }, 1),
+            swipeOffset.value = 0;
+          }, 1);
+        },
       },
     })
     .styleCursor(false);
 });
 
 onBeforeUnmount(() => {
-  if (peekTimer !== undefined) window.clearTimeout(peekTimer);
-  if (closePeekTimer !== undefined) window.clearTimeout(closePeekTimer);
+  clearPeekTimers();
+  document.removeEventListener('pointerdown', handleOutsideInteraction);
+  document.removeEventListener('focusin', handleOutsideInteraction);
+  document.removeEventListener('keydown', handleEscape);
   if (cardElement.value) interact(cardElement.value).unset();
 });
 </script>
@@ -322,6 +376,9 @@ onBeforeUnmount(() => {
 .whiteCard-wrapper {
   --card-accent: var(--pimd-meta);
   --card-tilt: 0deg;
+  --swipe-x: 0px;
+  --trash-open-offset: 64px;
+  --trash-button-transform: translateX(22px) rotate(70deg);
 
   position: relative;
   width: 100%;
@@ -346,7 +403,7 @@ onBeforeUnmount(() => {
 }
 
 .whiteCard-wrapper.is-facedown::before {
-  background: var(--pimd-meta);
+  background: var(--pimd-paper-shadow);
 }
 
 .whiteCard {
@@ -379,7 +436,7 @@ onBeforeUnmount(() => {
   overflow-wrap: anywhere;
   cursor: default;
   touch-action: pan-y;
-  transform: rotate(var(--card-tilt));
+  transform: translateX(var(--swipe-x)) rotate(var(--card-tilt));
   transform-origin: center;
   transition:
     transform 150ms ease,
@@ -546,29 +603,36 @@ onBeforeUnmount(() => {
   right: 7px;
   bottom: 7px;
   z-index: 4;
-  background: var(--pimd-action);
+  background: var(--pimd-primary);
   box-shadow: 3px 3px 0 var(--pimd-highlight);
+  color: var(--pimd-ink);
 }
 
 .btn-save:hover:not(:disabled) {
   border-color: var(--pimd-ink);
-  background: var(--pimd-action-dark);
+  background: var(--pimd-primary-dark);
   color: var(--pimd-paper);
   transform: translateY(-2px);
 }
 
 .btn-save:active:not(:disabled) {
   border-color: var(--pimd-ink);
-  background: var(--pimd-action-dark);
+  background: var(--pimd-primary-dark);
   color: var(--pimd-paper);
   box-shadow: 1px 1px 0 var(--pimd-highlight);
   transform: translate(2px, 2px);
 }
 
-.btn-save:disabled,
+.btn-save:disabled {
+  border-color: var(--pimd-ink);
+  background: var(--pimd-primary);
+  color: var(--pimd-ink);
+  opacity: 0.55;
+}
+
 .btn-trash:disabled {
   border-color: var(--pimd-ink);
-  background: var(--pimd-action);
+  background: var(--pimd-danger);
   color: var(--pimd-paper);
   opacity: 0.55;
 }
@@ -591,8 +655,8 @@ onBeforeUnmount(() => {
   top: 8px;
   left: 8px;
   z-index: 0;
-  background: var(--pimd-action);
-  transform: translateX(22px) rotate(70deg);
+  background: var(--pimd-danger);
+  transform: var(--trash-button-transform);
   transition:
     transform 180ms ease,
     background-color 120ms ease;
@@ -600,43 +664,70 @@ onBeforeUnmount(() => {
 
 .btn-trash:hover:not(:disabled) {
   border-color: var(--pimd-ink);
-  background: var(--pimd-action-dark);
+  background: var(--pimd-danger-dark);
   color: var(--pimd-paper);
+  transform: var(--trash-button-transform);
 }
 
-.trashMode .whiteCard,
-.btn-trash:focus-visible + .whiteCard {
+.btn-trash:active:not(:disabled) {
+  border-color: var(--pimd-ink);
+  background: var(--pimd-danger-dark);
+  color: var(--pimd-paper);
+  transform: var(--trash-button-transform);
+}
+
+.whiteCard-wrapper.is-dragging .whiteCard,
+.whiteCard-wrapper.is-dragging .whiteCard:hover,
+.whiteCard-wrapper.is-dragging .whiteCard:active {
   z-index: 2;
-  transform: matrix(1, 0.18, -0.18, 1, 34, 6);
+  transform: translateX(var(--swipe-x)) rotate(var(--card-tilt));
+  transition: none;
 }
 
-.trashMode .btn-trash,
+.whiteCard-wrapper.trashMode {
+  --trash-button-transform: none;
+}
+
+.whiteCard-wrapper.trashMode .whiteCard,
+.whiteCard-wrapper.trashMode .whiteCard:hover,
+.whiteCard-wrapper.trashMode .whiteCard:active,
+.btn-trash:focus-visible + .whiteCard,
+.btn-trash:focus-visible + .whiteCard:hover,
+.btn-trash:focus-visible + .whiteCard:active {
+  z-index: 2;
+  transform: translateX(var(--trash-open-offset)) rotate(2deg);
+}
+
 .btn-trash:focus-visible {
-  z-index: 3;
-  transform: none;
+  --trash-button-transform: none;
+
+  z-index: 0;
+  transform: var(--trash-button-transform);
 }
 
 .whiteCard.facedown,
 .whiteCard.facedown:disabled {
   overflow: hidden;
   border-color: var(--pimd-ink);
-  background-color: var(--pimd-ink);
+  background-color: #f4dfa2;
   background-image:
-    repeating-linear-gradient(
-      45deg,
+    linear-gradient(
+      90deg,
       transparent 0,
-      transparent 10px,
-      rgb(169 138 242 / 72%) 10px,
-      rgb(169 138 242 / 72%) 15px
+      transparent 23%,
+      rgb(45 37 64 / 24%) 23%,
+      rgb(45 37 64 / 24%) calc(23% + 2px),
+      transparent calc(23% + 2px)
     ),
     repeating-linear-gradient(
-      -45deg,
+      to bottom,
       transparent 0,
-      transparent 22px,
-      rgb(87 205 189 / 55%) 22px,
-      rgb(87 205 189 / 55%) 27px
-    );
-  color: var(--pimd-paper);
+      transparent 21px,
+      rgb(87 169 191 / 31%) 21px,
+      rgb(87 169 191 / 31%) 22px
+    ),
+    radial-gradient(circle at 18% 12%, rgb(255 250 240 / 72%), transparent 42%);
+  color: var(--pimd-ink);
   transform: rotate(var(--card-tilt));
 }
 
@@ -645,7 +736,20 @@ onBeforeUnmount(() => {
   inset: 0;
   display: grid;
   place-items: center;
-  padding: 16px;
+  padding: 16px 14px 16px 26%;
+}
+
+.card-back::before {
+  position: absolute;
+  top: 14px;
+  left: 10px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid rgb(45 37 64 / 55%);
+  border-radius: 50%;
+  background: var(--pimd-paper);
+  box-shadow: 0 19px 0 -2px var(--pimd-paper), 0 19px 0 0 rgb(45 37 64 / 55%);
+  content: '';
 }
 
 .card-back > span {
@@ -653,10 +757,10 @@ onBeforeUnmount(() => {
   min-height: 58px;
   padding: 10px 12px;
   place-items: center;
-  transform: rotate(-3deg);
-  border: 3px solid var(--pimd-ink);
-  background: var(--pimd-highlight);
-  box-shadow: 4px 5px 0 var(--pimd-action);
+  transform: rotate(-1.5deg);
+  border: 2px solid var(--pimd-ink);
+  background: rgb(255 250 240 / 91%);
+  box-shadow: 3px 4px 0 rgb(45 37 64 / 18%);
   color: var(--pimd-ink);
   font-family: 'Bungee', sans-serif;
   font-size: clamp(11px, 3vw, 15px);
@@ -676,11 +780,11 @@ onBeforeUnmount(() => {
 .whiteCard.winner:hover {
   z-index: 3;
   border-color: var(--pimd-ink);
-  background-color: var(--pimd-action);
+  background-color: var(--pimd-primary);
   background-image:
-    linear-gradient(rgb(255 255 255 / 7%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 7%) 1px, transparent 1px);
-  color: var(--pimd-paper);
+    linear-gradient(rgb(45 37 64 / 9%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(45 37 64 / 9%) 1px, transparent 1px);
+  color: var(--pimd-ink);
   transform: rotate(-0.8deg) scale(1.02);
 }
 
@@ -693,7 +797,7 @@ onBeforeUnmount(() => {
   right: 10px;
   bottom: auto;
   left: 50px;
-  color: var(--pimd-paper);
+  color: var(--pimd-ink);
   text-align: right;
 }
 

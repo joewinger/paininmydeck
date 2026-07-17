@@ -12,7 +12,11 @@
 
     <aside
       id="statusMenu"
-      :class="{ hidden: game.username === '', open }"
+      :class="{
+        hidden: game.username === '',
+        open,
+        'statusMenu--history-open': currentMenu === 'HISTORY',
+      }"
       aria-label="Room tools"
     >
       <nav id="statusBar" aria-label="Room tool panels">
@@ -153,7 +157,7 @@ watch(
     linear-gradient(var(--pimd-grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--pimd-grid) 1px, transparent 1px);
   background-size: 18px 18px;
-  box-shadow: 7px 8px 0 var(--pimd-action);
+  box-shadow: 7px 8px 0 var(--pimd-primary-dark);
   overflow: hidden;
   transition:
     transform 180ms ease,
@@ -182,12 +186,12 @@ watch(
 
 #statusBar {
   z-index: 2;
-  display: flex;
+  display: grid;
   grid-row: 2;
-  align-items: stretch;
-  justify-content: space-evenly;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
   width: 100%;
-  padding: 4px 6px 3px;
+  padding: 0;
   border-top: 3px solid var(--pimd-ink);
   background: var(--pimd-paper);
 }
@@ -205,6 +209,11 @@ watch(
 
 #statusMenu.open #statusMenuContent-container {
   padding-block: 21px 17px;
+}
+
+#statusMenu.statusMenu--history-open #statusMenuContent-container {
+  height: min(68vh, calc(100svh - var(--navbar-height) - 112px));
+  overflow: hidden;
 }
 
 .statusMenuContent {
@@ -289,7 +298,7 @@ watch(
 .status-menu-action:hover {
   transform: translateY(-2px);
   border-color: var(--pimd-ink);
-  background: var(--pimd-status);
+  background: var(--pimd-primary);
   color: var(--pimd-ink);
   box-shadow: 4px 7px 0 var(--pimd-ink);
 }
@@ -297,12 +306,23 @@ watch(
 .status-menu-action:active {
   transform: translate(3px, 4px);
   border-color: var(--pimd-ink);
-  background: var(--pimd-status-dark);
+  background: var(--pimd-primary-dark);
+  color: var(--pimd-paper);
   box-shadow: 1px 1px 0 var(--pimd-ink);
 }
 
 .status-menu-action--danger {
-  background: var(--pimd-action);
+  background: var(--pimd-danger);
+  color: var(--pimd-paper);
+}
+
+.status-menu-action--danger:hover {
+  background: var(--pimd-danger);
+  color: var(--pimd-paper);
+}
+
+.status-menu-action--danger:active {
+  background: var(--pimd-danger-dark);
   color: var(--pimd-paper);
 }
 

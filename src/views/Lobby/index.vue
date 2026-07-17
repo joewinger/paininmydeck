@@ -156,8 +156,8 @@ async function startGame(done: () => void) {
   bottom: 17px;
   padding: 7px 9px 5px;
   transform: rotate(-7deg);
-  border: 3px solid var(--pimd-action);
-  color: var(--pimd-action);
+  border: 3px solid var(--pimd-primary-dark);
+  color: var(--pimd-primary-dark);
   font-family: 'Bungee', sans-serif;
   font-size: 9px;
   line-height: 1;

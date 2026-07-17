@@ -88,23 +88,24 @@ async function sendMessage() {
   border: 3px solid var(--pimd-ink);
   border-radius: 0;
   background: var(--pimd-highlight);
-  box-shadow: 3px 3px 0 var(--pimd-action);
+  box-shadow: 3px 3px 0 var(--pimd-primary-dark);
   color: var(--pimd-ink);
 }
 
 .chatInput button:hover {
   transform: translateY(-2px) rotate(-2deg);
   border-color: var(--pimd-ink);
-  background: var(--pimd-status);
+  background: var(--pimd-primary);
   color: var(--pimd-ink);
-  box-shadow: 3px 5px 0 var(--pimd-action);
+  box-shadow: 3px 5px 0 var(--pimd-primary-dark);
 }
 
 .chatInput button:active {
   transform: translate(2px, 2px) rotate(-2deg);
   border-color: var(--pimd-ink);
-  background: var(--pimd-status-dark);
-  box-shadow: 1px 1px 0 var(--pimd-action);
+  background: var(--pimd-primary-dark);
+  color: var(--pimd-paper);
+  box-shadow: 1px 1px 0 var(--pimd-primary-dark);
 }
 
 .chatInput button ion-icon {

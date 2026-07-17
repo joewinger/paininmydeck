@@ -34,7 +34,7 @@ const ui = useUiStore();
     linear-gradient(90deg, rgb(87 169 191 / 14%) 1px, transparent 1px),
     var(--pimd-paper);
   background-size: 18px 18px;
-  box-shadow: 7px 9px 0 var(--pimd-action);
+  box-shadow: 7px 9px 0 var(--pimd-danger);
   color: var(--pimd-ink);
   transition:
     transform 220ms ease,
@@ -87,7 +87,7 @@ const ui = useUiStore();
   padding: 0;
   border: 3px solid var(--pimd-ink);
   border-radius: 50%;
-  background: var(--pimd-action);
+  background: var(--pimd-danger);
   color: var(--pimd-paper);
   font-family: 'Bungee', sans-serif;
   font-size: 20px;

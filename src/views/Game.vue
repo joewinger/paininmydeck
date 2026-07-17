@@ -17,9 +17,11 @@
           </div>
         </dl>
 
-        <question-card :text="questionText" />
+        <div class="game-prompt-stack" :class="{ 'game-prompt-stack--sticky': questionPinned }">
+          <question-card :text="questionText" @sticky-change="questionPinned = $event" />
 
-        <info-bar v-if="infoText" :text="infoText" />
+          <info-bar v-if="infoStatus" :text="infoStatus.text" :kind="infoStatus.kind" />
+        </div>
       </aside>
 
       <section class="game-card-area" aria-labelledby="game-phase-heading">
@@ -53,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import InfoBar from '@/components/InfoBar.vue';
 import QuestionCard from '@/components/QuestionCard.vue';
@@ -68,27 +70,40 @@ const roundNumber = computed(() => String(game.turn.round || 1).padStart(2, '0')
 const submittedCount = computed(() => game.playedPlayerIds.length);
 const expectedAnswerCount = computed(() => Math.max(game.users.length - 1, 0));
 const roleLabel = computed(() => (game.isCzar ? 'Card Czar' : 'Player'));
+const questionPinned = ref(true);
 
-const infoText = computed(() => {
-  if (game.connectionState === 'connecting') return 'Connecting to the room...';
-  if (game.connectionState === 'reconnecting') return 'Reconnecting to the room...';
+type InfoStatusKind = 'connecting' | 'reconnecting' | 'waiting' | 'role' | 'action' | 'success';
+
+const infoStatus = computed<{ text: string; kind: InfoStatusKind } | null>(() => {
+  if (game.connectionState === 'connecting')
+    return { text: 'Connecting to the room...', kind: 'connecting' };
+  if (game.connectionState === 'reconnecting')
+    return { text: 'Reconnecting to the room...', kind: 'reconnecting' };
   const disconnected = game.users
     .filter((player) => !player.connected)
     .map((player) => player.displayName);
-  if (disconnected.length === 1) return `Waiting for ${disconnected[0]} to reconnect...`;
+  if (disconnected.length === 1)
+    return { text: `Waiting for ${disconnected[0]} to reconnect...`, kind: 'waiting' };
   if (disconnected.length > 1)
-    return `Waiting for ${disconnected.join(', ')} to reconnect...`;
+    return { text: `Waiting for ${disconnected.join(', ')} to reconnect...`, kind: 'waiting' };
   if (game.phase === 'REVEAL') {
     const winner = game.turn.winningCard?.playedByDisplayName;
-    return winner ? `${winner} wins the round!` : 'The winner is in!';
+    return {
+      text: winner ? `${winner} wins the round!` : 'The winner is in!',
+      kind: 'success',
+    };
   }
   if (game.isCzar)
-    return game.phase === 'JUDGING' ? 'Select the winning card!' : 'You are the Card Czar!';
+    return game.phase === 'JUDGING'
+      ? { text: 'Select the winning card!', kind: 'action' }
+      : { text: 'You are the Card Czar!', kind: 'role' };
   if (game.playedThisTurn) {
-    if (game.phase === 'COLLECTING') return 'Waiting for everyone to play a card!';
-    if (game.phase === 'JUDGING') return `Waiting for ${czarName.value} to pick a winner...`;
+    if (game.phase === 'COLLECTING')
+      return { text: 'Waiting for everyone to play a card!', kind: 'waiting' };
+    if (game.phase === 'JUDGING')
+      return { text: `Waiting for ${czarName.value} to pick a winner...`, kind: 'waiting' };
   }
-  return '';
+  return null;
 });
 
 const phaseHeading = computed(() => {
@@ -153,6 +168,10 @@ onBeforeRouteLeave((to) => {
 .game-prompt-column {
   display: contents;
   min-width: 0;
+}
+
+.game-prompt-stack {
+  display: contents;
 }
 
 .game-round-meta {
@@ -253,6 +272,17 @@ onBeforeRouteLeave((to) => {
   transition: transform 0s;
 }
 
+.game-screen[data-phase='reveal'] .whiteCard.winner,
+.game-screen[data-phase='reveal'] .whiteCard.winner:disabled,
+.game-screen[data-phase='reveal'] .whiteCard.winner:hover {
+  background-color: var(--pimd-primary);
+  color: var(--pimd-ink);
+}
+
+.game-screen[data-phase='reveal'] .whiteCard.winner .card-meta {
+  color: var(--pimd-ink);
+}
+
 @media (min-width: 760px) {
   .game-screen {
     padding-bottom: 124px;
@@ -269,6 +299,21 @@ onBeforeRouteLeave((to) => {
     align-self: stretch;
     align-content: start;
     gap: 14px;
+  }
+
+  .game-prompt-stack {
+    --question-sticky-position: relative;
+    --question-sticky-top: auto;
+
+    display: grid;
+    align-content: start;
+    gap: 14px;
+  }
+
+  .game-prompt-stack--sticky {
+    position: sticky;
+    top: calc(var(--navbar-height) + 14px);
+    z-index: 1800;
   }
 
   .game-card-area {

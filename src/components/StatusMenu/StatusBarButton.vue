@@ -40,14 +40,13 @@ const accessibleLabel = computed(() =>
 .statusBarButton {
   position: relative;
   display: grid;
-  flex: 1 1 0;
   grid-template-rows: 24px auto;
   place-items: center;
   gap: 2px;
-  width: auto;
+  width: 100%;
   min-width: 0;
-  max-width: 112px;
-  min-height: 52px;
+  max-width: none;
+  min-height: 57px;
   margin: 0;
   padding: 5px 6px 4px;
   border: 0;
@@ -62,17 +61,17 @@ const accessibleLabel = computed(() =>
 }
 
 .statusBarButton + .statusBarButton {
-  border-left: 2px dashed rgb(45 37 64 / 24%);
+  border-left: 2px dotted rgb(45 37 64 / 32%);
 }
 
 .statusBarButton:hover {
-  transform: translateY(-2px) rotate(-1deg);
+  transform: none;
   background: rgb(255 214 74 / 38%);
   color: var(--pimd-ink);
 }
 
 .statusBarButton:active {
-  transform: translateY(1px);
+  transform: none;
   background: var(--pimd-highlight);
   color: var(--pimd-ink);
 }
@@ -82,13 +81,17 @@ const accessibleLabel = computed(() =>
   color: var(--pimd-ink);
 }
 
+.statusBarButton.active:not(:first-child),
+.statusBarButton.active + .statusBarButton {
+  border-left: 3px solid var(--pimd-ink);
+}
+
 .statusBarButton.active::before {
   content: '';
   position: absolute;
-  inset: auto 10px 0;
-  height: 4px;
-  background: var(--pimd-action);
-  clip-path: polygon(2% 20%, 100% 0, 96% 100%, 0 82%);
+  inset: 0 0 auto;
+  height: 5px;
+  background: var(--pimd-primary-dark);
 }
 
 .statusBarButton__icon {
@@ -118,7 +121,7 @@ const accessibleLabel = computed(() =>
   height: 10px;
   border: 2px solid var(--pimd-paper);
   border-radius: 50%;
-  background: var(--pimd-action);
+  background: var(--pimd-highlight);
   box-shadow: 1px 1px 0 var(--pimd-ink);
   animation: status-notification-pulse 2.8s 3 ease-in-out;
 }

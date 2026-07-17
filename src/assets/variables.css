@@ -7,18 +7,19 @@
   /* Pain in my Deck! visual system */
   --pimd-ink: #2d2540;
   --pimd-ink-soft: #544b67;
-  --pimd-canvas: #fff8e8;
+  --pimd-canvas: #f5e8ad;
+  --pimd-canvas-grid: rgb(70 124 139 / 14%);
   --pimd-paper: #fffaf0;
   --pimd-paper-shadow: #e8ddc8;
   --pimd-highlight: #ffd64a;
-  --pimd-action: #c83f31;
-  --pimd-action-dark: #8f2b25;
-  --pimd-status: #57cdbd;
-  --pimd-status-dark: #2d8e82;
+  --pimd-primary: #57cdbd;
+  --pimd-primary-dark: #267a71;
+  --pimd-danger: #c83f31;
+  --pimd-danger-dark: #8f2b25;
   --pimd-meta: #a98af2;
   --pimd-wood: #78421f;
   --pimd-wood-dark: #4e2914;
-  --pimd-grid: rgb(87 169 191 / 22%);
+  --pimd-grid: rgb(87 169 191 / 24%);
   --pimd-shadow: 7px 8px 0 rgb(45 37 64 / 22%);
   --pimd-focus: 0 0 0 4px var(--pimd-highlight), 0 0 0 7px var(--pimd-ink);
 
@@ -37,8 +38,8 @@
   --primary-100: #fff9df;
 
   --accent-500: #5f1d19;
-  --accent-400: var(--pimd-action-dark);
-  --accent-300: var(--pimd-action);
+  --accent-400: var(--pimd-danger-dark);
+  --accent-300: var(--pimd-danger);
   --accent-200: #e9a29d;
   --accent-100: #fff3f1;
 

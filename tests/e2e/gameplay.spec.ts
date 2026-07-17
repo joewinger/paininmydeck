@@ -1,4 +1,16 @@
-import { expect, test, type BrowserContext, type Page } from '@playwright/test';
+import { expect, test, type BrowserContext, type Locator, type Page } from '@playwright/test';
+
+async function swipeCardToRevealRedraw(page: Page, card: Locator): Promise<void> {
+  const bounds = await card.boundingBox();
+  if (!bounds) throw new Error('Expected a visible answer card to swipe.');
+
+  const startX = bounds.x + Math.min(30, bounds.width * 0.2);
+  const centerY = bounds.y + bounds.height / 2;
+  await page.mouse.move(startX, centerY);
+  await page.mouse.down();
+  await page.mouse.move(startX + Math.min(100, bounds.width * 0.62), centerY, { steps: 6 });
+  await page.mouse.up();
+}
 
 async function setProfile(page: Page, displayName: string, swatchIndex: number): Promise<void> {
   const modal = page.locator('#setUsernameModal');
@@ -67,7 +79,26 @@ test('three friends can complete a game and reload the results', async ({ browse
       expect(third.locator('#interstitial')).toBeHidden({ timeout: 5_000 }),
     ]);
 
-    // Card zero demonstrates the legacy redraw gesture as the interstitial clears.
+    const redrawWrapper = second.locator('.whiteCard-wrapper.trashable').nth(1);
+    const redrawCard = redrawWrapper.locator('.whiteCard');
+    const originalCardText = (await redrawCard.locator('.card-text').textContent())?.trim();
+    expect(originalCardText).toBeTruthy();
+
+    await swipeCardToRevealRedraw(second, redrawCard);
+    await expect(redrawWrapper).toHaveClass(/trashMode/);
+    await redrawCard.hover();
+    await expect(redrawWrapper).toHaveClass(/trashMode/);
+
+    await second.getByRole('heading', { name: 'Pick one from your hand' }).click();
+    await expect(redrawWrapper).not.toHaveClass(/trashMode/);
+
+    await swipeCardToRevealRedraw(second, redrawCard);
+    await expect(redrawWrapper).toHaveClass(/trashMode/);
+    await redrawWrapper.getByRole('button', { name: 'Redraw card' }).click();
+    await expect
+      .poll(() => second.locator('.whiteCard .card-text').allTextContents())
+      .not.toContain(originalCardText as string);
+
     await second.locator('.whiteCard').nth(1).click();
     await expect(second.locator('#infoBar')).toContainText('Waiting for everyone to play a card!');
     await third.locator('.whiteCard').nth(1).click();

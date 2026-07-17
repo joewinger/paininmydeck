@@ -253,7 +253,7 @@ async function addUser() {
 #colorSelector legend {
   width: fit-content;
   padding: 7px 10px 6px;
-  background: var(--pimd-status);
+  background: var(--pimd-primary);
   color: var(--pimd-ink);
   font-family: 'Bungee', sans-serif;
   font-size: 11px;
@@ -336,7 +336,7 @@ async function addUser() {
 #colorSelector .swatch.selected {
   transform: translate(3px, 4px) rotate(-2deg);
   border-color: var(--pimd-paper);
-  box-shadow: 0 0 0 4px var(--pimd-action);
+  box-shadow: 0 0 0 4px var(--pimd-primary);
 }
 
 .profile-form .pimd-primary-button {

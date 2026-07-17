@@ -11,8 +11,8 @@
       <p>Check back after the first round.</p>
     </div>
 
-    <div v-else class="round-list">
-      <article v-for="round in game.roundHistory" :key="round.round" class="round">
+    <div v-else class="round-list" tabindex="0" aria-label="Completed rounds, newest first">
+      <article v-for="round in historyRounds" :key="round.round" class="round">
         <header class="round-heading">
           <span class="round-number">Round {{ round.round }}</span>
           <h2 class="question">{{ blankify(round.question) }}</h2>
@@ -39,17 +39,21 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useGameStore } from '@/stores/game';
 import { blankify } from '@/shared/protocol';
 
 const game = useGameStore();
+const historyRounds = computed(() => [...game.roundHistory].reverse());
 </script>
 
 <style scoped>
 #statusMenuContent-history {
-  display: flex;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
   min-height: 0;
-  flex-direction: column;
+  overflow: hidden;
 }
 
 .initial {
@@ -61,7 +65,7 @@ const game = useGameStore();
   transform: rotate(-0.5deg);
   border: 3px solid var(--pimd-ink);
   background: var(--pimd-highlight);
-  box-shadow: 5px 6px 0 var(--pimd-action);
+  box-shadow: 5px 6px 0 var(--pimd-primary-dark);
   text-align: center;
 }
 
@@ -75,8 +79,13 @@ const game = useGameStore();
 .round-list {
   display: flex;
   min-height: 0;
-  flex-direction: column-reverse;
+  flex-direction: column;
   gap: 18px;
+  padding: 2px 9px 14px 2px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-color: var(--pimd-primary-dark) transparent;
+  scrollbar-gutter: stable;
 }
 
 .round {
@@ -85,7 +94,7 @@ const game = useGameStore();
   border-bottom: 3px dashed rgb(45 37 64 / 32%);
 }
 
-.round:first-child {
+.round:last-child {
   border-bottom: 0;
 }
 
@@ -102,7 +111,7 @@ const game = useGameStore();
   min-height: 29px;
   padding: 6px 8px 5px;
   transform: rotate(-1deg);
-  background: var(--pimd-status);
+  background: var(--pimd-primary);
   color: var(--pimd-ink);
   font-family: 'Bungee', sans-serif;
   font-size: 0.61rem;
@@ -149,7 +158,7 @@ const game = useGameStore();
 
 .miniCard:nth-child(even) {
   transform: rotate(-0.75deg);
-  box-shadow: 4px 5px 0 var(--pimd-status);
+  box-shadow: 4px 5px 0 var(--pimd-primary);
 }
 
 .miniCard-text {
@@ -188,9 +197,9 @@ const game = useGameStore();
 
 .miniCard.winningAnswer {
   border-color: var(--pimd-ink);
-  background: var(--pimd-action);
+  background: var(--pimd-primary);
   box-shadow: 4px 5px 0 var(--pimd-highlight);
-  color: var(--pimd-paper);
+  color: var(--pimd-ink);
 }
 
 @media (forced-colors: active) {

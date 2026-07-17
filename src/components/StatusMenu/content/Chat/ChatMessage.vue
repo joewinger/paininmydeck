@@ -35,7 +35,7 @@ const game = useGameStore();
   transform: rotate(0.25deg);
   border: 2px solid var(--pimd-ink);
   background: var(--pimd-paper);
-  box-shadow: 3px 3px 0 var(--pimd-status);
+  box-shadow: 3px 3px 0 var(--pimd-primary);
   color: var(--pimd-ink);
   font-size: var(--font-size);
   line-height: 1.32;

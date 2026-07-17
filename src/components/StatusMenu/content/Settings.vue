@@ -65,25 +65,35 @@
         <tr>
           <th scope="row"><label for="all-blanks">All blanks!</label></th>
           <td>
-            <input
-              id="all-blanks"
-              v-model="allBlanks"
-              class="settings-toggle"
-              type="checkbox"
-              :disabled="!canEdit"
-            />
+            <div class="settings-toggle-control">
+              <input
+                id="all-blanks"
+                v-model="allBlanks"
+                class="settings-toggle"
+                type="checkbox"
+                :disabled="!canEdit"
+              />
+              <span class="settings-toggle-state" aria-hidden="true">
+                {{ allBlanks ? 'On' : 'Off' }}
+              </span>
+            </div>
           </td>
         </tr>
         <tr>
           <th scope="row"><label for="family-mode">Family mode</label></th>
           <td>
-            <input
-              id="family-mode"
-              v-model="familyMode"
-              class="settings-toggle"
-              type="checkbox"
-              :disabled="!canEdit"
-            />
+            <div class="settings-toggle-control">
+              <input
+                id="family-mode"
+                v-model="familyMode"
+                class="settings-toggle"
+                type="checkbox"
+                :disabled="!canEdit"
+              />
+              <span class="settings-toggle-state" aria-hidden="true">
+                {{ familyMode ? 'On' : 'Off' }}
+              </span>
+            </div>
           </td>
         </tr>
         <tr>
@@ -209,7 +219,7 @@ async function updateSettings() {
 }
 
 #statusMenuContent-settings table td {
-  width: 88px;
+  width: 118px;
   text-align: right;
 }
 
@@ -243,9 +253,9 @@ async function updateSettings() {
 
 #statusMenuContent-settings .settings-toggle {
   display: inline-grid;
-  width: 48px;
-  height: 28px;
-  min-height: 28px;
+  width: 54px;
+  height: 30px;
+  min-height: 30px;
   margin: 0;
   padding: 2px;
   border: 3px solid var(--pimd-ink);
@@ -258,8 +268,8 @@ async function updateSettings() {
 
 #statusMenuContent-settings .settings-toggle::before {
   content: '';
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   transform: translateX(0) rotate(-3deg);
   background: var(--pimd-ink-soft);
   transition:
@@ -268,12 +278,43 @@ async function updateSettings() {
 }
 
 #statusMenuContent-settings .settings-toggle:checked {
-  background: var(--pimd-highlight);
+  background: var(--pimd-primary);
 }
 
 #statusMenuContent-settings .settings-toggle:checked::before {
-  transform: translateX(20px) rotate(3deg);
-  background: var(--pimd-action);
+  transform: translateX(24px) rotate(3deg);
+  background: var(--pimd-highlight);
+}
+
+#statusMenuContent-settings .settings-toggle-control {
+  display: inline-grid;
+  grid-template-columns: 54px 40px;
+  gap: 7px;
+  align-items: center;
+  justify-content: end;
+}
+
+#statusMenuContent-settings .settings-toggle-state {
+  display: grid;
+  min-height: 28px;
+  place-items: center;
+  padding: 5px 4px 4px;
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-paper-shadow);
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+#statusMenuContent-settings .settings-toggle:checked + .settings-toggle-state {
+  background: var(--pimd-primary);
+}
+
+#statusMenuContent-settings .settings-toggle:disabled + .settings-toggle-state {
+  opacity: 0.58;
 }
 
 .settings-table-caption {
@@ -307,7 +348,9 @@ async function updateSettings() {
 
 @media (forced-colors: active) {
   #statusMenuContent-settings input[type='number'],
-  #statusMenuContent-settings .settings-toggle {
+  #statusMenuContent-settings .settings-toggle,
+  #statusMenuContent-settings .settings-toggle-state,
+  #statusMenuContent-settings .settings-toggle:checked + .settings-toggle-state {
     border-color: FieldText;
     background: Field;
     box-shadow: none;

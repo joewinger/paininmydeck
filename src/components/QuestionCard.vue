@@ -1,6 +1,6 @@
 <template>
   <article
-    class="questionCard pimd-paper"
+    class="questionCard"
     :class="{ sticky }"
     :style="{
       '--czar-color-from': game.czarColorSet[0],
@@ -39,6 +39,7 @@ import { useGameStore } from '@/stores/game';
 import { blankify } from '@/shared/protocol';
 
 defineProps<{ text: string }>();
+const emit = defineEmits<{ stickyChange: [sticky: boolean] }>();
 const game = useGameStore();
 const sticky = ref(true);
 const roundNumber = computed(() => String(game.turn.round || 1).padStart(2, '0'));
@@ -46,6 +47,7 @@ const czarName = computed(() => game.czar?.displayName ?? 'The Czar');
 
 function toggleSticky() {
   sticky.value = !sticky.value;
+  emit('stickyChange', sticky.value);
 }
 </script>
 
@@ -61,6 +63,12 @@ function toggleSticky() {
   padding: 31px 21px 22px;
   transform: rotate(0.35deg);
   border: 4px solid var(--pimd-ink);
+  background-color: var(--pimd-paper);
+  background-image:
+    linear-gradient(var(--pimd-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pimd-grid) 1px, transparent 1px);
+  background-size: 18px 18px;
+  box-shadow: 6px 8px 0 rgb(45 37 64 / 20%);
   color: var(--pimd-ink);
   cursor: pointer;
   transition:
@@ -70,12 +78,12 @@ function toggleSticky() {
 
 .questionCard:hover {
   transform: translateY(-2px) rotate(-0.15deg);
-  filter: drop-shadow(7px 9px 0 rgb(45 37 64 / 24%));
+  box-shadow: 7px 10px 0 rgb(45 37 64 / 24%);
 }
 
 .questionCard.sticky {
-  position: sticky;
-  top: calc(var(--navbar-height) + 14px);
+  position: var(--question-sticky-position, sticky);
+  top: var(--question-sticky-top, calc(var(--navbar-height) + 14px));
 }
 
 .questionCard__tape {
@@ -129,7 +137,7 @@ function toggleSticky() {
   justify-content: space-between;
   gap: 12px;
   padding-top: 3px;
-  border-top: 2px dashed rgb(45 37 64 / 32%);
+  border-top: 2px solid rgb(45 37 64 / 32%);
   color: var(--pimd-ink-soft);
   font-family: 'Bungee', sans-serif;
   font-size: 8px;

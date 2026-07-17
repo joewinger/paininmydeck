@@ -99,7 +99,7 @@ const roomIdInvalid = computed(() => joinAttempted.value && !isRoomId(roomId.val
 const features = [
   {
     color: '#57cdbd',
-    symbol: '✱',
+    icon: 'shield-checkmark-outline',
     eyebrow: 'Keep it civil-ish',
     title: 'Family Mode',
     description:
@@ -107,21 +107,21 @@ const features = [
   },
   {
     color: '#a98af2',
-    symbol: '✎',
+    icon: 'create-outline',
     eyebrow: 'Write the punchline',
     title: 'Blank Cards',
     description: 'Add your own answer when the cards in your hand are not nearly weird enough.',
   },
   {
     color: '#ffd64a',
-    symbol: '↯',
+    icon: 'trash-outline',
     eyebrow: 'Not feeling it?',
     title: 'Card Trashing',
     description: 'Toss a dud, draw something new, and keep the round moving without ceremony.',
   },
   {
-    color: '#ef806f',
-    symbol: '↶',
+    color: '#72a9dc',
+    icon: 'time-outline',
     eyebrow: 'Receipts included',
     title: 'Round History',
     description: 'Revisit old winners and settle the argument about who was actually funny.',
@@ -289,7 +289,7 @@ async function createRoom(done: () => void = () => {}): Promise<void> {
   width: 100%;
   min-height: 30px;
   margin: 4px 0 8px;
-  color: var(--pimd-action);
+  color: var(--pimd-danger);
   font-family: 'Bungee', sans-serif;
   font-size: 11px;
   line-height: 1.2;
@@ -326,7 +326,7 @@ async function createRoom(done: () => void = () => {}): Promise<void> {
   top: 24%;
   left: -70px;
   transform: rotate(-10deg);
-  background: var(--pimd-status);
+  background: var(--pimd-primary);
 }
 
 .home-edge-card--bolt {
@@ -359,12 +359,14 @@ async function createRoom(done: () => void = () => {}): Promise<void> {
   gap: 28px;
   align-items: start;
   padding: 42px max(24px, calc((100vw - 1100px) / 2));
-  border-top: 5px solid var(--pimd-status);
+  border-top: 5px solid var(--pimd-primary);
   background: var(--pimd-ink);
   color: var(--pimd-paper);
 }
 
 .home-footer .pimd-product-mark {
+  --pimd-mark-card-text: var(--pimd-ink);
+
   color: var(--pimd-paper);
 }
 
@@ -381,7 +383,7 @@ async function createRoom(done: () => void = () => {}): Promise<void> {
   color: var(--pimd-paper);
   font-style: normal;
   text-decoration: underline;
-  text-decoration-color: var(--pimd-status);
+  text-decoration-color: var(--pimd-primary);
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
 }
