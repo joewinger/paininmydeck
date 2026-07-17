@@ -13,36 +13,38 @@
       <i v-for="piece in 12" :key="piece" />
     </div>
 
-    <section class="gameover-poster pimd-paper">
+    <div class="gameover-poster-wrap">
+      <section class="gameover-poster pimd-paper">
+        <p class="pimd-eyebrow">
+          {{ roomData.outcome === 'cancelled' ? 'Room closed' : 'Final score' }}
+        </p>
+
+        <h1 id="gameover-title">
+          <template v-if="roomData.outcome === 'cancelled'">
+            <span>Game</span>
+            <span>cancelled</span>
+          </template>
+          <template v-else>
+            <span class="gameover-title__name">{{ roomData.winner?.displayName }}</span>
+            <span>won!</span>
+          </template>
+        </h1>
+
+        <p id="final-rounds">The game lasted {{ roomData.rounds }} rounds.</p>
+        <p class="gameover-poster__note">
+          {{
+            roomData.outcome === 'cancelled'
+              ? 'No champion was crowned, but the receipts are still here.'
+              : 'Good company. Terrible answers. A deserved victory.'
+          }}
+        </p>
+
+        <div v-if="roomData.outcome === 'won'" class="gameover-winner-seal" aria-hidden="true">
+          <span>Room<br />champ</span>
+        </div>
+      </section>
       <span class="pimd-tape gameover-poster__tape" aria-hidden="true" />
-      <p class="pimd-eyebrow">
-        {{ roomData.outcome === 'cancelled' ? 'Room closed' : 'Final score' }}
-      </p>
-
-      <h1 id="gameover-title">
-        <template v-if="roomData.outcome === 'cancelled'">
-          <span>Game</span>
-          <span>cancelled</span>
-        </template>
-        <template v-else>
-          <span class="gameover-title__name">{{ roomData.winner?.displayName }}</span>
-          <span>won!</span>
-        </template>
-      </h1>
-
-      <p id="final-rounds">The game lasted {{ roomData.rounds }} rounds.</p>
-      <p class="gameover-poster__note">
-        {{
-          roomData.outcome === 'cancelled'
-            ? 'No champion was crowned, but the receipts are still here.'
-            : 'Good company. Terrible answers. A deserved victory.'
-        }}
-      </p>
-
-      <div v-if="roomData.outcome === 'won'" class="gameover-winner-seal" aria-hidden="true">
-        <span>Room<br />champ</span>
-      </div>
-    </section>
+    </div>
 
     <section class="gameover-standings" aria-labelledby="final-standings-title">
       <div class="gameover-standings__heading">
@@ -104,21 +106,27 @@ function getOrdinalSuffix(number: number): string {
   padding: clamp(28px, 6vw, 72px) clamp(16px, 6vw, 96px) 132px;
 }
 
-.gameover-poster,
+.gameover-poster-wrap,
 .gameover-standings {
   z-index: 1;
   width: min(100%, 660px);
   margin-inline: auto;
 }
 
+.gameover-poster-wrap {
+  position: relative;
+}
+
 .gameover-poster {
+  width: 100%;
   min-height: 390px;
+  margin: 0;
   padding: clamp(42px, 8vw, 70px) clamp(24px, 7vw, 48px) 42px;
   transform: rotate(-0.65deg);
 }
 
 .gameover-poster__tape {
-  top: -6px;
+  top: -9px;
   left: 50%;
   width: 82px;
   transform: translateX(-50%) rotate(-7deg);
@@ -557,7 +565,7 @@ function getOrdinalSuffix(number: number): string {
     min-height: calc(100svh - var(--navbar-height));
   }
 
-  .gameover-poster,
+  .gameover-poster-wrap,
   .gameover-standings {
     width: 100%;
     max-width: none;
