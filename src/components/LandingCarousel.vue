@@ -1,152 +1,155 @@
 <template>
-  <div ref="root" class="carousel">
-    <div class="btn-left" @click="moveCarousel(-1)"><ion-icon name="arrow-back" /></div>
-    <div class="btn-right" @click="moveCarousel(1)"><ion-icon name="arrow-forward" /></div>
-    <div class="scroll-port">
-      <landing-carousel-slide
-        v-for="(slide, index) in slidesArray"
-        :key=index
-        :slide-data=slide
-				:active="(slideIndex==index)"
-      />
+  <section class="pimd-carousel" aria-label="Game features">
+    <div class="pimd-carousel__controls">
+      <button type="button" aria-label="Previous feature" @click="moveCarousel(-1)">←</button>
+      <p aria-live="polite">{{ slideIndex + 1 }} / {{ slidesArray.length }}</p>
+      <button type="button" aria-label="Next feature" @click="moveCarousel(1)">→</button>
     </div>
-  </div>
+
+    <ol
+      ref="scrollPort"
+      class="pimd-carousel__track"
+      tabindex="0"
+      aria-label="Game feature cards"
+      @scroll="syncSlideIndex"
+    >
+      <li v-for="(slide, index) in slidesArray" :key="slide.title">
+        <landing-carousel-slide :slide-data="slide" :active="slideIndex === index" />
+      </li>
+    </ol>
+  </section>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, ref } from 'vue';
 import LandingCarouselSlide, { type LandingSlide } from './LandingCarouselSlide.vue';
 
 const props = defineProps<{ slidesArray: LandingSlide[] }>();
-const root = ref<HTMLElement | null>(null);
+const scrollPort = ref<HTMLOListElement | null>(null);
 const slideIndex = ref(0);
-const mouseHovering = ref(false);
-let mounted = false;
-let autoTimer: number | undefined;
-let initialFrame: number | undefined;
-let layoutFrame: number | undefined;
+let scrollFrame: number | undefined;
 
-function moveCarousel(change: number) {
-	if (!mounted || !root.value) return;
-	const scrollPort = root.value.querySelector<HTMLElement>('.scroll-port');
-	const slide = root.value.querySelector<HTMLElement>('.carousel-slide');
-	if (!scrollPort || !slide) return;
-	const slideStyle = getComputedStyle(slide);
-	const slideWidth = slide.offsetWidth + parseInt(slideStyle.marginLeft) + parseInt(slideStyle.marginRight);
+function scrollToSlide(index: number): void {
+  const port = scrollPort.value;
+  if (!port || props.slidesArray.length === 0) return;
+  const slides = port.querySelectorAll<HTMLElement>(':scope > li');
+  const nextIndex = (index + slides.length) % slides.length;
+  const slide = slides[nextIndex];
+  if (!slide) return;
 
-	if (change < 0 && scrollPort.scrollLeft < slideWidth) {
-		scrollPort.scrollTo(scrollPort.scrollWidth, 0);
-		return;
-	}
-	if (change > 0 && scrollPort.scrollWidth - scrollPort.scrollLeft - scrollPort.offsetWidth < slideWidth) {
-		scrollPort.scrollTo(0, 0);
-		return;
-	}
-	scrollPort.scrollTo(scrollPort.scrollLeft + slideWidth * change, 0);
+  slideIndex.value = nextIndex;
+  port.scrollTo({
+    left: slide.offsetLeft - (port.clientWidth - slide.clientWidth) / 2,
+    behavior: 'smooth',
+  });
 }
 
-onMounted(() => {
-	mounted = true;
-	const scrollPort = root.value?.querySelector<HTMLElement>('.scroll-port');
-	const slide = root.value?.querySelector<HTMLElement>('.carousel-slide');
-	if (!scrollPort || !slide || !root.value) return;
-	const scrollPortStyle = getComputedStyle(scrollPort);
-	const slideStyle = getComputedStyle(slide);
-	const slideWidth = slide.clientWidth + parseInt(slideStyle.marginLeft) + parseInt(slideStyle.marginRight);
+function moveCarousel(change: number): void {
+  scrollToSlide(slideIndex.value + change);
+}
 
-	scrollPort.onscroll = () => {
-		slideIndex.value = Math.round((scrollPort.scrollLeft - parseInt(scrollPortStyle.paddingLeft) - parseInt(slideStyle.marginLeft)) / slideWidth);
-		slideIndex.value = Math.max(0, Math.min(slideIndex.value, props.slidesArray.length - 1));
-	};
-	root.value.onmouseover = () => { mouseHovering.value = true; };
-	root.value.onmouseout = () => { mouseHovering.value = false; };
-	// Vue 2 mounted after the browser had resolved the initial snap position.
-	// Waiting for layout preserves its initial one-slide advance under Vue 3.
-	initialFrame = window.requestAnimationFrame(() => {
-		layoutFrame = window.requestAnimationFrame(() => {
-			const firstSlideCenter = slide.offsetLeft - (scrollPort.clientWidth - slide.clientWidth) / 2;
-			scrollPort.scrollTo(firstSlideCenter + slideWidth, 0);
-		});
-	});
-	autoTimer = window.setInterval(() => {
-		if (!mouseHovering.value) moveCarousel(1);
-	}, 5_000);
-});
+function syncSlideIndex(): void {
+  if (scrollFrame !== undefined) window.cancelAnimationFrame(scrollFrame);
+  scrollFrame = window.requestAnimationFrame(() => {
+    const port = scrollPort.value;
+    if (!port) return;
+    const center = port.scrollLeft + port.clientWidth / 2;
+    const slides = Array.from(port.querySelectorAll<HTMLElement>(':scope > li'));
+    let nearestIndex = 0;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+
+    slides.forEach((slide, index) => {
+      const distance = Math.abs(slide.offsetLeft + slide.clientWidth / 2 - center);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestIndex = index;
+      }
+    });
+    slideIndex.value = nearestIndex;
+  });
+}
 
 onBeforeUnmount(() => {
-	mounted = false;
-	if (initialFrame !== undefined) window.cancelAnimationFrame(initialFrame);
-	if (layoutFrame !== undefined) window.cancelAnimationFrame(layoutFrame);
-	if (autoTimer !== undefined) window.clearInterval(autoTimer);
+  if (scrollFrame !== undefined) window.cancelAnimationFrame(scrollFrame);
 });
 </script>
 
-<style lang="scss" scoped>
-.carousel {
-  position: relative;
-  margin: 0 0 100px 0;
+<style scoped>
+.pimd-carousel {
+  display: grid;
+  gap: 15px;
+  min-width: 0;
+}
 
-  .btn-left, .btn-right {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-    position: absolute;
-    top: calc(50% - 20px);
+.pimd-carousel__controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
 
-    width: 40px;
-    height: 40px;
+.pimd-carousel__controls button {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  min-height: 42px;
+  padding: 0;
+  border: 3px solid var(--pimd-ink);
+  border-radius: 0;
+  background: var(--pimd-paper);
+  box-shadow: 3px 4px 0 var(--pimd-meta);
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: 22px;
+  line-height: 1;
+}
 
-    border-radius: 100%;
-		background: #FFF;
-		box-shadow: 0px 0px 15px -5px rgba(177, 177, 177, 0.5), 0px 4px 4px rgba(177, 177, 177, 0.25);
-		cursor: pointer;
-		
-		font: 24px "Inter";
-	
-    z-index: 50;
+.pimd-carousel__controls button:hover {
+  transform: translateY(-2px);
+  border-color: var(--pimd-ink);
+  background: var(--pimd-highlight);
+  color: var(--pimd-ink);
+}
+
+.pimd-carousel__controls button:active {
+  transform: translate(2px, 3px);
+  box-shadow: 1px 1px 0 var(--pimd-meta);
+}
+
+.pimd-carousel__controls p {
+  min-width: 56px;
+  margin: 0;
+  color: var(--pimd-ink-soft);
+  font-family: 'Bungee', sans-serif;
+  font-size: 12px;
+  text-align: center;
+}
+
+.pimd-carousel__track {
+  display: flex;
+  gap: clamp(18px, 3vw, 34px);
+  width: 100%;
+  margin: 0;
+  padding: 18px max(20px, calc((100vw - 610px) / 2)) 28px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  list-style: none;
+}
+
+.pimd-carousel__track::-webkit-scrollbar {
+  display: none;
+}
+
+.pimd-carousel__track > li {
+  flex: 0 0 min(570px, calc(100vw - 40px));
+  scroll-snap-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pimd-carousel__track {
+    scroll-behavior: auto;
   }
-  .btn-left {
-    left: calc(
-      (100% - min(600px, 90vw)) / 2 - 90px
-    ); // 90px = button width + gutter size
-  }
-  .btn-right {
-    right: calc((100% - min(600px, 90vw)) / 2 - 90px);
-  }
-
-  .scroll-port {
-    display: flex;
-    flex-direction: row;
-
-    width: 100vw;
-    padding: 30px 50vw;
-    overflow-x: scroll;
-    box-sizing: border-box;
-
-    scroll-behavior: smooth;
-    scroll-snap-type: x mandatory;
-
-		/* Hide scroll bar */
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-	@media screen and (max-width: 800px) {
-		.carousel{
-			margin: 0;
-
-			.btn-left, .btn-right {
-				display: none;
-			}
-
-			.scroll-port {
-				flex-direction: column;
-				padding: 30px 5vw;
-			}
-		}
-	}
 }
 </style>

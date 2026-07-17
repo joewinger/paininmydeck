@@ -1,13 +1,13 @@
 <template>
-	<div id="app">
+	<div class="app-shell">
 		<nav-bar />
-		<div id="row-content">
+		<main class="app-content">
 			<router-view v-slot="{ Component }">
 				<transition :name="transitionName">
 					<component :is="Component" />
 				</transition>
 			</router-view>
-		</div>
+		</main>
 		<status-menu v-if="game.roomId !== null" />
 		<error-toast />
 		<interstitial />
@@ -60,45 +60,74 @@ onBeforeUnmount(() => game.dispose());
 </script>
 
 <style>
-#app {
+.app-shell {
 	display: grid;
-	grid-template-rows: [row-nav] var(--navbar-height) [row-content] 1fr;
+	grid-template-rows: var(--navbar-height) minmax(calc(100svh - var(--navbar-height)), auto);
 	width: 100%;
-	height: 100%;
-}
-#row-content {
-	grid-row: row-content;
-	position: relative;
-}
-#row-status {
-	grid-row: row-status;
+	min-height: 100svh;
+	background: var(--pimd-canvas);
 }
 
-.slide-left-enter-active, .slide-left-leave-active,
-.slide-right-enter-active, .slide-right-leave-active,
-.default-enter-active, .default-leave-active {
-	transition: opacity 0.3s, transform 0.3s;
+.app-content {
+	position: relative;
+	display: grid;
+	grid-row: 2;
+	min-width: 0;
+	min-height: calc(100svh - var(--navbar-height));
 }
+
+.app-content > * {
+	grid-area: 1 / 1;
+	min-width: 0;
+}
+
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active,
+.default-enter-active,
+.default-leave-active {
+	transition:
+		opacity 0.24s ease,
+		transform 0.24s ease;
+}
+
 .slide-left-enter-from {
 	opacity: 0;
-	transform: translateX(100vw);
+	transform: translateX(24px);
 }
+
 .slide-left-leave-to {
 	opacity: 0;
-	transform: translateX(-100vw);
+	transform: translateX(-24px);
 }
+
 .slide-right-enter-from {
 	opacity: 0;
-	transform: translateX(-100vw);
+	transform: translateX(-24px);
 }
+
 .slide-right-leave-to {
 	opacity: 0;
-	transform: translateX(100vw);
+	transform: translateX(24px);
 }
+
 .default-enter-from {
 	opacity: 0;
 }
+
 .default-leave-to {
 	opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.slide-left-enter-active,
+	.slide-left-leave-active,
+	.slide-right-enter-active,
+	.slide-right-leave-active,
+	.default-enter-active,
+	.default-leave-active {
+		transition-duration: 0.01ms;
+	}
 }
 </style>

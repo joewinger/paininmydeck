@@ -5,12 +5,16 @@ import {
   arrowForward,
   chatbubbleOutline,
   checkmark,
+  createOutline,
   informationCircleOutline,
   peopleCircleOutline,
   send,
   settingsOutline,
+  shieldCheckmarkOutline,
   time,
+  timeOutline,
   trash,
+  trashOutline,
 } from 'ionicons/icons';
 
 const ICONS: Record<string, string> = {
@@ -19,12 +23,16 @@ const ICONS: Record<string, string> = {
   'arrow-forward': arrowForward,
   'chatbubble-outline': chatbubbleOutline,
   checkmark,
+  'create-outline': createOutline,
   'information-circle-outline': informationCircleOutline,
   'people-circle-outline': peopleCircleOutline,
   send,
   'settings-outline': settingsOutline,
+  'shield-checkmark-outline': shieldCheckmarkOutline,
   time,
+  'time-outline': timeOutline,
   trash,
+  'trash-outline': trashOutline,
 };
 
 function svgMarkup(dataUri: string | undefined): string {

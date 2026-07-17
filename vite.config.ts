@@ -27,6 +27,18 @@ export default defineConfig({
     'import.meta.env.VITE_COMMIT_HASH': JSON.stringify(currentBuildVersion),
     __PAIN_IN_MY_DECK_BUILD_VERSION__: JSON.stringify(currentBuildVersion),
   },
+  server: {
+    watch: {
+      ignored: [
+        '**/.wrangler/**',
+        '**/dist/**',
+        '**/playwright-report/**',
+        '**/storybook-static/**',
+        '**/test-results/**',
+        '**/tests/visual/**',
+      ],
+    },
+  },
   build: {
     sourcemap: false,
     target: 'es2022',

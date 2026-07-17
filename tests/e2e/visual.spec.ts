@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { expect, test, type BrowserContext, type Page, type TestInfo } from '@playwright/test';
@@ -6,13 +7,14 @@ import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
 const MAX_DIFF_PIXEL_RATIO = 0.002;
+const UPDATE_VISUAL_BASELINES = process.env.UPDATE_VISUAL_BASELINES === '1';
 let roomCreatorSerial = 0;
 
 type Rectangle = { x: number; y: number; width: number; height: number };
 
-const LEGACY_SETTINGS_DRAWER = { x: 33, y: 349, width: 324, height: 495 };
-
 async function settleVisualState(page: Page, delay = 750): Promise<void> {
+  await expect(page.locator('vite-error-overlay')).toHaveCount(0);
+  await page.mouse.move(0, 0);
   await page.evaluate(async () => document.fonts.ready);
   const visibleIcons = page.locator('ion-icon:visible');
   if ((await visibleIcons.count()) > 0) {
@@ -52,7 +54,7 @@ async function createRoom(page: Page): Promise<string> {
     { times: 1 },
   );
   await page.goto('/');
-  await page.getByText('START A NEW GAME', { exact: true }).click();
+  await page.getByRole('button', { name: 'Start a new game' }).click();
   await expect(page).toHaveURL(/\/join\/[A-HJ-NP-Z]{5}$/);
   const roomId = page.url().split('/').at(-1);
   expect(roomId).toMatch(/^[A-HJ-NP-Z]{5}$/);
@@ -86,19 +88,34 @@ async function roomCodeRegion(page: Page): Promise<Rectangle> {
   return requiredBoundingBox(page, '#navbar-info');
 }
 
-async function compareLegacyFixture(
+async function compareRefreshFixture(
   page: Page,
   testInfo: TestInfo,
   fixtureName: string,
   ignoredRegions: Rectangle[],
 ): Promise<void> {
-  const fixturePath = fileURLToPath(new URL(`../visual/legacy/${fixtureName}`, import.meta.url));
-  const expected = PNG.sync.read(readFileSync(fixturePath));
+  const fixturePath = fileURLToPath(new URL(`../visual/refresh/${fixtureName}`, import.meta.url));
   const actualScreenshot = await page.screenshot({
     animations: 'disabled',
     caret: 'hide',
     scale: 'css',
   });
+
+  if (UPDATE_VISUAL_BASELINES) {
+    mkdirSync(dirname(fixturePath), { recursive: true });
+    writeFileSync(fixturePath, actualScreenshot);
+    testInfo.annotations.push({
+      type: 'approved visual baseline update',
+      description: fixturePath,
+    });
+  }
+
+  expect(
+    existsSync(fixturePath),
+    `${fixturePath} is missing. Set UPDATE_VISUAL_BASELINES=1 only after approving the refresh.`,
+  ).toBe(true);
+
+  const expected = PNG.sync.read(readFileSync(fixturePath));
   const actual = PNG.sync.read(actualScreenshot);
 
   expect({ width: actual.width, height: actual.height }).toEqual({
@@ -148,58 +165,55 @@ async function compareLegacyFixture(
   );
 }
 
-async function prepareHome(page: Page): Promise<Rectangle[]> {
+async function prepareHome(page: Page): Promise<void> {
   await page.goto('/');
   await expect(page.locator('#home')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Start a new game' })).toBeVisible();
+  await expect(page.locator('.pimd-carousel__track')).toHaveCount(1);
   await settleVisualState(page);
-  const controls = await page.locator('.game-controls').boundingBox();
-  const carousel = await page.locator('.scroll-port').boundingBox();
-  expect(controls).not.toBeNull();
-  expect(carousel).not.toBeNull();
-  // The carousel advances automatically, so its viewport is covered by
-  // interaction tests rather than a time-sensitive pixel snapshot.
-  return [controls as Rectangle, carousel as Rectangle];
 }
 
-test('mobile Home remains visually frozen', async ({ page }, testInfo) => {
+test('approved refresh: mobile Home', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium-mobile');
-  const dynamicRegions = await prepareHome(page);
-  await compareLegacyFixture(page, testInfo, 'legacy-home-mobile.png', dynamicRegions);
+  await prepareHome(page);
+  await compareRefreshFixture(page, testInfo, 'home-mobile.png', []);
 });
 
-test('desktop Home remains visually frozen', async ({ page }, testInfo) => {
+test('approved refresh: desktop Home', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium-desktop');
-  const dynamicRegions = await prepareHome(page);
-  await compareLegacyFixture(page, testInfo, 'legacy-home-desktop.png', dynamicRegions);
+  await prepareHome(page);
+  await compareRefreshFixture(page, testInfo, 'home-desktop.png', []);
 });
 
-test('mobile username modal remains visually frozen', async ({ page }, testInfo) => {
+test('approved refresh: mobile profile', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium-mobile');
   await createRoom(page);
   await settleVisualState(page);
 
-  await compareLegacyFixture(page, testInfo, 'legacy-username-modal-mobile.png', []);
-});
-
-test('mobile lobby remains visually frozen', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== 'chromium-mobile');
-  await createRoom(page);
-  await setProfile(page, 'Baseline', 1);
-  await expect(page.locator('#lobby li')).toHaveCount(1);
-  await settleVisualState(page);
-
-  await compareLegacyFixture(page, testInfo, 'legacy-lobby-mobile.png', [
-    await roomCodeRegion(page),
+  await compareRefreshFixture(page, testInfo, 'profile-mobile.png', [
+    await requiredBoundingBox(page, '.profile-intro .pimd-eyebrow'),
   ]);
 });
 
-test('mobile Settings remains visually frozen outside the approved Public Game removal', async ({
-  page,
-}, testInfo) => {
+test('approved refresh: mobile lobby', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium-mobile');
   await createRoom(page);
   await setProfile(page, 'Baseline', 1);
-  await page.locator('#statusBar .statusBarButton').nth(2).click();
+  await expect(page.locator('.lobby-roster > ol > li')).toHaveCount(1);
+  await settleVisualState(page);
+
+  await compareRefreshFixture(page, testInfo, 'lobby-mobile.png', [
+    await roomCodeRegion(page),
+    await requiredBoundingBox(page, '.lobby-room-card h1'),
+  ]);
+});
+
+test('approved refresh: mobile Settings', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium-mobile');
+  await createRoom(page);
+  await setProfile(page, 'Baseline', 1);
+  await page.getByRole('button', { name: 'Settings' }).click();
 
   const settings = page.locator('#statusMenuContent-settings');
   await expect(settings).toBeVisible();
@@ -214,18 +228,21 @@ test('mobile Settings remains visually frozen outside the approved Public Game r
     .toEqual(['7', '10', '0', '0', '4']);
   await expect(settings.locator('input[type="checkbox"]')).toHaveCount(2);
   await expect(settings.getByRole('button', { name: 'Save' })).toBeVisible();
+  await page.locator('.lobby-room-card h1 strong').evaluate((element) => {
+    element.textContent = 'ABCDE';
+  });
+  await page.locator('#navbar-info .navbar-info__code').evaluate((element) => {
+    element.textContent = 'ABCDE';
+  });
   await settleVisualState(page);
 
-  // Removing the legacy Public Game row shortens this bottom-anchored drawer,
-  // shifting every child and its shadow. Mask the union of the old/new drawer
-  // footprint while retaining explicit assertions for every preserved control.
-  await compareLegacyFixture(page, testInfo, 'legacy-settings-mobile.png', [
+  await compareRefreshFixture(page, testInfo, 'settings-mobile.png', [
     await roomCodeRegion(page),
-    LEGACY_SETTINGS_DRAWER,
+    await requiredBoundingBox(page, '.lobby-room-card h1'),
   ]);
 });
 
-test('mobile first-round Czar view remains visually frozen', async ({ browser }, testInfo) => {
+test('approved refresh: mobile first-round Czar', async ({ browser }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium-mobile');
   test.setTimeout(60_000);
 
@@ -251,26 +268,19 @@ test('mobile first-round Czar view remains visually frozen', async ({ browser },
     await expect(host.locator('#infoBar')).toContainText('You are the Card Czar!');
     await expect(host.locator('.whiteCard')).toHaveCount(0);
 
-    // Question copy is randomized and can add lines, which would otherwise
-    // resize the card before its text-only region is masked. Collapse only the
-    // copy's typography so the legacy card chrome and following layout remain
-    // comparable at their original 210px minimum height.
-    await host.locator('.questionCard').evaluate((element) => {
-      (element as HTMLElement).style.fontSize = '0';
-    });
     await settleVisualState(host);
+    await expect(host.locator('#infoBar')).toContainText('You are the Card Czar!');
+    await expect(host.locator('.whiteCard')).toHaveCount(0);
 
-    const question = await requiredBoundingBox(host, '.questionCard');
-    const dynamicQuestionCopy = {
-      x: question.x + 15,
-      y: question.y + 50,
-      width: question.width - 30,
-      height: question.height - 65,
-    };
-    await compareLegacyFixture(host, testInfo, 'legacy-game-czar-mobile.png', [
-      await roomCodeRegion(host),
-      dynamicQuestionCopy,
-    ]);
+    // Keep generated copy deterministic without hiding the redesigned shell.
+    await host.locator('.questionCard__copy').evaluate((element) => {
+      element.textContent = 'A terrible idea involving ____.';
+    });
+    await host.locator('#navbar-info .navbar-info__code').evaluate((element) => {
+      element.textContent = 'ABCDE';
+    });
+
+    await compareRefreshFixture(host, testInfo, 'game-czar-mobile.png', []);
   } finally {
     await Promise.allSettled([hostContext.close(), secondContext.close(), thirdContext.close()]);
   }

@@ -1,15 +1,18 @@
 <template>
-	<div id="statusMenuContent-chat" class="statusMenuContent">
-		<div id="chatMessages" ref="messageContainer">
-			<chat-message
-				v-for="(message, index) in messages"
-				:key=index
-				:message-obj=message
-				:last-in-thread="index === 0 ? true : messages[index-1].senderDisplayName !== message.senderDisplayName"
-			/>
-		</div>
-		<chat-input />
-	</div>
+  <section id="statusMenuContent-chat" class="statusMenuContent" aria-labelledby="chat-title">
+    <h1 id="chat-title">Chat</h1>
+    <div id="chatMessages" role="log" aria-label="Room chat" aria-live="polite">
+      <chat-message
+        v-for="(message, index) in messages"
+        :key="message.id"
+        :message-obj="message"
+        :last-in-thread="
+          index === 0 || messages[index - 1].senderDisplayName !== message.senderDisplayName
+        "
+      />
+    </div>
+    <chat-input />
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -22,25 +25,29 @@ const game = useGameStore();
 const messages = computed(() => [...game.chatMessages].reverse());
 </script>
 
-<style>
+<style scoped>
 #statusMenuContent-chat {
-	--font-size: 0.9rem;
-	display: grid;
-	grid-template-rows: 1fr auto;
-	gap: 5px;
-	
-	height: 50vh;
+  --font-size: 0.82rem;
+  display: grid;
+  grid-template-rows: auto minmax(145px, 1fr) auto;
+  gap: 12px;
+  height: min(54vh, 470px);
+  min-height: 290px;
+}
+
+#statusMenuContent-chat h1 {
+  margin-bottom: 1px;
 }
 
 #chatMessages {
-	display: flex;
-	flex-direction: column-reverse;
-	gap: 5px;
-
-	width: 100%;
-	margin-bottom: 10px;
-
-	overflow-y: scroll;
+  display: flex;
+  min-height: 0;
+  flex-direction: column-reverse;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 5px 7px 1px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-color: var(--pimd-meta) transparent;
 }
-
 </style>

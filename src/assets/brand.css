@@ -1,0 +1,205 @@
+.pimd-screen {
+  position: relative;
+  min-width: 320px;
+  min-height: calc(100svh - var(--navbar-height));
+  overflow: clip;
+  color: var(--pimd-ink);
+  background-color: var(--pimd-canvas);
+  background-image:
+    linear-gradient(var(--pimd-canvas-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pimd-canvas-grid) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+.pimd-paper {
+  position: relative;
+  color: var(--pimd-ink);
+  background-color: var(--pimd-paper);
+  background-image:
+    linear-gradient(var(--pimd-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pimd-grid) 1px, transparent 1px);
+  background-size: 18px 18px;
+  filter: drop-shadow(5px 7px 0 rgb(45 37 64 / 20%));
+  clip-path: polygon(
+    0 2%,
+    8% 0,
+    17% 2%,
+    26% 0,
+    36% 2%,
+    47% 0,
+    58% 2%,
+    69% 0,
+    80% 2%,
+    90% 0,
+    100% 2%,
+    99% 97%,
+    88% 100%,
+    77% 97%,
+    65% 100%,
+    53% 97%,
+    41% 100%,
+    29% 97%,
+    17% 100%,
+    1% 97%
+  );
+}
+
+.pimd-tape {
+  position: absolute;
+  z-index: 2;
+  width: 62px;
+  height: 22px;
+  background: rgb(87 205 189 / 84%);
+  clip-path: polygon(4% 10%, 98% 0, 94% 92%, 0 100%);
+}
+
+.pimd-eyebrow {
+  margin: 0;
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(10px, 2.8vw, 13px);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.pimd-section-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--pimd-primary);
+  font-family: 'Bungee', sans-serif;
+}
+
+.pimd-section-label::before,
+.pimd-section-label::after {
+  content: '››';
+  font-size: 24px;
+  line-height: 1;
+}
+
+.pimd-section-label::after {
+  content: '‹‹';
+}
+
+.pimd-section-label > * {
+  margin: 0;
+  padding: 8px 12px 7px;
+  transform: rotate(-0.5deg);
+  background: var(--pimd-primary);
+  color: var(--pimd-on-primary);
+  font: inherit;
+  font-size: clamp(13px, 3.6vw, 18px);
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  clip-path: polygon(2% 0, 99% 4%, 97% 100%, 0 94%);
+}
+
+.pimd-primary-button,
+.pimd-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 56px;
+  margin: 0;
+  padding: 12px 18px;
+  border: 4px solid var(--pimd-ink);
+  border-radius: 0;
+  color: var(--pimd-paper);
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(16px, 4.5vw, 24px);
+  font-style: normal;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.pimd-primary-button {
+  background: var(--pimd-primary);
+  box-shadow: 5px 7px 0 var(--pimd-highlight);
+  color: var(--pimd-on-primary);
+}
+
+.pimd-primary-button:not(:disabled):hover {
+  transform: translateY(-2px);
+  border-color: var(--pimd-ink);
+  background: var(--pimd-primary);
+  color: var(--pimd-on-primary);
+  box-shadow: 5px 9px 0 var(--pimd-highlight);
+}
+
+.pimd-primary-button:not(:disabled):active {
+  transform: translate(4px, 5px);
+  background: var(--pimd-primary-dark);
+  color: var(--pimd-on-primary);
+  box-shadow: 1px 2px 0 var(--pimd-highlight);
+}
+
+.pimd-secondary-button {
+  background: var(--pimd-paper);
+  box-shadow: 4px 5px 0 var(--pimd-meta);
+  color: var(--pimd-ink);
+  font-size: clamp(12px, 3vw, 16px);
+}
+
+.pimd-secondary-button:not(:disabled):hover {
+  transform: translateY(-2px);
+  border-color: var(--pimd-ink);
+  background: var(--pimd-highlight);
+  color: var(--pimd-ink);
+}
+
+.pimd-secondary-button:not(:disabled):active {
+  transform: translate(3px, 4px);
+  box-shadow: 1px 1px 0 var(--pimd-meta);
+}
+
+.pimd-status-strip {
+  min-height: 38px;
+  margin: 0;
+  padding: 9px 11px;
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-highlight);
+  color: var(--pimd-ink);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.pimd-primary-button:focus-visible,
+.pimd-secondary-button:focus-visible,
+.pimd-interactive:focus-visible {
+  outline: 3px solid var(--pimd-ink);
+  outline-offset: 4px;
+  box-shadow: var(--pimd-focus);
+}
+
+@media (forced-colors: active) {
+  .pimd-paper,
+  .pimd-primary-button,
+  .pimd-secondary-button,
+  .pimd-status-strip {
+    border: 3px solid ButtonText;
+    background: Canvas;
+    color: CanvasText;
+    filter: none;
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pimd-screen *,
+  .pimd-screen *::before,
+  .pimd-screen *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

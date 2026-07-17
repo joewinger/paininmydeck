@@ -2,8 +2,8 @@
   <main class="oddball-stage oddball-flow-stage">
     <section class="oddball-flow-frame" :class="`oddball-flow-frame--${screen}`">
       <header class="oddball-flow-clubhouse">
-        <div class="oddball-flow-club-badge" aria-label="Oddball Social Club">
-          <span>Oddball</span><span>Social</span><span>Club</span>
+        <div class="oddball-flow-club-badge" aria-label="Pain in my Deck!">
+          <span>Pain</span><span>in my</span><span>Deck!</span>
         </div>
 
         <div class="oddball-flow-room-slip">
@@ -340,7 +340,7 @@
           <span class="oddball-tape oddball-flow-tape oddball-flow-tape--champion" aria-hidden="true"></span>
           <p class="oddball-flow-eyebrow">Official-ish final record / 7 rounds</p>
           <h1><span>Alex</span><small>won the room</small></h1>
-          <div class="oddball-flow-winner-seal" aria-hidden="true">Oddball<br />champ</div>
+          <div class="oddball-flow-winner-seal" aria-hidden="true">Room<br />champ</div>
           <p>Good company. Terrible answers. A deserved victory.</p>
         </article>
 
@@ -392,7 +392,7 @@
       </nav>
 
       <footer class="oddball-flow-footer">
-        <span>Oddball Social Club</span><span>{{ screenMeta.footer }}</span
+        <span>Pain in my Deck!</span><span>{{ screenMeta.footer }}</span
         ><span>Room {{ roomCode }}</span>
       </footer>
     </section>
@@ -524,7 +524,7 @@ const screenMeta = computed(() => {
     profile: {
       index: '01 / MEMBER DESK',
       label: 'Claim a seat',
-      detail: 'Three oddballs already inside',
+      detail: 'Three troublemakers already inside',
       footer: 'Membership pending',
     },
     lobby: {
