@@ -55,14 +55,13 @@ const status = computed(() => {
   transform: rotate(0.15deg);
   border: 3px solid var(--pimd-ink);
   background: var(--pimd-paper);
-  box-shadow: 4px 5px 0 var(--pimd-meta);
+  box-shadow: 4px 5px 0 var(--pimd-primary);
   color: var(--pimd-ink);
   user-select: none;
 }
 
 .leaderboardEntry:nth-child(even) {
   transform: rotate(-0.25deg);
-  box-shadow: 4px 5px 0 var(--pimd-primary);
 }
 
 .leaderboardEntry--self {
@@ -105,8 +104,6 @@ const status = computed(() => {
 
 .leaderboardEntry:nth-child(2n) .leaderboardEntry-rank {
   transform: rotate(3deg);
-  background: var(--pimd-meta);
-  color: var(--pimd-ink);
 }
 
 .leaderboardEntry-username {
