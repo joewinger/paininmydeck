@@ -403,7 +403,7 @@ onBeforeUnmount(() => {
 }
 
 .whiteCard-wrapper.is-facedown::before {
-  background: var(--pimd-paper-shadow);
+  background: var(--pimd-primary-dark);
 }
 
 .whiteCard {
@@ -709,24 +709,14 @@ onBeforeUnmount(() => {
 .whiteCard.facedown:disabled {
   overflow: hidden;
   border-color: var(--pimd-ink);
-  background-color: #f4dfa2;
-  background-image:
-    linear-gradient(
-      90deg,
-      transparent 0,
-      transparent 23%,
-      rgb(45 37 64 / 24%) 23%,
-      rgb(45 37 64 / 24%) calc(23% + 2px),
-      transparent calc(23% + 2px)
-    ),
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 21px,
-      rgb(87 169 191 / 31%) 21px,
-      rgb(87 169 191 / 31%) 22px
-    ),
-    radial-gradient(circle at 18% 12%, rgb(255 250 240 / 72%), transparent 42%);
+  background-color: var(--pimd-highlight);
+  background-image: linear-gradient(
+    135deg,
+    var(--pimd-highlight) 0 49%,
+    var(--pimd-primary) 49% 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
   color: var(--pimd-ink);
   transform: rotate(var(--card-tilt));
 }
@@ -736,34 +726,21 @@ onBeforeUnmount(() => {
   inset: 0;
   display: grid;
   place-items: center;
-  padding: 16px 14px 16px 26%;
-}
-
-.card-back::before {
-  position: absolute;
-  top: 14px;
-  left: 10px;
-  width: 8px;
-  height: 8px;
-  border: 2px solid rgb(45 37 64 / 55%);
-  border-radius: 50%;
-  background: var(--pimd-paper);
-  box-shadow: 0 19px 0 -2px var(--pimd-paper), 0 19px 0 0 rgb(45 37 64 / 55%);
-  content: '';
+  padding: 20px;
 }
 
 .card-back > span {
   display: grid;
-  min-height: 58px;
-  padding: 10px 12px;
+  min-height: 72px;
+  padding: 12px 16px;
   place-items: center;
   transform: rotate(-1.5deg);
-  border: 2px solid var(--pimd-ink);
-  background: rgb(255 250 240 / 91%);
-  box-shadow: 3px 4px 0 rgb(45 37 64 / 18%);
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-paper);
+  box-shadow: 6px 7px 0 var(--pimd-meta);
   color: var(--pimd-ink);
   font-family: 'Bungee', sans-serif;
-  font-size: clamp(11px, 3vw, 15px);
+  font-size: clamp(12px, 3vw, 16px);
   font-weight: 400;
   line-height: 1.05;
   letter-spacing: 0;
