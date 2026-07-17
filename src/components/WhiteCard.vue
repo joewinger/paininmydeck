@@ -143,7 +143,12 @@ const cardMeta = computed(() => {
     : `Hand ${displayIndex.value}`;
 });
 const cardAccent = computed(() => {
-  const accents = ['var(--pimd-meta)', 'var(--pimd-secondary)', 'var(--pimd-highlight)'];
+  const accents = [
+    'var(--pimd-meta)',
+    'var(--pimd-secondary)',
+    'var(--pimd-highlight)',
+    'var(--pimd-sky)',
+  ];
   return accents[props.index % accents.length];
 });
 const cardStyle = computed<Record<string, string>>(() => ({
