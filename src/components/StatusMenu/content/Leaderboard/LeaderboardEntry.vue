@@ -55,9 +55,13 @@ const status = computed(() => {
   transform: rotate(0.15deg);
   border: 3px solid var(--pimd-ink);
   background: var(--pimd-paper);
-  box-shadow: 4px 5px 0 var(--pimd-primary);
+  box-shadow: 4px 5px 0 var(--pimd-paper-shadow);
   color: var(--pimd-ink);
   user-select: none;
+}
+
+.leaderboardEntry:first-child {
+  box-shadow: 4px 5px 0 var(--pimd-primary);
 }
 
 .leaderboardEntry:nth-child(even) {
@@ -94,12 +98,17 @@ const status = computed(() => {
   height: 42px;
   transform: rotate(-4deg);
   border: 3px solid var(--pimd-ink);
-  background: var(--pimd-primary);
-  color: var(--pimd-on-primary);
+  background: var(--pimd-ink);
+  color: var(--pimd-paper);
   font-family: 'Bungee', sans-serif;
   font-size: 1.35rem;
   font-weight: 400;
   line-height: 1;
+}
+
+.leaderboardEntry:first-child .leaderboardEntry-rank {
+  background: var(--pimd-primary);
+  color: var(--pimd-on-primary);
 }
 
 .leaderboardEntry:nth-child(2n) .leaderboardEntry-rank {
