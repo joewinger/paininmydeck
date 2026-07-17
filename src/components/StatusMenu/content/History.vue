@@ -112,7 +112,7 @@ const historyRounds = computed(() => [...game.roundHistory].reverse());
   padding: 6px 8px 5px;
   transform: rotate(-1deg);
   background: var(--pimd-primary);
-  color: var(--pimd-ink);
+  color: var(--pimd-on-primary);
   font-family: 'Bungee', sans-serif;
   font-size: 0.61rem;
   line-height: 1;
@@ -197,9 +197,13 @@ const historyRounds = computed(() => [...game.roundHistory].reverse());
 
 .miniCard.winningAnswer {
   border-color: var(--pimd-ink);
-  background: var(--pimd-primary);
-  box-shadow: 4px 5px 0 var(--pimd-highlight);
+  background: var(--pimd-highlight);
+  box-shadow: 4px 5px 0 var(--pimd-meta);
   color: var(--pimd-ink);
+}
+
+.miniCard.winningAnswer .miniCard-badge {
+  background: var(--pimd-meta);
 }
 
 @media (forced-colors: active) {

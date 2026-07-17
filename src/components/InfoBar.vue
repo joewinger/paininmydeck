@@ -68,9 +68,14 @@ function inferKind(text: string): InfoBarKind {
   background: var(--pimd-meta);
 }
 
-#infoBar.info-bar--action,
-#infoBar.info-bar--success {
+#infoBar.info-bar--action {
   background: var(--pimd-primary);
+  color: var(--pimd-on-primary);
+}
+
+#infoBar.info-bar--success {
+  background: var(--pimd-highlight);
+  color: var(--pimd-ink);
 }
 
 .info-bar__icon {

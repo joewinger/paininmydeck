@@ -143,7 +143,7 @@ const cardMeta = computed(() => {
     : `Hand ${displayIndex.value}`;
 });
 const cardAccent = computed(() => {
-  const accents = ['var(--pimd-meta)', 'var(--pimd-primary)', 'var(--pimd-highlight)'];
+  const accents = ['var(--pimd-meta)', 'var(--pimd-secondary)', 'var(--pimd-highlight)'];
   return accents[props.index % accents.length];
 });
 const cardStyle = computed<Record<string, string>>(() => ({
@@ -399,7 +399,7 @@ onBeforeUnmount(() => {
 }
 
 .whiteCard-wrapper.is-winner::before {
-  background: var(--pimd-highlight);
+  background: var(--pimd-meta);
 }
 
 .whiteCard-wrapper.is-facedown::before {
@@ -605,20 +605,20 @@ onBeforeUnmount(() => {
   z-index: 4;
   background: var(--pimd-primary);
   box-shadow: 3px 3px 0 var(--pimd-highlight);
-  color: var(--pimd-ink);
+  color: var(--pimd-on-primary);
 }
 
 .btn-save:hover:not(:disabled) {
   border-color: var(--pimd-ink);
   background: var(--pimd-primary-dark);
-  color: var(--pimd-paper);
+  color: var(--pimd-on-primary);
   transform: translateY(-2px);
 }
 
 .btn-save:active:not(:disabled) {
   border-color: var(--pimd-ink);
   background: var(--pimd-primary-dark);
-  color: var(--pimd-paper);
+  color: var(--pimd-on-primary);
   box-shadow: 1px 1px 0 var(--pimd-highlight);
   transform: translate(2px, 2px);
 }
@@ -626,7 +626,7 @@ onBeforeUnmount(() => {
 .btn-save:disabled {
   border-color: var(--pimd-ink);
   background: var(--pimd-primary);
-  color: var(--pimd-ink);
+  color: var(--pimd-on-primary);
   opacity: 0.55;
 }
 
@@ -780,7 +780,7 @@ onBeforeUnmount(() => {
 .whiteCard.winner:hover {
   z-index: 3;
   border-color: var(--pimd-ink);
-  background-color: var(--pimd-primary);
+  background-color: var(--pimd-highlight);
   background-image:
     linear-gradient(rgb(45 37 64 / 9%) 1px, transparent 1px),
     linear-gradient(90deg, rgb(45 37 64 / 9%) 1px, transparent 1px);
@@ -789,7 +789,7 @@ onBeforeUnmount(() => {
 }
 
 .whiteCard.winner .card-index {
-  background: var(--pimd-highlight);
+  background: var(--pimd-meta);
 }
 
 .whiteCard.winner .card-meta {
@@ -815,7 +815,7 @@ onBeforeUnmount(() => {
   padding: 7px 10px 6px;
   transform: rotate(-1deg);
   border: 3px solid var(--pimd-ink);
-  background: var(--pimd-highlight);
+  background: var(--pimd-meta);
   box-shadow: 3px 4px 0 var(--pimd-ink);
   color: var(--pimd-ink);
   font-family: 'Inter', system-ui, sans-serif;

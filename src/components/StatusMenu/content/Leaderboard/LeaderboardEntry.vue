@@ -96,7 +96,7 @@ const status = computed(() => {
   transform: rotate(-4deg);
   border: 3px solid var(--pimd-ink);
   background: var(--pimd-primary);
-  color: var(--pimd-ink);
+  color: var(--pimd-on-primary);
   font-family: 'Bungee', sans-serif;
   font-size: 1.35rem;
   font-weight: 400;
@@ -106,6 +106,7 @@ const status = computed(() => {
 .leaderboardEntry:nth-child(2n) .leaderboardEntry-rank {
   transform: rotate(3deg);
   background: var(--pimd-meta);
+  color: var(--pimd-ink);
 }
 
 .leaderboardEntry-username {

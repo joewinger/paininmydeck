@@ -254,7 +254,7 @@ async function addUser() {
   width: fit-content;
   padding: 7px 10px 6px;
   background: var(--pimd-primary);
-  color: var(--pimd-ink);
+  color: var(--pimd-on-primary);
   font-family: 'Bungee', sans-serif;
   font-size: 11px;
   line-height: 1;

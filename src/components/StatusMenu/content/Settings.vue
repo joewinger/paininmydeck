@@ -278,7 +278,7 @@ async function updateSettings() {
 }
 
 #statusMenuContent-settings .settings-toggle:checked {
-  background: var(--pimd-primary);
+  background: var(--pimd-status);
 }
 
 #statusMenuContent-settings .settings-toggle:checked::before {
@@ -310,7 +310,7 @@ async function updateSettings() {
 }
 
 #statusMenuContent-settings .settings-toggle:checked + .settings-toggle-state {
-  background: var(--pimd-primary);
+  background: var(--pimd-status);
 }
 
 #statusMenuContent-settings .settings-toggle:disabled + .settings-toggle-state {

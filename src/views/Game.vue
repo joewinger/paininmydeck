@@ -272,17 +272,6 @@ onBeforeRouteLeave((to) => {
   transition: transform 0s;
 }
 
-.game-screen[data-phase='reveal'] .whiteCard.winner,
-.game-screen[data-phase='reveal'] .whiteCard.winner:disabled,
-.game-screen[data-phase='reveal'] .whiteCard.winner:hover {
-  background-color: var(--pimd-primary);
-  color: var(--pimd-ink);
-}
-
-.game-screen[data-phase='reveal'] .whiteCard.winner .card-meta {
-  color: var(--pimd-ink);
-}
-
 @media (min-width: 760px) {
   .game-screen {
     padding-bottom: 124px;

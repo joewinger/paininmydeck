@@ -70,7 +70,7 @@ function updateValue(event: Event): void {
   padding: 7px 11px 6px;
   transform: rotate(-0.7deg);
   background: var(--pimd-primary);
-  color: var(--pimd-ink);
+  color: var(--pimd-on-primary);
   font-family: 'Bungee', sans-serif;
   font-size: clamp(11px, 3.2vw, 15px);
   line-height: 1;

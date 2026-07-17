@@ -299,7 +299,7 @@ watch(
   transform: translateY(-2px);
   border-color: var(--pimd-ink);
   background: var(--pimd-primary);
-  color: var(--pimd-ink);
+  color: var(--pimd-on-primary);
   box-shadow: 4px 7px 0 var(--pimd-ink);
 }
 
@@ -307,7 +307,7 @@ watch(
   transform: translate(3px, 4px);
   border-color: var(--pimd-ink);
   background: var(--pimd-primary-dark);
-  color: var(--pimd-paper);
+  color: var(--pimd-on-primary);
   box-shadow: 1px 1px 0 var(--pimd-ink);
 }
 

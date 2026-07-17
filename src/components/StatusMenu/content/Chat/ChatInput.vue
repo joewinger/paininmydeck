@@ -96,7 +96,7 @@ async function sendMessage() {
   transform: translateY(-2px) rotate(-2deg);
   border-color: var(--pimd-ink);
   background: var(--pimd-primary);
-  color: var(--pimd-ink);
+  color: var(--pimd-on-primary);
   box-shadow: 3px 5px 0 var(--pimd-primary-dark);
 }
 
@@ -104,7 +104,7 @@ async function sendMessage() {
   transform: translate(2px, 2px) rotate(-2deg);
   border-color: var(--pimd-ink);
   background: var(--pimd-primary-dark);
-  color: var(--pimd-paper);
+  color: var(--pimd-on-primary);
   box-shadow: 1px 1px 0 var(--pimd-primary-dark);
 }
 
