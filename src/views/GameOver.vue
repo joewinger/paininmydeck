@@ -3,7 +3,10 @@
     v-if="roomData"
     id="gameover"
     class="pimd-screen"
-    :class="{ 'gameover--cancelled': roomData.outcome === 'cancelled' }"
+    :class="{
+      'gameover--cancelled': roomData.outcome === 'cancelled',
+      'gameover--won': roomData.outcome === 'won',
+    }"
     aria-labelledby="gameover-title"
   >
     <div v-if="roomData.outcome === 'won'" class="gameover-confetti" aria-hidden="true">
@@ -217,6 +220,13 @@ function getOrdinalSuffix(number: number): string {
   list-style: none;
 }
 
+.gameover--won #final-leaderboard {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: 190px;
+  gap: 12px 10px;
+  align-items: end;
+}
+
 .final-leaderboard_player {
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr) auto;
@@ -239,6 +249,93 @@ function getOrdinalSuffix(number: number): string {
 .final-leaderboard_player--winner {
   background: var(--pimd-highlight);
   box-shadow: 5px 6px 0 var(--pimd-primary-dark);
+}
+
+.gameover--won .final-leaderboard_player:nth-child(-n + 3) {
+  --podium-accent: var(--pimd-paper-shadow);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 4px;
+  justify-items: center;
+  min-width: 0;
+  min-height: 0;
+  padding: 15px 8px 10px;
+  overflow: hidden;
+  background: var(--pimd-paper);
+  box-shadow: 5px 7px 0 var(--podium-accent);
+  text-align: center;
+}
+
+.gameover--won .final-leaderboard_player:nth-child(-n + 3)::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 9px;
+  background: var(--podium-accent);
+  content: '';
+}
+
+.gameover--won .final-leaderboard_player:nth-child(1) {
+  --podium-accent: var(--pimd-primary);
+
+  grid-column: 2;
+  grid-row: 1;
+  height: 100%;
+  transform: rotate(-0.35deg);
+  background: var(--pimd-highlight);
+}
+
+.gameover--won .final-leaderboard_player:nth-child(2) {
+  --podium-accent: var(--pimd-sky);
+
+  grid-column: 1;
+  grid-row: 1;
+  height: 77%;
+  transform: rotate(0.45deg);
+}
+
+.gameover--won .final-leaderboard_player:nth-child(3) {
+  --podium-accent: var(--pimd-meta);
+
+  grid-column: 3;
+  grid-row: 1;
+  height: 64%;
+  transform: rotate(-0.4deg);
+}
+
+.gameover--won .final-leaderboard_player:nth-child(n + 4) {
+  grid-column: 1 / -1;
+  box-shadow: 4px 5px 0 var(--pimd-paper-shadow);
+}
+
+.gameover--won .final-leaderboard_player:nth-child(-n + 3) .rank {
+  grid-row: 2;
+  align-self: center;
+  font-size: clamp(2.4rem, 5vw, 3.5rem);
+}
+
+.gameover--won .final-leaderboard_player:nth-child(-n + 3) .username {
+  grid-row: 1;
+  width: 100%;
+  justify-items: center;
+}
+
+.gameover--won .final-leaderboard_player:nth-child(-n + 3) .username strong {
+  width: 100%;
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+.gameover--won .final-leaderboard_player:nth-child(-n + 3) .points {
+  grid-row: 3;
+  min-width: 0;
+  justify-items: center;
+}
+
+.gameover--won .final-leaderboard_player:nth-child(-n + 3) .points strong {
+  font-size: 1.15rem;
 }
 
 .final-leaderboard_player .rank {
@@ -463,6 +560,37 @@ function getOrdinalSuffix(number: number): string {
   .final-leaderboard_player {
     grid-template-columns: 42px minmax(0, 1fr) auto;
     gap: 8px;
+  }
+
+  .gameover--won #final-leaderboard {
+    grid-template-rows: 154px;
+    gap: 10px 6px;
+  }
+
+  .gameover--won .final-leaderboard_player:nth-child(-n + 3) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    padding: 12px 4px 7px;
+  }
+
+  .gameover--won .final-leaderboard_player:nth-child(-n + 3) .rank {
+    font-size: clamp(2rem, 12vw, 2.8rem);
+  }
+
+  .gameover--won .final-leaderboard_player:nth-child(-n + 3) .username strong {
+    font-size: 0.75rem;
+  }
+
+  .gameover--won .final-leaderboard_player:nth-child(-n + 3) .username span {
+    display: none;
+  }
+
+  .gameover--won .final-leaderboard_player:nth-child(-n + 3) .points strong {
+    font-size: 0.95rem;
+  }
+
+  .gameover--won .final-leaderboard_player:nth-child(-n + 3) .points span {
+    font-size: 0.52rem;
   }
 }
 
