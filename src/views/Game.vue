@@ -30,6 +30,16 @@
             <h1 id="game-phase-heading">{{ phaseHeading }}</h1>
           </div>
           <p>{{ phaseInstruction }}</p>
+          <button
+            v-if="showingHand"
+            class="pimd-secondary-button game-shuffle-button"
+            type="button"
+            :disabled="game.hand.length < 2"
+            @click="shuffleVisibleHand"
+          >
+            <span aria-hidden="true">↻</span>
+            Shuffle hand
+          </button>
         </div>
 
         <transition-group
@@ -55,13 +65,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import InfoBar from '@/components/InfoBar.vue';
 import QuestionCard from '@/components/QuestionCard.vue';
 import WhiteCard from '@/components/WhiteCard.vue';
 import { useGameStore } from '@/stores/game';
 import type { Card, PlayedCard } from '@/shared/protocol';
+import {
+  cardsInHandOrder,
+  reconcileHandOrder,
+  shuffleHandOrder,
+} from '@/views/handPresentationOrder';
 
 const game = useGameStore();
 const questionText = computed(() => game.turn.questionCard);
@@ -71,6 +86,7 @@ const submittedCount = computed(() => game.playedPlayerIds.length);
 const expectedAnswerCount = computed(() => Math.max(game.users.length - 1, 0));
 const roleLabel = computed(() => (game.isCzar ? 'Card Czar' : 'Player'));
 const questionPinned = ref(true);
+const handPresentationOrder = ref<string[]>([]);
 
 type InfoStatusKind = 'connecting' | 'reconnecting' | 'waiting' | 'role' | 'action' | 'success';
 
@@ -135,11 +151,28 @@ const cardSetLabel = computed(() => {
   return 'Your answer cards';
 });
 
+const showingHand = computed(
+  () => !game.turn.winningCard && !game.isCzar && !game.playedThisTurn,
+);
+
 const cardSet = computed<(Card | PlayedCard)[]>(() => {
   if (game.turn.winningCard) return [game.turn.winningCard];
   if (game.isCzar || game.playedThisTurn) return game.turn.playedCards;
-  return game.hand;
+  return cardsInHandOrder(game.hand, handPresentationOrder.value);
 });
+
+watch(
+  () => game.hand.map((card) => card.id),
+  () => {
+    handPresentationOrder.value = reconcileHandOrder(handPresentationOrder.value, game.hand);
+  },
+  { immediate: true },
+);
+
+function shuffleVisibleHand(): void {
+  const currentOrder = reconcileHandOrder(handPresentationOrder.value, game.hand);
+  handPresentationOrder.value = shuffleHandOrder(currentOrder);
+}
 
 onBeforeRouteLeave((to) => {
   if (to.name !== 'home' || game.beingKicked || game.terminalExit !== null) return true;
@@ -244,6 +277,22 @@ onBeforeRouteLeave((to) => {
   font-weight: 750;
   line-height: 1.35;
   text-align: center;
+}
+
+.game-shuffle-button {
+  justify-self: center;
+  width: auto;
+  gap: 7px;
+  min-height: 44px;
+  margin: 2px 0 0;
+  padding: 9px 14px 8px;
+  font-size: clamp(11px, 3vw, 13px);
+}
+
+.game-shuffle-button > span {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 19px;
+  line-height: 1;
 }
 
 #card-container {

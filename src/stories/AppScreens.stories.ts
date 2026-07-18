@@ -120,6 +120,16 @@ export const PlayerCollecting: Story = {
   parameters: { route: gameRoute, game: gameScenarios.playerCollecting },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const visibleCardOrder = () =>
+      Array.from(
+        canvasElement.querySelectorAll('#card-container > .whiteCard-wrapper > .whiteCard'),
+      ).map((card) => card.getAttribute('aria-label'));
+    const initialCardOrder = visibleCardOrder();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Shuffle hand' }));
+    await waitFor(() => expect(visibleCardOrder()).not.toEqual(initialCardOrder));
+    await expect(storyActions.submitCard).not.toHaveBeenCalled();
+    await expect(storyActions.redrawCard).not.toHaveBeenCalled();
     await userEvent.click(
       canvas.getByRole('button', {
         name: 'Play answer: An aggressively enthusiastic thumbs-up.',
