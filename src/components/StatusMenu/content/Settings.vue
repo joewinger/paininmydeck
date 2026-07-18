@@ -401,7 +401,7 @@ async function updateSettings() {
 
 #statusMenuContent-settings .settings-toggle-control {
   display: inline-grid;
-  grid-template-columns: 54px 48px;
+  grid-template-columns: 54px 40px;
   gap: 7px;
   align-items: center;
   justify-content: end;
@@ -470,6 +470,10 @@ async function updateSettings() {
 #statusMenuContent-settings .settings-device-row--sound {
   padding-top: 12px;
   border-top: 2px dashed rgb(45 37 64 / 22%);
+}
+
+#statusMenuContent-settings .settings-device-row--sound .settings-toggle-control {
+  grid-template-columns: 54px 48px;
 }
 
 #statusMenuContent-settings .settings-volume {
