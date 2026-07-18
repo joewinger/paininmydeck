@@ -228,7 +228,9 @@ test('approved refresh: mobile Settings', async ({ page }, testInfo) => {
         .evaluateAll((inputs) => inputs.map((input) => (input as HTMLInputElement).value)),
     )
     .toEqual(['7', '10', '0', '0', '4']);
-  await expect(settings.locator('input[type="checkbox"]')).toHaveCount(2);
+  await expect(settings.getByRole('checkbox', { name: 'All blanks!' })).not.toBeChecked();
+  await expect(settings.getByRole('checkbox', { name: 'Family mode' })).not.toBeChecked();
+  await expect(settings.getByRole('checkbox', { name: 'Haptics' })).toBeChecked();
   await expect(settings.getByRole('button', { name: 'Save' })).toBeVisible();
   await page.locator('.lobby-room-card h1 strong').evaluate((element) => {
     element.textContent = 'ABCDE';
