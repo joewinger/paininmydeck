@@ -2,6 +2,7 @@ import { createPinia } from 'pinia';
 import { setup, type Preview } from '@storybook/vue3-vite';
 
 import IonIcon from '@/components/IonIcon';
+import { HAPTICS_PREFERENCE_KEY } from '@/playerHaptics';
 import { useGameStore } from '@/stores/game';
 import { useUiStore } from '@/stores/ui';
 import 'normalize.css';
@@ -42,6 +43,7 @@ function clearRememberedUsername(): void {
   }
   try {
     localStorage.removeItem('username');
+    localStorage.removeItem(HAPTICS_PREFERENCE_KEY);
   } catch {
     // Storage can be disabled in hardened browser contexts.
   }
