@@ -1,6 +1,8 @@
 # Visual release-gate baselines
 
-The refresh screenshots capture the approved entry flow and gameplay redesign:
+The refresh screenshots capture the approved entry flow and gameplay redesign.
+They are grouped by operating system because text rasterization differs between
+macOS and the Ubuntu CI runner:
 
 - Home at 390 x 844 and 1280 x 800
 - profile, lobby, and Settings at 390 x 844
@@ -14,7 +16,8 @@ are excluded. The broader player, judging, reveal, interstitial, panel, and
 results states are rendered and exercised independently in Storybook.
 
 Baseline changes are deliberately opt-in. After visually reviewing an
-intentional refresh, regenerate only this collection with:
+intentional refresh, regenerate only the collection for the current operating
+system with:
 
 ```sh
 UPDATE_VISUAL_BASELINES=1 npx playwright test tests/e2e/visual.spec.ts --grep "approved refresh"
@@ -30,3 +33,6 @@ npx playwright test tests/e2e/visual.spec.ts --grep "approved refresh"
 Never accept a new baseline merely because a test failed. The changed images
 should be reviewed alongside the corresponding intentional UI change so the
 approval remains auditable in Git.
+
+CI uploads `test-results/` and `playwright-report/` whenever the browser job
+fails so the rendered screenshots and pixel diffs remain available for review.

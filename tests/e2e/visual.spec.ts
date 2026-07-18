@@ -94,7 +94,9 @@ async function compareRefreshFixture(
   fixtureName: string,
   ignoredRegions: Rectangle[],
 ): Promise<void> {
-  const fixturePath = fileURLToPath(new URL(`../visual/refresh/${fixtureName}`, import.meta.url));
+  const fixturePath = fileURLToPath(
+    new URL(`../visual/refresh/${process.platform}/${fixtureName}`, import.meta.url),
+  );
   const actualScreenshot = await page.screenshot({
     animations: 'disabled',
     caret: 'hide',
