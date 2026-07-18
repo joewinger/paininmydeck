@@ -212,6 +212,24 @@ export const CzarJudging: Story = {
   },
 };
 
+export const PlayerJudgingApplause: Story = {
+  name: 'Game / player applause',
+  parameters: { route: gameRoute, game: gameScenarios.playerJudging },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const answer = canvas.getByRole('button', {
+      name: /Applaud answer: The confidence of a man with the wrong answer.*2 of 3 given/u,
+    });
+    answer.focus();
+    await expect(answer).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    await expect(storyActions.setApplause).toHaveBeenCalledWith('played-jules', 3);
+    await userEvent.click(canvas.getByRole('button', { name: /Undo one applause/u }));
+    await expect(storyActions.setApplause).toHaveBeenLastCalledWith('played-jules', 2);
+    await expect(canvas.getByText('Your answer')).toBeVisible();
+  },
+};
+
 export const WinnerReveal: Story = {
   name: 'Game / winner reveal',
   parameters: { route: gameRoute, game: gameScenarios.winnerReveal },

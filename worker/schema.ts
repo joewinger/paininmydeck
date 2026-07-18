@@ -1,4 +1,4 @@
-const LATEST_MIGRATION_VERSION = 2;
+const LATEST_MIGRATION_VERSION = 3;
 
 export function migrate(storage: DurableObjectStorage): void {
   const sql = storage.sql;
@@ -226,6 +226,32 @@ export function migrate(storage: DurableObjectStorage): void {
       sql.exec(
         'INSERT INTO _sql_schema_migrations(version, applied_at) VALUES (?, ?)',
         2,
+        Date.now(),
+      );
+    });
+    current = 2;
+  }
+
+  if (current < 3) {
+    storage.transactionSync(() => {
+      sql.exec(`
+			CREATE TABLE applause (
+				round_id TEXT NOT NULL,
+				submission_id TEXT NOT NULL,
+				voter_player_id TEXT NOT NULL,
+				count INTEGER NOT NULL CHECK (count BETWEEN 1 AND 3),
+				PRIMARY KEY (round_id, submission_id, voter_player_id),
+				FOREIGN KEY (submission_id) REFERENCES submissions(submission_id) ON DELETE CASCADE,
+				FOREIGN KEY (voter_player_id) REFERENCES players(player_id)
+			)
+		`);
+      sql.exec('CREATE INDEX applause_round_voter ON applause(round_id, voter_player_id)');
+      sql.exec(
+        'ALTER TABLE round_answers ADD COLUMN applause_count INTEGER NOT NULL DEFAULT 0 CHECK (applause_count >= 0)',
+      );
+      sql.exec(
+        'INSERT INTO _sql_schema_migrations(version, applied_at) VALUES (?, ?)',
+        3,
         Date.now(),
       );
     });

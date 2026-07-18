@@ -145,6 +145,7 @@ Authenticated player sockets support these command types:
 - `submit_blank`
 - `redraw_card`
 - `choose_winner`
+- `set_applause`
 - `send_chat`
 - `kick_player`
 - `leave_room`
@@ -157,8 +158,8 @@ Commands are idempotent. The room records the command identifier, request digest
 
 Snapshots are serialized per connection:
 
-- shared state includes phase, settings, players, scores, question, submission progress, chat, and completed history;
-- `me` includes only the receiving player’s hand, redraw usage, identity, and privileges;
+- shared state includes phase, settings, players, scores, question, submission progress, chat, and completed history; aggregate applause is omitted during judging and attached to submitted cards only after reveal;
+- `me` includes only the receiving player’s hand, redraw usage, identity, privileges, own submission identifier, and that player’s applause counts;
 - display connections receive the same public snapshot shape with `me: null`;
 - other hands and deck order are never sent;
 - played-card authors are withheld during judging and appear only after reveal.
@@ -199,6 +200,7 @@ Each `GameRoom` uses its own strongly consistent SQLite database for:
 - provisional and member sessions;
 - players, host/Czar order, presence, and scores;
 - immutable card instances, hands, deck/discard state, and plays;
+- private per-player applause for the active round and aggregate applause copied into completed-round history;
 - chat messages and completed-round history;
 - scheduled jobs; and
 - the processed-command idempotency ledger.

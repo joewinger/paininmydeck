@@ -1,6 +1,6 @@
 /// <reference types="@cloudflare/vitest-pool-workers/types" />
 
-import { env, reset } from 'cloudflare:test';
+import { env, reset, runInDurableObject } from 'cloudflare:test';
 import { afterEach, describe, expect, it } from 'vitest';
 import type {
   ClientCommand,
@@ -132,15 +132,29 @@ class SocketHarness {
   async command(command: ClientCommand): Promise<CommandResult> {
     const afterIndex = this.frames.length;
     this.socket.send(JSON.stringify(command));
-    const response = await this.waitFor(
-      (frame) =>
-        (frame.type === 'ack' || frame.type === 'error') && frame.commandId === command.commandId,
-      afterIndex,
-    );
+    let response: ObservedFrame;
+    try {
+      response = await this.waitFor(
+        (frame) =>
+          (frame.type === 'ack' || frame.type === 'error') && frame.commandId === command.commandId,
+        afterIndex,
+      );
+    } catch (error) {
+      throw new Error(`Timed out waiting for ${command.type} response (${command.commandId}).`, {
+        cause: error,
+      });
+    }
     if (response.frame.type === 'error') {
       return { response };
     }
-    const snapshot = await this.waitFor((frame) => frame.type === 'snapshot', response.index + 1);
+    let snapshot: ObservedFrame;
+    try {
+      snapshot = await this.waitFor((frame) => frame.type === 'snapshot', response.index + 1);
+    } catch (error) {
+      throw new Error(`Timed out waiting for ${command.type} snapshot (${command.commandId}).`, {
+        cause: error,
+      });
+    }
     return { response, snapshot };
   }
 }
@@ -398,6 +412,332 @@ describe('GameRoom multiplayer contract', () => {
     });
     expect(finished.room.finalRecord?.winner?.points).toBe(1);
     expect(finished.room.roundHistory).toHaveLength(1);
+  });
+
+  it('authorizes applause, hides judging totals, preserves order, and records tied recap leaders', async () => {
+    const lobby = await createLobby('APPLS', 4);
+    const sockets = await Promise.all(lobby.players.map((_, index) => connect(lobby, index)));
+    await sockets[1].command({
+      protocolVersion: 1,
+      commandId: 'applause-settings',
+      type: 'update_settings',
+      payload: { settings: QUICK_SETTINGS },
+    });
+    await sockets[0].command(simpleCommand('applause-start', 'start_game'));
+
+    const dealt = await Promise.all(
+      sockets.map(async (socket) => {
+        const observed = await socket.waitForSnapshot(
+          (snapshot) => snapshot.room.phase === 'COLLECTING' && snapshot.me?.hand.length === 3,
+        );
+        if (observed.frame.type !== 'snapshot') throw new Error('Expected a dealt hand.');
+        return observed.frame.snapshot;
+      }),
+    );
+    const roundId = dealt[0].room.turn.roundId;
+
+    const firstSubmission = snapshotFrom(
+      await sockets[1].command({
+        protocolVersion: 1,
+        commandId: 'applause-submit-two',
+        type: 'submit_card',
+        roundId,
+        payload: { cardId: dealt[1].me?.hand[0]?.id ?? '' },
+      }),
+    );
+    expect(firstSubmission.me?.ownSubmissionId).toBeTruthy();
+    expectError(
+      await sockets[1].command({
+        protocolVersion: 1,
+        commandId: 'applause-before-judging',
+        type: 'set_applause',
+        roundId,
+        payload: { cardId: 'not-open-yet', count: 1 },
+      }),
+      'APPLAUSE_CLOSED',
+    );
+
+    await sockets[2].command({
+      protocolVersion: 1,
+      commandId: 'applause-submit-three',
+      type: 'submit_card',
+      roundId,
+      payload: { cardId: dealt[2].me?.hand[0]?.id ?? '' },
+    });
+    const judging = snapshotFrom(
+      await sockets[3].command({
+        protocolVersion: 1,
+        commandId: 'applause-submit-four',
+        type: 'submit_card',
+        roundId,
+        payload: { cardId: dealt[3].me?.hand[0]?.id ?? '' },
+      }),
+    );
+    expect(judging.room.phase).toBe('JUDGING');
+    const judgingOrder = judging.room.turn.playedCards.map((card) => card.id);
+
+    const playerSnapshots = await Promise.all(
+      [1, 2, 3].map(async (index) => {
+        const observed = await sockets[index].waitForSnapshot(
+          (snapshot) => snapshot.room.phase === 'JUDGING',
+        );
+        if (observed.frame.type !== 'snapshot') throw new Error('Expected judging state.');
+        return observed.frame.snapshot;
+      }),
+    );
+    const [playerTwoJudging, playerThreeJudging, playerFourJudging] = playerSnapshots;
+    const playerTwoSubmission = playerTwoJudging.me?.ownSubmissionId;
+    const playerThreeSubmission = playerThreeJudging.me?.ownSubmissionId;
+    const playerFourSubmission = playerFourJudging.me?.ownSubmissionId;
+    if (!playerTwoSubmission || !playerThreeSubmission || !playerFourSubmission) {
+      throw new Error('Expected each non-Czar to receive only their own submission id.');
+    }
+
+    expectError(
+      await sockets[0].command({
+        protocolVersion: 1,
+        commandId: 'czar-applause-forbidden',
+        type: 'set_applause',
+        roundId,
+        payload: { cardId: playerTwoSubmission, count: 1 },
+      }),
+      'CZAR_CANNOT_APPLAUD',
+    );
+    expectError(
+      await sockets[1].command({
+        protocolVersion: 1,
+        commandId: 'self-applause-forbidden',
+        type: 'set_applause',
+        roundId,
+        payload: { cardId: playerTwoSubmission, count: 1 },
+      }),
+      'SELF_APPLAUSE',
+    );
+    const beforeOverCap = sockets[1].frames.length;
+    sockets[1].socket.send(
+      JSON.stringify({
+        protocolVersion: 1,
+        commandId: 'applause-over-cap',
+        type: 'set_applause',
+        roundId,
+        payload: { cardId: playerThreeSubmission, count: 4 },
+      }),
+    );
+    const overCap = await sockets[1].waitFor(
+      (frame) => frame.type === 'error' && frame.error.code === 'INVALID_APPLAUSE',
+      beforeOverCap,
+    );
+    expect(overCap.frame).toMatchObject({ error: { code: 'INVALID_APPLAUSE' } });
+
+    const firstApplause: ClientCommand = {
+      protocolVersion: 1,
+      commandId: 'applause-idempotent',
+      type: 'set_applause',
+      roundId,
+      payload: { cardId: playerThreeSubmission, count: 1 },
+    };
+    const applaudedOnce = snapshotFrom(await sockets[1].command(firstApplause));
+    expect(applaudedOnce.me?.applauseBySubmissionId).toEqual({
+      [playerThreeSubmission]: 1,
+    });
+    expect(applaudedOnce.room.turn.playedCards.every((card) => !('applauseCount' in card))).toBe(
+      true,
+    );
+    const replayed = snapshotFrom(await sockets[1].command(firstApplause));
+    expect(replayed.me?.applauseBySubmissionId).toEqual({ [playerThreeSubmission]: 1 });
+
+    const undone = snapshotFrom(
+      await sockets[1].command({
+        protocolVersion: 1,
+        commandId: 'applause-undo',
+        type: 'set_applause',
+        roundId,
+        payload: { cardId: playerThreeSubmission, count: 0 },
+      }),
+    );
+    expect(undone.me?.applauseBySubmissionId).toEqual({});
+    await sockets[1].command({
+      protocolVersion: 1,
+      commandId: 'applause-three-for-three',
+      type: 'set_applause',
+      roundId,
+      payload: { cardId: playerThreeSubmission, count: 3 },
+    });
+    await sockets[2].command({
+      protocolVersion: 1,
+      commandId: 'applause-three-for-two',
+      type: 'set_applause',
+      roundId,
+      payload: { cardId: playerTwoSubmission, count: 3 },
+    });
+
+    const hiddenDisplay = unwrap(await lobby.stub.getDisplaySnapshot({ now: Date.now() })).snapshot;
+    expect(hiddenDisplay.me).toBeNull();
+    expect(hiddenDisplay.room.phase).toBe('JUDGING');
+    expect(hiddenDisplay.room.turn.playedCards.every((card) => !('applauseCount' in card))).toBe(
+      true,
+    );
+
+    const reveal = snapshotFrom(
+      await sockets[0].command({
+        protocolVersion: 1,
+        commandId: 'applause-choose-unpopular-winner',
+        type: 'choose_winner',
+        roundId,
+        payload: { cardId: playerFourSubmission },
+      }),
+    );
+    expect(reveal.room.phase).toBe('REVEAL');
+    expect(reveal.room.turn.playedCards.map((card) => card.id)).toEqual(judgingOrder);
+    expect(reveal.room.turn.winningCard).toMatchObject({
+      id: playerFourSubmission,
+      applauseCount: 0,
+      playedByPlayerId: lobby.players[3].playerId,
+    });
+    const revealedCounts = Object.fromEntries(
+      reveal.room.turn.playedCards.map((card) => [card.id, card.applauseCount]),
+    );
+    expect(revealedCounts).toEqual({
+      [playerTwoSubmission]: 3,
+      [playerThreeSubmission]: 3,
+      [playerFourSubmission]: 0,
+    });
+    expect(
+      reveal.room.players.find((player) => player.playerId === lobby.players[3].playerId)?.points,
+    ).toBe(1);
+    expect(
+      reveal.room.players.find((player) => player.playerId === lobby.players[1].playerId)?.points,
+    ).toBe(0);
+    expect(reveal.room.roundHistory[0]).toMatchObject({
+      winningPlayerId: lobby.players[3].playerId,
+      winningAnswerApplause: 0,
+    });
+    expect(
+      reveal.room.roundHistory[0]?.otherAnswers
+        .map((answer) => answer.applauseCount)
+        .sort((a, b) => a - b),
+    ).toEqual([3, 3]);
+    expectError(
+      await sockets[1].command({
+        protocolVersion: 1,
+        commandId: 'applause-after-reveal',
+        type: 'set_applause',
+        roundId,
+        payload: { cardId: playerThreeSubmission, count: 2 },
+      }),
+      'APPLAUSE_CLOSED',
+    );
+
+    const publicReveal = unwrap(await lobby.stub.getDisplaySnapshot({ now: Date.now() })).snapshot;
+    expect(
+      publicReveal.room.turn.playedCards
+        .map((card) => card.applauseCount ?? -1)
+        .sort((a, b) => a - b),
+    ).toEqual([0, 3, 3]);
+
+    const deadline = reveal.room.turn.revealDeadline;
+    if (deadline === null) throw new Error('Expected a reveal deadline.');
+    const finished = unwrap(
+      await lobby.stub.getSessionSnapshot({
+        sessionHash: lobby.players[0].sessionHash,
+        generation: lobby.generation,
+        now: deadline + 1,
+      }),
+    );
+    expect(finished.room.finalRecord).toMatchObject({
+      winner: { playerId: lobby.players[3].playerId },
+      applauseRecap: {
+        totalApplause: 6,
+        crowdFavorites: [
+          { playerId: lobby.players[1].playerId, applauseCount: 3 },
+          { playerId: lobby.players[2].playerId, applauseCount: 3 },
+        ],
+      },
+    });
+    expect(finished.room.finalRecord?.applauseRecap.mostApplaudedAnswers).toHaveLength(2);
+  });
+
+  it('restores private applause on reconnect and clears it when a departure restarts judging', async () => {
+    const lobby = await createLobby('CLAPS', 4);
+    const sockets = await Promise.all(lobby.players.map((_, index) => connect(lobby, index)));
+    await sockets[1].command({
+      protocolVersion: 1,
+      commandId: 'reconnect-applause-settings',
+      type: 'update_settings',
+      payload: { settings: { ...QUICK_SETTINGS, pointsToWin: 10 } },
+    });
+    await sockets[0].command(simpleCommand('reconnect-applause-start', 'start_game'));
+
+    const dealt = await Promise.all(
+      sockets.map(async (socket) => {
+        const observed = await socket.waitForSnapshot(
+          (snapshot) => snapshot.room.phase === 'COLLECTING' && snapshot.me?.hand.length === 3,
+        );
+        if (observed.frame.type !== 'snapshot') throw new Error('Expected a dealt hand.');
+        return observed.frame.snapshot;
+      }),
+    );
+    const roundId = dealt[0].room.turn.roundId;
+    for (let index = 1; index < sockets.length; index += 1) {
+      await sockets[index].command({
+        protocolVersion: 1,
+        commandId: `reconnect-applause-submit-${index}`,
+        type: 'submit_card',
+        roundId,
+        payload: { cardId: dealt[index].me?.hand[0]?.id ?? '' },
+      });
+    }
+
+    const playerTwoObserved = await sockets[1].waitForSnapshot(
+      (snapshot) => snapshot.room.phase === 'JUDGING',
+    );
+    const playerThreeObserved = await sockets[2].waitForSnapshot(
+      (snapshot) => snapshot.room.phase === 'JUDGING',
+    );
+    if (
+      playerTwoObserved.frame.type !== 'snapshot' ||
+      playerThreeObserved.frame.type !== 'snapshot'
+    ) {
+      throw new Error('Expected judging snapshots.');
+    }
+    const target = playerThreeObserved.frame.snapshot.me?.ownSubmissionId;
+    if (!target) throw new Error('Expected Player 3 submission id.');
+    await sockets[1].command({
+      protocolVersion: 1,
+      commandId: 'reconnect-applause-two',
+      type: 'set_applause',
+      roundId,
+      payload: { cardId: target, count: 2 },
+    });
+
+    const resumed = await connect(lobby, 1);
+    const resumedSnapshot = await resumed.initialSnapshot();
+    expect(resumedSnapshot).toMatchObject({
+      room: { phase: 'JUDGING' },
+      me: { applauseBySubmissionId: { [target]: 2 } },
+    });
+    sockets[1].socket.close(1000, 'Reconnected elsewhere');
+
+    const beforeDeparture = resumed.frames.length;
+    await sockets[3].command(simpleCommand('departure-clears-applause', 'leave_room'));
+    const restartedObserved = await resumed.waitForSnapshot(
+      (snapshot) => snapshot.room.phase === 'COLLECTING' && snapshot.room.turn.roundId !== roundId,
+      beforeDeparture,
+    );
+    if (restartedObserved.frame.type !== 'snapshot') {
+      throw new Error('Expected a restarted round.');
+    }
+    expect(restartedObserved.frame.snapshot).toMatchObject({
+      room: { roundHistory: [], turn: { playedCards: [], submittedPlayerIds: [] } },
+      me: { ownSubmissionId: null, applauseBySubmissionId: {} },
+    });
+    const applauseRows = await runInDurableObject(
+      lobby.stub,
+      (_instance, state) =>
+        state.storage.sql.exec<{ value: number }>('SELECT COUNT(*) AS value FROM applause').one()
+          .value,
+    );
+    expect(applauseRows).toBe(0);
   });
 
   it('preserves blank-card and redraw rules configured by a non-host lobby member', async () => {
