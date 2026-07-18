@@ -410,9 +410,11 @@ export const RoundInterstitial: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const status = await canvas.findByRole('status');
+    const heading = await canvas.findByRole('heading', { name: 'Round 3' });
+    const status = heading.closest<HTMLElement>('[role="status"]');
+    if (!status) throw new Error('Expected the round heading inside a status region.');
     await expect(status).toBeVisible();
-    await expect(within(status).getByRole('heading', { name: 'Round 3' })).toBeVisible();
+    await expect(heading).toBeVisible();
     await expect(within(status).getByText('Alex is the Card Czar')).toBeVisible();
   },
 };
