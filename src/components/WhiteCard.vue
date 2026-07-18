@@ -9,6 +9,7 @@
       'is-winner': isWinner,
       'is-facedown': effectiveFacedown,
       'is-selected': selected,
+      'is-blank-stack': isBlankStack,
     }"
     :style="cardStyle"
   >
@@ -43,6 +44,13 @@
       <template v-else>
         <span class="card-index" aria-hidden="true">{{ displayIndex }}</span>
         <span class="card-meta" aria-hidden="true">{{ cardMeta }}</span>
+        <span
+          v-if="isBlankStack"
+          class="blank-stack-count"
+          aria-hidden="true"
+        >
+          {{ blankCountLabel }}
+        </span>
 
         <span
           v-if="!isEditableBlank"
@@ -99,6 +107,7 @@ const props = withDefaults(
     selected?: boolean;
     confirmationPending?: boolean;
     blankText?: string;
+    blankCount?: number;
   }>(),
   {
     facedown: false,
@@ -125,6 +134,13 @@ const swipeOffset = ref(0);
 const trashOpenOffset = ref(64);
 const trashMode = ref(false);
 const isEditableBlank = computed(() => props.card.text.startsWith('%BLANK%'));
+const isBlankStack = computed(
+  () => isEditableBlank.value && props.blankCount !== undefined && props.blankCount > 0,
+);
+const blankCountLabel = computed(() => {
+  const count = props.blankCount ?? 0;
+  return `${count} blank ${count === 1 ? 'card' : 'cards'}`;
+});
 const usesBlankFont = computed(() => Boolean(props.card.blank));
 const isWinner = computed(() => game.turn.winningCard?.id === props.card.id);
 const effectivePending = computed(() => pending.value || props.confirmationPending);
@@ -151,6 +167,7 @@ const cardTag = computed(() => (isEditableBlank.value ? 'div' : 'button'));
 const displayIndex = computed(() => String(props.index + 1).padStart(2, '0'));
 const cardMeta = computed(() => {
   if (isWinner.value) return 'Round winner';
+  if (isBlankStack.value) return props.selected ? 'Selected · uses one' : 'Uses one card';
   if (props.selected) return game.isCzar ? 'Selected winner' : 'Selected answer';
   if (isEditableBlank.value) return 'Wild card';
   return game.isCzar || game.playedThisTurn
@@ -182,6 +199,8 @@ const facedownStamp = computed(() => {
 const cardAriaLabel = computed(() => {
   if (effectivePending.value) {
     if (props.confirmationPending && game.isCzar) return 'Choosing winner';
+    if (props.confirmationPending && isBlankStack.value)
+      return `Submitting one answer from ${blankCountLabel.value}`;
     if (props.confirmationPending) return 'Submitting answer';
     if (pendingAction.value === 'redraw') return 'Redrawing card';
   }
@@ -189,6 +208,10 @@ const cardAriaLabel = computed(() => {
   if (isWinner.value) {
     const player = game.turn.winningCard?.playedByDisplayName ?? 'another player';
     return `Winning answer: ${props.card.text}. Played by ${player}`;
+  }
+  if (isBlankStack.value) {
+    const selectedState = props.selected ? ' Selected.' : '';
+    return `${blankCountLabel.value}.${selectedState} Write an answer to play one blank card.`;
   }
   if (isEditableBlank.value)
     return props.selected ? 'Selected blank answer. Write your answer.' : 'Write your own answer';
@@ -202,6 +225,7 @@ const classList = computed(() => ({
   facedown: effectiveFacedown.value,
   winner: isWinner.value,
   blank: isEditableBlank.value,
+  'blank-stack': isBlankStack.value,
   blankfont: usesBlankFont.value && !isEditableBlank.value,
   actionable: isCardActionable.value,
   selected: props.selected,
@@ -399,6 +423,23 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
+.whiteCard-wrapper.is-blank-stack::before {
+  inset: 7px -7px -8px 7px;
+  transform: rotate(1.15deg);
+}
+
+.whiteCard-wrapper.is-blank-stack::after {
+  position: absolute;
+  inset: 12px -12px -13px 12px;
+  z-index: 0;
+  transform: rotate(2deg);
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-secondary);
+  box-shadow: 2px 3px 0 rgb(45 37 64 / 18%);
+  content: '';
+  pointer-events: none;
+}
+
 .whiteCard-wrapper.is-winner::before {
   background: var(--pimd-meta);
 }
@@ -525,6 +566,26 @@ onBeforeUnmount(() => {
   font-weight: 400;
   line-height: 1;
   letter-spacing: 0;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.blank-stack-count {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  max-width: calc(100% - 50px);
+  padding: 5px 6px 4px;
+  overflow: hidden;
+  border: 2px solid var(--pimd-ink);
+  background: var(--pimd-highlight);
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(7px, 1.9vw, 9px);
+  font-weight: 400;
+  line-height: 1;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
@@ -811,8 +872,10 @@ onBeforeUnmount(() => {
 
 @media (forced-colors: active) {
   .whiteCard-wrapper::before,
+  .whiteCard-wrapper.is-blank-stack::after,
   .whiteCard,
   .card-index,
+  .blank-stack-count,
   .card-back > span,
   .ribbon,
   .btn-trash {

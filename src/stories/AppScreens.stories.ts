@@ -196,6 +196,11 @@ export const BlankCardEditing: Story = {
   parameters: { route: gameRoute, game: gameScenarios.playerCollecting },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const blankStack = canvas.getByRole('group', {
+      name: '1 blank card. Write an answer to play one blank card.',
+    });
+    await expect(blankStack.closest('.whiteCard-wrapper')).toHaveClass('is-blank-stack');
+    await expect(canvas.getByText('1 blank card')).toBeVisible();
     const blankCard = canvas.getByPlaceholderText('Blank Card');
     await userEvent.click(blankCard);
     await expect(canvas.getByText('Write an answer on the selected blank card.')).toBeVisible();
@@ -208,6 +213,140 @@ export const BlankCardEditing: Story = {
       'blank-1',
       'A suspicious number of tiny cowboy hats',
     );
+  },
+};
+
+export const CountedBlankStack: Story = {
+  name: 'Game / counted blank stack',
+  parameters: {
+    route: gameRoute,
+    game: gameScenarios.playerBlankStack,
+    viewport: { defaultViewport: 'desktop' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const game = useGameStore();
+    const stack = canvas.getByRole('group', {
+      name: '4 blank cards. Write an answer to play one blank card.',
+    });
+    const stackWrapper = stack.closest('.whiteCard-wrapper');
+
+    await expect(canvas.getByText('4 blank cards')).toBeVisible();
+    await expect(stackWrapper).toHaveClass('is-blank-stack');
+    await expect(stackWrapper?.querySelector('.btn-trash')).toBeNull();
+    await expect(canvas.getAllByRole('button', { name: /^Select answer:/ })).toHaveLength(2);
+    await expect(canvas.getByRole('status')).toHaveTextContent(
+      '4 blank cards in your hand. Writing an answer uses one blank card.',
+    );
+
+    const editor = within(stack).getByRole('textbox', { name: 'Your blank answer' });
+    editor.focus();
+    await expect(editor).toHaveFocus();
+    await userEvent.keyboard('A deterministic write-in');
+    await expect(
+      canvas.getByRole('group', {
+        name: '4 blank cards. Selected. Write an answer to play one blank card.',
+      }),
+    ).toBeVisible();
+
+    if (!game.self) throw new Error('Expected a private player fixture.');
+    game.self.hand = game.self.hand.filter((card) => card.id !== 'blank-z').reverse();
+    await waitFor(() =>
+      expect(
+        canvas.getByRole('group', {
+          name: '3 blank cards. Selected. Write an answer to play one blank card.',
+        }),
+      ).toBeVisible(),
+    );
+    await expect(editor).toHaveValue('A deterministic write-in');
+
+    storyActions.submitBlank.mockImplementationOnce(async (cardId) => {
+      if (!game.self) throw new Error('Expected a private player fixture.');
+      game.self.hand = game.self.hand.filter((card) => card.id !== cardId);
+    });
+    const confirm = canvas.getByRole('button', { name: 'Play Card' });
+    confirm.focus();
+    await userEvent.keyboard('{Enter}');
+
+    await expect(storyActions.submitBlank).toHaveBeenCalledOnce();
+    await expect(storyActions.submitBlank).toHaveBeenCalledWith(
+      'blank-a',
+      'A deterministic write-in',
+    );
+    await waitFor(() =>
+      expect(
+        canvas.getByRole('group', {
+          name: '2 blank cards. Write an answer to play one blank card.',
+        }),
+      ).toBeVisible(),
+    );
+    await expect(canvas.getByRole('status')).toHaveTextContent('2 blank cards in your hand');
+  },
+};
+
+export const AllBlankStackMobile: Story = {
+  name: 'Game / all-blank stack (mobile)',
+  parameters: {
+    route: gameRoute,
+    game: gameScenarios.playerAllBlankStack,
+    viewport: { defaultViewport: 'mobile' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('list', { name: 'Your answer cards' }).children).toHaveLength(1);
+    await expect(
+      canvas.getByRole('group', {
+        name: '4 blank cards. Write an answer to play one blank card.',
+      }),
+    ).toBeVisible();
+    await expect(canvas.queryByRole('button', { name: /^Select answer:/ })).not.toBeInTheDocument();
+    await expect(canvas.queryByRole('button', { name: 'Redraw card' })).not.toBeInTheDocument();
+  },
+};
+
+export const BlankStackVanishesAtZero: Story = {
+  name: 'Game / blank stack removed at zero',
+  parameters: { route: gameRoute, game: gameScenarios.playerBlankStack },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const game = useGameStore();
+    if (!game.self) throw new Error('Expected a private player fixture.');
+
+    game.self.hand = game.self.hand.filter((card) => !card.text.startsWith('%BLANK%'));
+
+    await waitFor(() =>
+      expect(canvas.queryByRole('group', { name: /blank cards?/ })).not.toBeInTheDocument(),
+    );
+    await expect(canvas.getByRole('status')).toHaveTextContent('No blank cards in your hand.');
+    await expect(canvas.getAllByRole('button', { name: /^Select answer:/ })).toHaveLength(2);
+  },
+};
+
+export const BlankStackReconnectingMobile: Story = {
+  name: 'Game / blank stack reconnecting (mobile)',
+  parameters: {
+    route: gameRoute,
+    game: gameScenarios.playerBlankStackReconnecting,
+    viewport: { defaultViewport: 'mobile' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const game = useGameStore();
+    const editor = canvas.getByRole('textbox', { name: 'Your blank answer' });
+
+    editor.focus();
+    await userEvent.keyboard('Still here after reconnect');
+    await expect(canvas.getByText('Reconnecting to the room...')).toBeVisible();
+    if (!game.self) throw new Error('Expected a private player fixture.');
+    game.self.hand = [...game.self.hand].reverse();
+    game.connectionState = 'open';
+
+    await expect(editor).toHaveValue('Still here after reconnect');
+    await expect(
+      canvas.getByRole('group', {
+        name: '4 blank cards. Selected. Write an answer to play one blank card.',
+      }),
+    ).toBeVisible();
   },
 };
 
