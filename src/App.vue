@@ -21,14 +21,20 @@ import NavBar from '@/components/NavBar.vue';
 import StatusMenu from '@/components/StatusMenu/index.vue';
 import ErrorToast from '@/components/ErrorToast.vue';
 import Interstitial from '@/components/Interstitial.vue';
+import { shouldKeepScreenAwake, useScreenWakeLock } from '@/composables/useScreenWakeLock';
 import { useGameStore } from '@/stores/game';
 
 const route = useRoute();
 const router = useRouter();
 const game = useGameStore();
 const isTvRoute = computed(() => route.meta.layout === 'tv');
+const keepScreenAwake = computed(() =>
+	shouldKeepScreenAwake(game.roomId, game.connectionState, game.gameState),
+);
 const transitionName = ref('default');
 const routeOrder = ['home', 'lobby', 'game', 'gameover'];
+
+useScreenWakeLock(keepScreenAwake);
 
 watch(
 	() => route.name,
