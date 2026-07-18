@@ -133,7 +133,12 @@
         <p>{{ recap.roundCount }} questionable decisions, in order.</p>
       </div>
 
-      <ol class="round-timeline" :class="{ 'round-timeline--expanded': timelineExpanded }">
+      <ol
+        class="round-timeline"
+        :class="{ 'round-timeline--expanded': timelineExpanded }"
+        tabindex="0"
+        aria-label="Winning answers by round"
+      >
         <li
           v-for="(round, index) in recap.rounds"
           :key="`${round.round}-${round.winningPlayerId ?? round.winningPlayerDisplayName}`"
