@@ -5,6 +5,7 @@
       'leaderboardEntry--czar': isCzar,
       'leaderboardEntry--played': playedCard,
       'leaderboardEntry--self': isSelf,
+      'leaderboardEntry--kickable': isKickable,
     }"
   >
     <div class="leaderboardEntry-rank" :aria-label="`Rank ${rank}`">
@@ -19,11 +20,21 @@
       <strong>{{ userObj.points }}</strong>
       <span>pts</span>
     </div>
+    <button
+      v-if="isKickable"
+      type="button"
+      class="leaderboardEntry-remove"
+      :aria-label="`Remove ${userObj.displayName} from the game`"
+      :disabled="kickPending"
+      @click="kickPlayer"
+    >
+      {{ kickPending ? 'Removing…' : 'Remove' }}
+    </button>
   </li>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import type { PlayerSummary } from '@/shared/protocol';
 import { useGameStore } from '@/stores/game';
 
@@ -34,12 +45,34 @@ const statusMessages = {
 };
 const props = defineProps<{ rank: number; userObj: PlayerSummary; playedCard: boolean }>();
 const game = useGameStore();
+const kickPending = ref(false);
 const isCzar = computed(() => game.turn.czarPlayerId === props.userObj.playerId);
 const isSelf = computed(() => game.self?.playerId === props.userObj.playerId);
+const isKickable = computed(
+  () => game.isPrivileged && game.gameState === 'PLAYING' && !isSelf.value,
+);
 const status = computed(() => {
   if (isCzar.value) return statusMessages.czar;
   return props.playedCard ? statusMessages.played : statusMessages.waiting;
 });
+
+async function kickPlayer() {
+  if (!isKickable.value || kickPending.value) return;
+  const consequence =
+    game.users.length <= 3
+      ? 'This will end the game because fewer than three players will remain.'
+      : 'The current round will restart so every remaining player sees the same cards.';
+  if (!window.confirm(`Remove ${props.userObj.displayName} from the game? ${consequence}`)) return;
+
+  kickPending.value = true;
+  try {
+    await game.kickPlayer(props.userObj.playerId);
+  } catch {
+    // The game store already presents the server error to the host.
+  } finally {
+    kickPending.value = false;
+  }
+}
 </script>
 
 <style scoped>
@@ -161,6 +194,47 @@ const status = computed(() => {
   min-width: 40px;
 }
 
+.leaderboardEntry--kickable .leaderboardEntry-points {
+  grid-row: 1;
+}
+
+.leaderboardEntry-remove {
+  grid-column: 3;
+  grid-row: 2;
+  min-width: 66px;
+  min-height: 44px;
+  padding: 5px 7px 4px;
+  border: 2px solid var(--pimd-ink);
+  border-radius: 0;
+  background: var(--pimd-paper);
+  box-shadow: 2px 2px 0 var(--pimd-primary);
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.leaderboardEntry-remove:hover:not(:disabled) {
+  background: var(--pimd-highlight);
+}
+
+.leaderboardEntry-remove:active:not(:disabled) {
+  box-shadow: none;
+  transform: translate(2px, 2px);
+}
+
+.leaderboardEntry-remove:focus-visible {
+  outline: 3px solid var(--pimd-ink);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--pimd-highlight);
+}
+
+.leaderboardEntry-remove:disabled {
+  opacity: 0.62;
+}
+
 .leaderboardEntry-points strong {
   font-family: 'Bungee', sans-serif;
   font-size: 1.25rem;
@@ -178,7 +252,8 @@ const status = computed(() => {
 
 @media (forced-colors: active) {
   .leaderboardEntry,
-  .leaderboardEntry-rank {
+  .leaderboardEntry-rank,
+  .leaderboardEntry-remove {
     border: 3px solid CanvasText;
     background: Canvas;
     color: CanvasText;

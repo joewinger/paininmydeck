@@ -400,6 +400,93 @@ describe('GameRoom multiplayer contract', () => {
     expect(finished.room.roundHistory).toHaveLength(1);
   });
 
+  it('lets only the host remove a player mid-game and restarts the round for everyone else', async () => {
+    const lobby = await createLobby('KCKRS', 4);
+    const sockets = await Promise.all(lobby.players.map((_, index) => connect(lobby, index)));
+    const [host, target, observer] = sockets;
+    await observer.command({
+      protocolVersion: 1,
+      commandId: 'kick-test-settings',
+      type: 'update_settings',
+      payload: { settings: { ...QUICK_SETTINGS, pointsToWin: 10 } },
+    });
+    const started = snapshotFrom(
+      await host.command(simpleCommand('kick-test-start', 'start_game')),
+    );
+    const originalRoundId = started.room.turn.roundId;
+
+    expectError(
+      await observer.command({
+        protocolVersion: 1,
+        commandId: 'non-host-midgame-kick',
+        type: 'kick_player',
+        payload: { playerId: lobby.players[1].playerId },
+      }),
+      'HOST_ONLY',
+    );
+
+    const targetStarted = await target.waitForSnapshot(
+      (snapshot) =>
+        snapshot.room.turn.roundId === originalRoundId && snapshot.me?.hand.length === 3,
+    );
+    if (targetStarted.frame.type !== 'snapshot') throw new Error('Expected the target hand.');
+    const submittedCard = targetStarted.frame.snapshot.me?.hand[0];
+    if (!submittedCard) throw new Error('Expected the target to receive a card.');
+    await target.command({
+      protocolVersion: 1,
+      commandId: 'target-submits-before-kick',
+      type: 'submit_card',
+      roundId: originalRoundId,
+      payload: { cardId: submittedCard.id },
+    });
+
+    const targetFrameIndex = target.frames.length;
+    const observerFrameIndex = observer.frames.length;
+    const afterKick = snapshotFrom(
+      await host.command({
+        protocolVersion: 1,
+        commandId: 'host-midgame-kick',
+        type: 'kick_player',
+        payload: { playerId: lobby.players[1].playerId },
+      }),
+    );
+
+    expect(afterKick.room).toMatchObject({
+      gameState: 'PLAYING',
+      phase: 'COLLECTING',
+      turn: { round: 1, submittedPlayerIds: [], playedCards: [] },
+    });
+    expect(afterKick.room.turn.roundId).not.toBe(originalRoundId);
+    expect(afterKick.room.players.map((player) => player.playerId)).not.toContain(
+      lobby.players[1].playerId,
+    );
+    expect(
+      afterKick.room.chatMessages.some(
+        (message) => message.text === 'Player 2 was removed from the game.',
+      ),
+    ).toBe(true);
+
+    const observerRestart = await observer.waitForSnapshot(
+      (snapshot) => snapshot.room.turn.roundId === afterKick.room.turn.roundId,
+      observerFrameIndex,
+    );
+    if (observerRestart.frame.type !== 'snapshot') throw new Error('Expected a restarted round.');
+    expect(observerRestart.frame.snapshot.me?.hand).toHaveLength(3);
+
+    const kicked = await target.waitFor(
+      (frame) => frame.type === 'error' && frame.error.code === 'KICKED',
+      targetFrameIndex,
+    );
+    expect(kicked.frame).toMatchObject({ type: 'error', error: { code: 'KICKED' } });
+    await expect(
+      lobby.stub.getSessionSnapshot({
+        sessionHash: lobby.players[1].sessionHash,
+        generation: lobby.generation,
+        now: Date.now(),
+      }),
+    ).resolves.toMatchObject({ ok: false, error: { code: 'KICKED' } });
+  });
+
   it('preserves blank-card and redraw rules configured by a non-host lobby member', async () => {
     const lobby = await createLobby('FGHJK', 3);
     const host = await connect(lobby, 0);

@@ -259,6 +259,17 @@ export const LeaderboardOpen: Story = {
   },
 };
 
+export const LeaderboardHostControls: Story = {
+  name: 'Game / host removal controls',
+  parameters: { route: gameRoute, game: gameScenarios.czarJudging },
+  play: async ({ canvasElement }) => {
+    const canvas = await openStatusPanel(canvasElement, 2);
+    await waitFor(() => expect(canvas.getByRole('heading', { name: 'Leaderboard' })).toBeVisible());
+    await expect(canvas.getByRole('button', { name: 'Remove Rowan from the game' })).toBeVisible();
+    await expect(canvas.queryByRole('button', { name: 'Remove Alex from the game' })).toBeNull();
+  },
+};
+
 export const GameWon: Story = {
   name: 'Results / game won',
   parameters: { route: resultsRoute, game: gameScenarios.gameWon },

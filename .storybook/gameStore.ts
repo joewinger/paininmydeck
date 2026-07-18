@@ -29,6 +29,7 @@ export const storyActions = {
   redrawCard: fn(async (cardId: string): Promise<void> => void cardId),
   chooseWinner: fn(async (cardId: string): Promise<void> => void cardId),
   sendChat: fn(async (text: string): Promise<void> => void text),
+  kickPlayer: fn(async (playerId: string): Promise<void> => void playerId),
 };
 
 function resetStoryActions(): void {
@@ -78,7 +79,7 @@ export function stubStoryTransport(game: GameStore): void {
   game.redrawCard = storyActions.redrawCard;
   game.chooseWinner = storyActions.chooseWinner;
   game.sendChat = storyActions.sendChat;
-  game.kickPlayer = async () => undefined;
+  game.kickPlayer = storyActions.kickPlayer;
   game.send = async () => undefined;
 }
 
