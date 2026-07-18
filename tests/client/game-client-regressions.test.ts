@@ -197,4 +197,40 @@ describe('RoomSocket replacement races', () => {
 
     socket.close();
   });
+
+  it('sends the host rematch command and resolves its acknowledgement', async () => {
+    const socket = new RoomSocket(ROOM_ID, {
+      onSnapshot: vi.fn(),
+      onError: vi.fn(),
+      onTerminalError: vi.fn(),
+      onConnectionState: vi.fn(),
+    });
+
+    socket.connect();
+    const connection = FakeWebSocket.instances[0];
+    connection.open();
+
+    const pending = socket.send({ type: 'play_again', payload: {} });
+    expect(connection.sent).toHaveLength(1);
+    const command = JSON.parse(connection.sent[0]) as {
+      protocolVersion: number;
+      commandId: string;
+      type: string;
+      payload: Record<string, never>;
+    };
+    expect(command).toMatchObject({
+      protocolVersion: 1,
+      type: 'play_again',
+      payload: {},
+    });
+
+    connection.receive({
+      protocolVersion: 1,
+      type: 'ack',
+      commandId: command.commandId,
+    });
+    await expect(pending).resolves.toBeUndefined();
+
+    socket.close();
+  });
 });

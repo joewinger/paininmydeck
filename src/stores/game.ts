@@ -293,6 +293,9 @@ export const useGameStore = defineStore('game', {
     async startGame(): Promise<void> {
       await this.send({ type: 'start_game', payload: {} });
     },
+    async playAgain(): Promise<void> {
+      await this.send({ type: 'play_again', payload: {} });
+    },
     async submitCard(cardId: string): Promise<void> {
       await this.send({ type: 'submit_card', roundId: this.turn.roundId, payload: { cardId } });
     },
