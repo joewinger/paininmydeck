@@ -1,21 +1,21 @@
 <template>
-	<div class="app-shell">
-		<nav-bar />
-		<main class="app-content">
+	<div class="app-shell" :class="{ 'app-shell--tv': isTvRoute }">
+		<nav-bar v-if="!isTvRoute" />
+		<main class="app-content" :class="{ 'app-content--tv': isTvRoute }">
 			<router-view v-slot="{ Component }">
 				<transition :name="transitionName">
 					<component :is="Component" />
 				</transition>
 			</router-view>
 		</main>
-		<status-menu v-if="game.roomId !== null" />
+		<status-menu v-if="game.roomId !== null && !isTvRoute" />
 		<error-toast />
-		<interstitial />
+		<interstitial v-if="!isTvRoute" />
 	</div>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import NavBar from '@/components/NavBar.vue';
 import StatusMenu from '@/components/StatusMenu/index.vue';
@@ -26,6 +26,7 @@ import { useGameStore } from '@/stores/game';
 const route = useRoute();
 const router = useRouter();
 const game = useGameStore();
+const isTvRoute = computed(() => route.meta.layout === 'tv');
 const transitionName = ref('default');
 const routeOrder = ['home', 'lobby', 'game', 'gameover'];
 
@@ -47,6 +48,7 @@ watch(
 			void router.replace({ name: 'home' });
 			return;
 		}
+		if (game.displayMode || isTvRoute.value) return;
 		if (['COLLECTING', 'JUDGING', 'REVEAL'].includes(phase) && route.name === 'lobby') {
 			void router.replace({ name: 'game', params: { roomId: game.roomId } });
 		}
@@ -79,6 +81,15 @@ onBeforeUnmount(() => game.dispose());
 .app-content > * {
 	grid-area: 1 / 1;
 	min-width: 0;
+}
+
+.app-shell--tv {
+	display: block;
+}
+
+.app-content--tv {
+	grid-row: auto;
+	min-height: 100svh;
 }
 
 .slide-left-enter-active,

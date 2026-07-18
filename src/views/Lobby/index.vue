@@ -39,6 +39,14 @@
           <button-loadable class="pimd-primary-button" @click="startGame">
             Start Game
           </button-loadable>
+          <a
+            class="pimd-secondary-button lobby-tv-link"
+            :href="tvUrl"
+            target="_blank"
+            rel="noopener"
+          >
+            Open TV mode
+          </a>
         </section>
 
         <section v-else class="pimd-paper lobby-controls__sheet lobby-controls__sheet--guest">
@@ -53,6 +61,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import SetUsernameModal from './Lobby_SetUsernameModal.vue';
 import LobbyUser from './Lobby_User.vue';
 import ButtonLoadable from '@/components/ButtonLoadable.vue';
@@ -60,7 +69,11 @@ import InfoBar from '@/components/InfoBar.vue';
 import { useGameStore } from '@/stores/game';
 
 const game = useGameStore();
+const router = useRouter();
 const starting = ref(false);
+const tvUrl = computed(() =>
+  router.resolve({ name: 'tv', params: { roomId: game.roomId ?? '' } }).href,
+);
 const connectionInfo = computed(() => {
   if (game.connectionState === 'connecting') return 'Connecting to the room...';
   if (game.connectionState === 'reconnecting') return 'Reconnecting to the room...';
@@ -229,6 +242,12 @@ async function startGame(done: () => void) {
 
 .lobby-controls__sheet .pimd-primary-button {
   margin-top: 7px;
+}
+
+.lobby-controls__sheet .lobby-tv-link {
+  min-height: 48px;
+  margin-top: 2px;
+  font-size: clamp(11px, 2.5vw, 14px);
 }
 
 .lobby-controls__sheet--guest {

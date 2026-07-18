@@ -144,3 +144,50 @@ test('Home keeps the five-letter input and manual carousel interaction contract'
     .poll(() => scrollPort.evaluate((element) => element.scrollLeft))
     .toBeGreaterThan(before + 100);
 });
+
+test('TV mode watches a room without joining as a player', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium-desktop');
+  test.setTimeout(90_000);
+
+  const hostContext = await browser.newContext();
+  const displayContext = await browser.newContext();
+  const host = await hostContext.newPage();
+
+  try {
+    await host.goto('/');
+    await host.getByRole('button', { name: 'Start a new game' }).click();
+    await expect(host).toHaveURL(/\/join\/[A-HJ-NP-Z]{5}$/, { timeout: 65_000 });
+    const roomId = host.url().split('/').at(-1) as string;
+    await setProfile(host, 'Alice', 0);
+    await expect(host.locator('#lobby li')).toHaveCount(1);
+    await expect(host.getByRole('link', { name: 'Open TV mode' })).toHaveAttribute(
+      'target',
+      '_blank',
+    );
+
+    const display = await displayContext.newPage();
+    await display.goto(`/tv/${roomId}`);
+
+    await expect(display).toHaveURL(new RegExp(`/tv/${roomId}$`));
+    await expect(display.locator('#tv')).toBeVisible();
+    await expect(display.getByRole('heading', { name: 'Players' })).toBeVisible();
+    await expect(display.getByRole('heading', { name: 'Chat' })).toBeVisible();
+    await expect(display.locator('.room-qr-code')).toHaveAttribute(
+      'data-join-url',
+      new RegExp(`/join/${roomId}$`),
+    );
+    await expect(display.locator('#setUsernameModal')).toHaveCount(0);
+    await expect(display.locator('#navbar, #statusMenu, textarea, input')).toHaveCount(0);
+    await expect
+      .poll(() =>
+        display.evaluate(() => ({
+          horizontal: document.documentElement.scrollWidth > window.innerWidth,
+          vertical: document.documentElement.scrollHeight > window.innerHeight,
+        })),
+      )
+      .toEqual({ horizontal: false, vertical: false });
+    await expect(host.locator('#lobby li')).toHaveCount(1);
+  } finally {
+    await Promise.allSettled([hostContext.close(), displayContext.close()]);
+  }
+});

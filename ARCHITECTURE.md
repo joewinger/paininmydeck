@@ -9,6 +9,7 @@ flowchart LR
     B1["Player browser"]
     B2["Friend browser"]
     B3["Friend browser"]
+    TV["Read-only TV display"]
     W["Cloudflare Worker<br/>assets, API, session gateway"]
     RL["CREATE_RATE_LIMIT<br/>JOIN_RATE_LIMIT"]
     TS["Cloudflare Turnstile"]
@@ -18,6 +19,7 @@ flowchart LR
     ASSETS["Compiled Vue assets"]
 
     B1 & B2 & B3 <-->|"HTTPS and WebSocket"| W
+    TV <-->|"HTTPS and display WebSocket"| W
     W -->|"static routes"| ASSETS
     W -->|"create and enter"| RL
     W -->|"when required"| TS
@@ -26,7 +28,7 @@ flowchart LR
     DO <--> ALARM
 ```
 
-Only `/api/*` runs Worker application code first. Other paths are asset-first and fall back to `index.html`, allowing Vue Router to handle `/join/:roomId` without a separate server route.
+Only `/api/*` runs Worker application code first. Other paths are asset-first and fall back to `index.html`, allowing Vue Router to handle `/join/:roomId` and `/tv/:roomId` without separate server routes.
 
 There is deliberately no Supabase, Firebase runtime, D1, KV, R2, Queue, account service, analytics pipeline, or payment system.
 
@@ -36,6 +38,7 @@ There is deliberately no Supabase, Firebase runtime, D1, KV, R2, Queue, account 
 sequenceDiagram
     actor Host
     actor Friend
+    actor Display
     participant Worker
     participant Turnstile
     participant Room as GameRoom DO
@@ -57,6 +60,15 @@ sequenceDiagram
     Worker->>Room: Bind display name and color to session
     Room->>DB: Commit membership
 
+    Display->>Worker: POST /api/rooms/ABCDE/watch
+    Worker->>Turnstile: Verify watch_room token unless display cookie is valid
+    Worker->>Room: Fetch public room snapshot
+    Worker-->>Display: Set signed display cookie + public snapshot (me: null)
+
+    Display->>Worker: GET /api/rooms/ABCDE/watch-socket (upgrade)
+    Worker->>Room: Upgrade authenticated display WebSocket
+    Room-->>Display: Read-only public snapshots
+
     Host->>Worker: GET /api/rooms/ABCDE/socket (upgrade)
     Worker->>Room: Upgrade authenticated WebSocket
     Room-->>Host: Personalized snapshot
@@ -67,15 +79,17 @@ sequenceDiagram
 
 ### HTTP surface
 
-| Method and path                   | Purpose                                                                                                      |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `POST /api/rooms`                 | Accept `{ turnstileToken }`; create a pending room/provisional creator and return `{ roomId, redirectUrl }`. |
-| `POST /api/rooms/:roomId/enter`   | Accept `{ turnstileToken }`; resume or provision a session and return `{ snapshot, needsProfile }`.          |
-| `POST /api/rooms/:roomId/profile` | Accept `{ displayName, colorSet }`; bind lobby membership and return `{ snapshot }`.                         |
-| `GET /api/rooms/:roomId/socket`   | Upgrade an authenticated room session to WebSocket.                                                          |
-| `GET /api/healthz`                | Return `{ buildVersion, protocolVersion: 1 }` without touching a room.                                       |
+| Method and path                       | Purpose                                                                                                                                                  |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /api/rooms`                     | Accept `{ turnstileToken }`; create a pending room/provisional creator and return `{ roomId, redirectUrl }`.                                             |
+| `POST /api/rooms/:roomId/enter`       | Accept `{ turnstileToken }`; resume or provision a session and return `{ snapshot, needsProfile }`.                                                      |
+| `POST /api/rooms/:roomId/profile`     | Accept `{ displayName, colorSet }`; bind lobby membership and return `{ snapshot }`.                                                                     |
+| `GET /api/rooms/:roomId/socket`       | Upgrade an authenticated room session to WebSocket.                                                                                                      |
+| `POST /api/rooms/:roomId/watch`       | Apply the join limit and accept `{ turnstileToken }` when no valid display cookie exists; issue the cookie and return a public snapshot with `me: null`. |
+| `GET /api/rooms/:roomId/watch-socket` | Upgrade an authenticated display session to a read-only WebSocket.                                                                                       |
+| `GET /api/healthz`                    | Return `{ buildVersion, protocolVersion: 1 }` without touching a room.                                                                                   |
 
-No endpoint lists rooms or exposes a public result, hand, deck, or room snapshot.
+No endpoint lists rooms or exposes a hand or deck. `POST /watch` exchanges a live room ID for a room-scoped display credential and the public projection; the watch WebSocket requires that signed credential.
 
 ### Room IDs
 
@@ -83,22 +97,31 @@ Room IDs contain exactly five uppercase letters from `ABCDEFGHJKLMNPQRSTUVWXYZ` 
 
 The Worker uses Web Crypto to generate a candidate, derives the Durable Object with `GAME_ROOMS.idFromName(roomId)`, and asks it to initialize atomically. A collision retries with a new candidate, up to 20 attempts. Every initialization also creates a random room generation, so a session for a previously expired use of the same code cannot access a later room.
 
-Codes are normalized with trim plus uppercase at every boundary. The short code is the only friend-facing access key, so “private” means unlisted and rate-limited rather than confidential.
+Codes are normalized with trim plus uppercase at every boundary. The short code is the only friend-facing access key, so “private” means unlisted, rate-limited, and challenge-protected rather than confidential. Anyone who obtains or guesses a live code and passes the gateway controls can request a display credential and see the public projection, including player names, scores, chat, and completed history. They still cannot see hands, deck order, or unrevealed authors, and a display credential grants no player capabilities. Rooms that need confidential chat require a stronger invitation model than five-letter codes.
 
 ## Sessions and trust boundaries
 
 - The gateway issues `__Host-pid_session` with `Path=/`, `Secure`, `HttpOnly`, and `SameSite=Strict`; browser JavaScript cannot read it. Local HTTP development uses the runtime's development-safe equivalent, but remote environments must satisfy every `__Host-` cookie requirement.
+- The watch flow issues a separate signed `__Host-pid_display` cookie with the same transport protections. Its display-only credential is never accepted as `__Host-pid_session`, cannot resume a player, and cannot authorize a player command.
 - The signed envelope binds the opaque session identifier, room ID, and room generation. Signatures use HMAC-SHA-256 with `SESSION_SIGNING_KEY` and are verified before the Durable Object is accessed.
 - The Durable Object stores a session hash and membership state, not the raw browser credential.
 - Mutation and WebSocket requests validate their `Origin`.
 - Newcomers may join only while the room is in the lobby. Existing valid sessions may reconnect later.
 - Kicking or leaving revokes membership server-side. Starting a game closes new membership.
 - The browser never decides whether a command is legal. The room validates the session, current phase, round, role, card ownership, settings, and payload.
-- Turnstile validation is server-side and required for create/enter in staging and production. Tokens are short-lived and single-use; the secret exists only as a Worker secret.
+- Turnstile validation is server-side and required for create, enter, and first-time watch access in staging and production. Watch uses the `watch_room` action; a valid returning `__Host-pid_display` cookie resumes without a new challenge. Tokens are short-lived and single-use; the secret exists only as a Worker secret.
 - `VITE_TURNSTILE_SITE_KEY` is a public, environment-specific build variable embedded in the Vue bundle. Vite development falls back to Cloudflare's always-pass test site key only when this value is absent.
-- `CREATE_RATE_LIMIT` permits 3 creation attempts per 60 seconds per gateway key. `JOIN_RATE_LIMIT` permits 20 entry probes per 60 seconds. Valid room commands and chat also have room-local limits.
+- `CREATE_RATE_LIMIT` permits 3 creation attempts per 60 seconds per gateway key. `JOIN_RATE_LIMIT` permits 20 entry or initial watch probes per 60 seconds. Valid room commands and chat also have room-local limits.
 
 Five-letter IDs are intentionally easy to share and brute-forceable at sufficient scale. Rate limits and Turnstile reduce casual probing; they do not turn room chat into a secure messaging system.
+
+## Read-only TV display
+
+`/tv/:roomId` is the universal big-screen route. It obtains a signed display credential through `POST /api/rooms/:roomId/watch`, then receives live public snapshots from `GET /api/rooms/:roomId/watch-socket`. The display renders the room's join QR code, chat, leaderboard, and latest completed-round receipt without creating a player profile or occupying a seat.
+
+The display surface is a projection, not a spectator player. Its snapshot always has `me: null`. Display connections never count toward connected-player requirements, change player presence, receive a hand, become host or Czar, create disconnect-grace work, or authorize mutations. Closing or reconnecting a display cannot alter game state.
+
+The route works directly in a laptop or TV browser. Native Google Cast integration is a separate future sender/receiver layer described in `docs/CAST.md`; it is not part of the current implementation.
 
 ## WebSocket protocol and projections
 
@@ -114,7 +137,7 @@ type ClientCommand = {
 };
 ```
 
-Supported command types are:
+Authenticated player sockets support these command types:
 
 - `update_settings`
 - `start_game`
@@ -136,8 +159,11 @@ Snapshots are serialized per connection:
 
 - shared state includes phase, settings, players, scores, question, submission progress, chat, and completed history;
 - `me` includes only the receiving player’s hand, redraw usage, identity, and privileges;
+- display connections receive the same public snapshot shape with `me: null`;
 - other hands and deck order are never sent;
 - played-card authors are withheld during judging and appear only after reveal.
+
+Display WebSockets receive public broadcasts but are excluded from membership and presence accounting. They never authorize the player command protocol or trigger room mutations.
 
 The client keeps the highest room revision it has seen and discards older snapshots. Lost sockets reconnect with bounded backoff and retry unacknowledged command envelopes using the same command IDs.
 
@@ -225,4 +251,4 @@ CI also runs formatting, lint, generated-binding-type checks, TypeScript checks,
 
 Wrangler deployment applies Durable Object class migrations; those migrations are not rolled back by rolling back Worker code. Keep application schema migrations additive. For an application-only regression, list deployed versions and use Wrangler rollback only when the prior Worker remains compatible with the current SQLite schema.
 
-The release and Firebase retirement procedure is in `docs/CUTOVER.md`.
+The release and Firebase retirement procedure is in `docs/CUTOVER.md`. TV mode and the future Google Cast path are documented in `docs/CAST.md`.

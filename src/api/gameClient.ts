@@ -10,6 +10,7 @@ import type {
   ServerSocketMessage,
   SetProfileRequest,
   SetProfileResponse,
+  WatchRoomResponse,
 } from '@/shared/protocol';
 import { isRoomId, normalizeRoomId } from '@/shared/protocol';
 import { getTurnstileToken } from '@/api/turnstile';
@@ -103,6 +104,19 @@ export const gameApi = {
     }
   },
 
+  async watchRoom(roomId: string): Promise<WatchRoomResponse> {
+    const id = checkedRoomId(roomId);
+    const path = `/api/rooms/${id}/watch`;
+    try {
+      return await postJson<WatchRoomResponse>(path, {});
+    } catch (error) {
+      if (!(error instanceof GameApiError) || error.code !== 'TURNSTILE_REQUIRED') throw error;
+      return postJson<WatchRoomResponse>(path, {
+        turnstileToken: await getTurnstileToken('watch_room'),
+      });
+    }
+  },
+
   setProfile(roomId: string, profile: SetProfileRequest): Promise<SetProfileResponse> {
     const id = checkedRoomId(roomId);
     return postJson<SetProfileResponse>(`/api/rooms/${id}/profile`, profile);
@@ -114,6 +128,11 @@ export interface RoomSocketHandlers {
   onError(error: GameApiError): void;
   onTerminalError(error: GameApiError): void;
   onConnectionState(state: ConnectionState): void;
+}
+
+export interface RoomSocketOptions {
+  endpoint?: 'socket' | 'watch-socket';
+  readOnly?: boolean;
 }
 
 interface PendingCommand {
@@ -136,10 +155,14 @@ export class RoomSocket {
   private reportedConnectionFailure = false;
   private shouldReconnect = false;
   private pending = new Map<string, PendingCommand>();
+  private readonly endpoint: NonNullable<RoomSocketOptions['endpoint']>;
+  private readonly readOnly: boolean;
 
-  constructor(roomId: string, handlers: RoomSocketHandlers) {
+  constructor(roomId: string, handlers: RoomSocketHandlers, options: RoomSocketOptions = {}) {
     this.roomId = checkedRoomId(roomId);
     this.handlers = handlers;
+    this.endpoint = options.endpoint ?? 'socket';
+    this.readOnly = options.readOnly ?? false;
   }
 
   connect(): void {
@@ -170,6 +193,11 @@ export class RoomSocket {
   }
 
   send(command: ClientCommandDraft): Promise<void> {
+    if (this.readOnly) {
+      return Promise.reject(
+        new GameApiError('This room display is read-only.', { code: 'READ_ONLY_SESSION' }),
+      );
+    }
     if (!this.shouldReconnect) {
       return Promise.reject(
         new GameApiError('You are not connected to a room.', { code: 'NOT_CONNECTED' }),
@@ -200,7 +228,7 @@ export class RoomSocket {
 
   private openSocket(state: ConnectionState): void {
     this.handlers.onConnectionState(state);
-    const url = new URL(`/api/rooms/${this.roomId}/socket`, window.location.origin);
+    const url = new URL(`/api/rooms/${this.roomId}/${this.endpoint}`, window.location.origin);
     url.protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const socket = new WebSocket(url);
     this.socket = socket;

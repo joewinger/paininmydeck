@@ -6,8 +6,10 @@ import { GameRoom } from './game-room';
 import {
   assertSameOrigin,
   createSessionId,
+  displayCookie,
   encodeSessionEnvelope,
   hashSessionId,
+  readDisplayIdentity,
   readJsonObject,
   readSessionIdentity,
   sessionCookie,
@@ -26,6 +28,7 @@ const ROOM_CREATE_ATTEMPTS = 20;
 const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const INTERNAL_SESSION_HEADER = 'X-PID-Session-Hash';
 const INTERNAL_GENERATION_HEADER = 'X-PID-Room-Generation';
+const INTERNAL_SOCKET_ROLE_HEADER = 'X-PID-Socket-Role';
 const BUILD_VERSION =
   typeof __PAIN_IN_MY_DECK_BUILD_VERSION__ === 'string'
     ? __PAIN_IN_MY_DECK_BUILD_VERSION__
@@ -137,7 +140,7 @@ async function verifyTurnstile(
   token: string | null,
   request: Request,
   env: WorkerEnv,
-  expectedAction: 'create_room' | 'enter_room',
+  expectedAction: 'create_room' | 'enter_room' | 'watch_room',
 ): Promise<void> {
   if (env.TURNSTILE_REQUIRED !== 'true') {
     return;
@@ -343,6 +346,61 @@ async function enterRoom(request: Request, roomId: string, env: WorkerEnv): Prom
   return jsonResponse(response, 200, { 'Set-Cookie': sessionCookie(envelope) });
 }
 
+async function returningDisplay(
+  identity: SessionIdentity | null,
+  roomId: string,
+  env: WorkerEnv,
+  now: number,
+): Promise<{ snapshot: unknown } | null> {
+  if (identity === null || identity.roomId !== roomId) {
+    return null;
+  }
+  const stub = env.GAME_ROOMS.getByName(roomId);
+  const inspection = await stub.getDisplaySnapshot({
+    generation: identity.generation,
+    now,
+  });
+  if (!inspection.ok) {
+    if (inspection.error.code === 'INVALID_SESSION') {
+      return null;
+    }
+    unwrap(inspection);
+  }
+  return { snapshot: unwrap(inspection).snapshot };
+}
+
+async function watchRoom(request: Request, roomId: string, env: WorkerEnv): Promise<Response> {
+  assertSameOrigin(request);
+  const now = Date.now();
+  const existingIdentity = await readDisplayIdentity(request, env.SESSION_SIGNING_KEY);
+  const returning = await returningDisplay(existingIdentity, roomId, env, now);
+  if (returning !== null) {
+    return jsonResponse(returning);
+  }
+
+  await enforceRateLimit(env.JOIN_RATE_LIMIT, clientRateKey(request, 'join'));
+  const body = await readJsonObject(request);
+  const token = turnstileToken(body);
+  if (env.TURNSTILE_REQUIRED === 'true' && (token === null || token.length === 0)) {
+    throw new RoomError('TURNSTILE_REQUIRED', 'Complete the security check to continue.', 403);
+  }
+  await verifyTurnstile(token, request, env, 'watch_room');
+
+  const stub = env.GAME_ROOMS.getByName(roomId);
+  const watched = unwrap(await stub.getDisplaySnapshot({ now }));
+  const envelope = await encodeSessionEnvelope(
+    {
+      sessionId: createSessionId(),
+      roomId,
+      generation: watched.generation,
+    },
+    env.SESSION_SIGNING_KEY,
+  );
+  return jsonResponse({ snapshot: watched.snapshot }, 200, {
+    'Set-Cookie': displayCookie(envelope),
+  });
+}
+
 async function setProfile(request: Request, roomId: string, env: WorkerEnv): Promise<Response> {
   assertSameOrigin(request);
   const identity = await previousIdentity(request, env);
@@ -411,12 +469,48 @@ async function openSocket(request: Request, roomId: string, env: WorkerEnv): Pro
     Upgrade: 'websocket',
     [INTERNAL_SESSION_HEADER]: sessionHash,
     [INTERNAL_GENERATION_HEADER]: identity.generation,
+    [INTERNAL_SOCKET_ROLE_HEADER]: 'player',
   });
   const requestedProtocol = request.headers.get('Sec-WebSocket-Protocol');
   if (requestedProtocol !== null) {
     headers.set('Sec-WebSocket-Protocol', requestedProtocol);
   }
   const internalRequest = new Request('https://game-room.internal/socket', { headers });
+  return stub.fetch(internalRequest);
+}
+
+async function openWatchSocket(
+  request: Request,
+  roomId: string,
+  env: WorkerEnv,
+): Promise<Response> {
+  if (request.headers.get('Upgrade')?.toLowerCase() !== 'websocket') {
+    throw new RoomError('UPGRADE_REQUIRED', 'This endpoint requires a WebSocket upgrade.', 426);
+  }
+  try {
+    assertSameOrigin(request);
+  } catch (error) {
+    return socketErrorResponse(asRoomError(error), 4001);
+  }
+  const identity = await readDisplayIdentity(request, env.SESSION_SIGNING_KEY);
+  if (identity === null || identity.roomId !== roomId) {
+    return socketErrorResponse(
+      new RoomError('INVALID_SESSION', 'Watch this room before opening a display socket.', 401),
+      4001,
+    );
+  }
+
+  const stub = env.GAME_ROOMS.getByName(roomId);
+  const headers = new Headers({
+    Upgrade: 'websocket',
+    [INTERNAL_GENERATION_HEADER]: identity.generation,
+    [INTERNAL_SOCKET_ROLE_HEADER]: 'display',
+  });
+  const requestedProtocol = request.headers.get('Sec-WebSocket-Protocol');
+  if (requestedProtocol !== null) {
+    headers.set('Sec-WebSocket-Protocol', requestedProtocol);
+  }
+  const internalRequest = new Request('https://game-room.internal/watch-socket', { headers });
   return stub.fetch(internalRequest);
 }
 
@@ -443,12 +537,17 @@ async function route(request: Request, env: WorkerEnv): Promise<Response> {
     return createRoom(request, env);
   }
 
-  const match = /^\/api\/rooms\/([^/]+)\/(enter|profile|socket)$/u.exec(url.pathname);
+  const match = /^\/api\/rooms\/([^/]+)\/(enter|profile|socket|watch|watch-socket)$/u.exec(
+    url.pathname,
+  );
   if (match !== null) {
     const roomId = normalizeRoomId(match[1]);
     if (!isRoomId(roomId)) {
       const error = new RoomError('INVALID_ROOM_ID', 'Room codes contain five letters.', 400);
-      if (match[2] === 'socket' && request.headers.get('Upgrade')?.toLowerCase() === 'websocket') {
+      if (
+        (match[2] === 'socket' || match[2] === 'watch-socket') &&
+        request.headers.get('Upgrade')?.toLowerCase() === 'websocket'
+      ) {
         return socketErrorResponse(error, 4004);
       }
       throw error;
@@ -460,10 +559,16 @@ async function route(request: Request, env: WorkerEnv): Promise<Response> {
     if (action === 'profile' && request.method === 'POST') {
       return setProfile(request, roomId, env);
     }
+    if (action === 'watch' && request.method === 'POST') {
+      return watchRoom(request, roomId, env);
+    }
     if (action === 'socket' && request.method === 'GET') {
       return openSocket(request, roomId, env);
     }
-    const allow = action === 'socket' ? 'GET' : 'POST';
+    if (action === 'watch-socket' && request.method === 'GET') {
+      return openWatchSocket(request, roomId, env);
+    }
+    const allow = action === 'socket' || action === 'watch-socket' ? 'GET' : 'POST';
     return jsonResponse(
       apiErrorBody({ code: 'METHOD_NOT_ALLOWED', message: 'Method not allowed.', status: 405 }),
       405,

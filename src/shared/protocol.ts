@@ -133,6 +133,10 @@ export interface EnterRoomResponse {
   needsProfile: boolean;
 }
 
+export interface WatchRoomResponse {
+  snapshot: GameSnapshot;
+}
+
 export interface SetProfileRequest {
   displayName: string;
   colorSet: ColorSet;

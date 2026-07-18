@@ -2,8 +2,10 @@ import { RoomError } from './errors';
 
 const SESSION_ID_BYTES = 16;
 const COOKIE_NAME = '__Host-pid_session';
+const DISPLAY_COOKIE_NAME = '__Host-pid_display';
 const COOKIE_VERSION = 'v1';
 const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
+const DISPLAY_MAX_AGE_SECONDS = 24 * 60 * 60;
 
 export interface SessionIdentity {
   sessionId: string;
@@ -151,7 +153,7 @@ export async function decodeSessionEnvelope(
   return parseIdentity(decoded);
 }
 
-export function readSessionCookieValue(request: Request): string | null {
+function readCookieValue(request: Request, cookieName: string): string | null {
   const cookieHeader = request.headers.get('Cookie');
   if (cookieHeader === null) {
     return null;
@@ -159,13 +161,21 @@ export function readSessionCookieValue(request: Request): string | null {
 
   for (const part of cookieHeader.split(';')) {
     const separator = part.indexOf('=');
-    if (separator < 0 || part.slice(0, separator).trim() !== COOKIE_NAME) {
+    if (separator < 0 || part.slice(0, separator).trim() !== cookieName) {
       continue;
     }
     const value = part.slice(separator + 1).trim();
     return value.length <= 1_024 ? value : null;
   }
   return null;
+}
+
+export function readSessionCookieValue(request: Request): string | null {
+  return readCookieValue(request, COOKIE_NAME);
+}
+
+function readDisplayCookieValue(request: Request): string | null {
+  return readCookieValue(request, DISPLAY_COOKIE_NAME);
 }
 
 export async function readSessionIdentity(
@@ -176,8 +186,20 @@ export async function readSessionIdentity(
   return value === null ? null : decodeSessionEnvelope(value, signingKey);
 }
 
+export async function readDisplayIdentity(
+  request: Request,
+  signingKey: string,
+): Promise<SessionIdentity | null> {
+  const value = readDisplayCookieValue(request);
+  return value === null ? null : decodeSessionEnvelope(value, signingKey);
+}
+
 export function sessionCookie(envelope: string): string {
   return `${COOKIE_NAME}=${envelope}; Path=/; Max-Age=${SESSION_MAX_AGE_SECONDS}; HttpOnly; Secure; SameSite=Strict`;
+}
+
+export function displayCookie(envelope: string): string {
+  return `${DISPLAY_COOKIE_NAME}=${envelope}; Path=/; Max-Age=${DISPLAY_MAX_AGE_SECONDS}; HttpOnly; Secure; SameSite=Strict`;
 }
 
 export function clearSessionCookie(): string {

@@ -74,7 +74,9 @@ function loadTurnstile(): Promise<TurnstileApi> {
   return scriptPromise;
 }
 
-export async function getTurnstileToken(action: 'create_room' | 'enter_room'): Promise<string> {
+export async function getTurnstileToken(
+  action: 'create_room' | 'enter_room' | 'watch_room',
+): Promise<string> {
   const sitekey =
     import.meta.env.VITE_TURNSTILE_SITE_KEY || (import.meta.env.DEV ? LOCAL_TEST_SITE_KEY : '');
   if (!sitekey) throw new Error('Security verification is not configured.');

@@ -48,6 +48,21 @@ describe('provisional profile failures', () => {
       type: 'ERROR',
     });
   });
+
+  it('enters display mode from a public watch snapshot without creating a profile', async () => {
+    const game = useGameStore();
+    const snapshot = makeGameSnapshot({ room: { roomId: ROOM_ID } });
+    vi.spyOn(gameApi, 'watchRoom').mockResolvedValueOnce({ snapshot });
+    const connectWatchSocket = vi.spyOn(game, 'connectWatchSocket').mockImplementation(() => {});
+
+    await game.watchRoom(ROOM_ID);
+
+    expect(game.displayMode).toBe(true);
+    expect(game.roomId).toBe(ROOM_ID);
+    expect(game.self).toBeNull();
+    expect(game.needsProfile).toBe(false);
+    expect(connectWatchSocket).toHaveBeenCalledWith(ROOM_ID);
+  });
 });
 
 type SocketEventListener = (event: unknown) => void;
@@ -154,6 +169,31 @@ describe('RoomSocket replacement races', () => {
     replacement.receive(frame);
     expect(onSnapshot).toHaveBeenCalledOnce();
     expect(onSnapshot).toHaveBeenCalledWith(frame.snapshot);
+
+    socket.close();
+  });
+
+  it('uses the watch socket endpoint and rejects observer commands locally', async () => {
+    const socket = new RoomSocket(
+      ROOM_ID,
+      {
+        onSnapshot: vi.fn(),
+        onError: vi.fn(),
+        onTerminalError: vi.fn(),
+        onConnectionState: vi.fn(),
+      },
+      { endpoint: 'watch-socket', readOnly: true },
+    );
+
+    socket.connect();
+    const connection = FakeWebSocket.instances[0];
+    expect(connection.url).toBe('ws://127.0.0.1:5173/api/rooms/ABCDE/watch-socket');
+    connection.open();
+
+    await expect(socket.send({ type: 'request_snapshot', payload: {} })).rejects.toMatchObject({
+      code: 'READ_ONLY_SESSION',
+    });
+    expect(connection.sent).toEqual([]);
 
     socket.close();
   });

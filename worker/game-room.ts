@@ -52,6 +52,7 @@ const CHAT_WINDOW_MS = 10_000;
 const CHAT_WINDOW_LIMIT = 5;
 const INTERNAL_SESSION_HEADER = 'X-PID-Session-Hash';
 const INTERNAL_GENERATION_HEADER = 'X-PID-Room-Generation';
+const INTERNAL_SOCKET_ROLE_HEADER = 'X-PID-Socket-Role';
 const GAME_LABEL = 'Game';
 
 type SqlRow<T extends Record<string, SqlStorageValue>> = T & Record<string, SqlStorageValue>;
@@ -218,16 +219,36 @@ interface SnapshotInput {
   now: number;
 }
 
+interface DisplaySnapshotInput {
+  generation?: string;
+  now: number;
+}
+
 export interface EnterRoomRpcValue extends EnterRoomResponse {
   generation: string;
 }
 
-interface SocketAttachment {
-  version: 1;
+export interface DisplaySnapshotRpcValue {
+  generation: string;
+  snapshot: GameSnapshot;
+}
+
+interface PlayerSocketAttachment {
+  version: 2;
+  role: 'player';
   sessionHash: string;
   playerId: string;
   connectionId: string;
 }
+
+interface DisplaySocketAttachment {
+  version: 2;
+  role: 'display';
+  generation: string;
+  connectionId: string;
+}
+
+type SocketAttachment = PlayerSocketAttachment | DisplaySocketAttachment;
 
 interface DueResult {
   changed: boolean;
@@ -256,20 +277,38 @@ function socketAttachment(ws: WebSocket): SocketAttachment | null {
     raw === null ||
     Array.isArray(raw) ||
     !('version' in raw) ||
-    !('sessionHash' in raw) ||
-    !('playerId' in raw) ||
+    !('role' in raw) ||
     !('connectionId' in raw) ||
-    raw.version !== 1 ||
-    typeof raw.sessionHash !== 'string' ||
-    typeof raw.playerId !== 'string' ||
+    raw.version !== 2 ||
+    (raw.role !== 'player' && raw.role !== 'display') ||
     typeof raw.connectionId !== 'string'
   ) {
     return null;
   }
+  if (raw.role === 'player') {
+    if (
+      !('sessionHash' in raw) ||
+      !('playerId' in raw) ||
+      typeof raw.sessionHash !== 'string' ||
+      typeof raw.playerId !== 'string'
+    ) {
+      return null;
+    }
+    return {
+      version: 2,
+      role: 'player',
+      sessionHash: raw.sessionHash,
+      playerId: raw.playerId,
+      connectionId: raw.connectionId,
+    };
+  }
+  if (!('generation' in raw) || typeof raw.generation !== 'string') {
+    return null;
+  }
   return {
-    version: 1,
-    sessionHash: raw.sessionHash,
-    playerId: raw.playerId,
+    version: 2,
+    role: 'display',
+    generation: raw.generation,
     connectionId: raw.connectionId,
   };
 }
@@ -585,6 +624,37 @@ export class GameRoom extends DurableObject<Env> {
     );
   }
 
+  async getDisplaySnapshot(
+    input: DisplaySnapshotInput,
+  ): Promise<RpcResult<DisplaySnapshotRpcValue>> {
+    return this.exclusive(() =>
+      this.capture(async () => {
+        this.requireExistingSchema();
+        const now = safeNow(input.now);
+        const due = await this.runDueJobs(now);
+        if (due.deleted) {
+          throw new RoomError('ROOM_NOT_FOUND', 'That room no longer exists.', 404);
+        }
+        const room = this.roomOrThrow();
+        if (input.generation !== undefined && input.generation !== room.generation) {
+          throw new RoomError(
+            'INVALID_SESSION',
+            'This display session belongs to an older room.',
+            401,
+          );
+        }
+        await this.rescheduleAlarm();
+        if (due.changed) {
+          this.broadcastSnapshots(now);
+        }
+        return {
+          generation: room.generation,
+          snapshot: this.publicSnapshot(now),
+        };
+      }),
+    );
+  }
+
   async fetch(request: Request): Promise<Response> {
     return this.exclusive(async () => {
       if (request.headers.get('Upgrade')?.toLowerCase() !== 'websocket') {
@@ -597,9 +667,9 @@ export class GameRoom extends DurableObject<Env> {
         );
       }
 
-      const sessionHash = request.headers.get(INTERNAL_SESSION_HEADER);
+      const role = request.headers.get(INTERNAL_SOCKET_ROLE_HEADER) ?? 'player';
       const generation = request.headers.get(INTERNAL_GENERATION_HEADER);
-      if (sessionHash === null || generation === null) {
+      if ((role !== 'player' && role !== 'display') || generation === null) {
         return new Response('Unauthorized', { status: 401 });
       }
       const now = Date.now();
@@ -609,6 +679,38 @@ export class GameRoom extends DurableObject<Env> {
           new RoomError('ROOM_NOT_FOUND', 'That room no longer exists.', 404),
           4004,
         );
+      }
+
+      if (role === 'display') {
+        const room = this.roomOrThrow();
+        if (generation !== room.generation) {
+          return this.terminalSocket(
+            new RoomError('INVALID_SESSION', 'This display session belongs to an older room.', 401),
+            4001,
+          );
+        }
+        const pair = new WebSocketPair();
+        const client = pair[0];
+        const server = pair[1];
+        const attachment: DisplaySocketAttachment = {
+          version: 2,
+          role: 'display',
+          generation,
+          connectionId: crypto.randomUUID(),
+        };
+        server.serializeAttachment(attachment);
+        this.ctx.acceptWebSocket(server, [`display:${generation}`]);
+        await this.rescheduleAlarm();
+        this.sendPublicSnapshot(server, now);
+        if (due.changed) {
+          this.broadcastSnapshots(now, server);
+        }
+        return new Response(null, { status: 101, webSocket: client });
+      }
+
+      const sessionHash = request.headers.get(INTERNAL_SESSION_HEADER);
+      if (sessionHash === null) {
+        return new Response('Unauthorized', { status: 401 });
       }
 
       let session: SessionRow;
@@ -628,8 +730,9 @@ export class GameRoom extends DurableObject<Env> {
       const pair = new WebSocketPair();
       const client = pair[0];
       const server = pair[1];
-      const attachment: SocketAttachment = {
-        version: 1,
+      const attachment: PlayerSocketAttachment = {
+        version: 2,
+        role: 'player',
         sessionHash,
         playerId: session.player_id,
         connectionId: crypto.randomUUID(),
@@ -715,6 +818,24 @@ export class GameRoom extends DurableObject<Env> {
       if (await this.expireRoomIfDue(now)) {
         this.sendError(ws, new RoomError('ROOM_NOT_FOUND', 'That room no longer exists.', 404));
         ws.close(4004, 'Room expired');
+        return;
+      }
+
+      if (attachment.role === 'display') {
+        const room = this.roomOrThrow();
+        if (attachment.generation !== room.generation) {
+          this.sendError(
+            ws,
+            new RoomError('INVALID_SESSION', 'This display session belongs to an older room.', 401),
+          );
+          ws.close(4001, 'INVALID_SESSION');
+          return;
+        }
+        this.sendError(
+          ws,
+          new RoomError('READ_ONLY', 'Display connections cannot send game commands.', 403),
+        );
+        ws.close(1008, 'READ_ONLY');
         return;
       }
 
@@ -1098,10 +1219,10 @@ export class GameRoom extends DurableObject<Env> {
     }
   }
 
-  private snapshot(sessionHash: string, now: number): GameSnapshot {
+  private snapshot(sessionHash: string | null, now: number): GameSnapshot {
     const room = this.roomOrThrow();
     const players = this.activePlayers();
-    const session = this.activeSession(sessionHash, now);
+    const session = sessionHash === null ? null : this.activeSession(sessionHash, now);
     const selfPlayer =
       session?.player_id === null || session?.player_id === undefined
         ? null
@@ -1232,6 +1353,10 @@ export class GameRoom extends DurableObject<Env> {
       },
       me,
     };
+  }
+
+  private publicSnapshot(now: number): GameSnapshot {
+    return this.snapshot(null, now);
   }
 
   private settings(room: RoomRow): GameSettings {
@@ -2304,6 +2429,9 @@ export class GameRoom extends DurableObject<Env> {
       if (attachment === null || this.room() === null) {
         return;
       }
+      if (attachment.role === 'display') {
+        return;
+      }
       const stillConnected = this.ctx
         .getWebSockets(`player:${attachment.playerId}`)
         .some((candidate) => candidate !== ws && candidate.readyState === WebSocket.OPEN);
@@ -2555,6 +2683,14 @@ export class GameRoom extends DurableObject<Env> {
     };
   }
 
+  private publicSnapshotFrame(now: number): SnapshotMessage {
+    return {
+      protocolVersion: 1,
+      type: 'snapshot',
+      snapshot: this.publicSnapshot(now),
+    };
+  }
+
   private errorFrame(error: RoomError, commandId?: string): ErrorMessage {
     return {
       protocolVersion: 1,
@@ -2614,10 +2750,18 @@ export class GameRoom extends DurableObject<Env> {
   }
 
   private sendSnapshot(ws: WebSocket, sessionHash: string, now: number): void {
+    this.sendSerializedSnapshot(ws, JSON.stringify(this.snapshotFrame(sessionHash, now)));
+  }
+
+  private sendPublicSnapshot(ws: WebSocket, now: number): void {
+    this.sendSerializedSnapshot(ws, JSON.stringify(this.publicSnapshotFrame(now)));
+  }
+
+  private sendSerializedSnapshot(ws: WebSocket, serialized: string): void {
     try {
-      ws.send(JSON.stringify(this.snapshotFrame(sessionHash, now)));
+      ws.send(serialized);
     } catch {
-      // The close callback will update presence.
+      // Player departure or display reconnect handling owns a failed socket.
     }
   }
 
@@ -2632,6 +2776,8 @@ export class GameRoom extends DurableObject<Env> {
   }
 
   private broadcastSnapshots(now: number, except?: WebSocket): void {
+    const generation = this.roomOrThrow().generation;
+    let serializedPublicSnapshot: string | null = null;
     for (const ws of this.ctx.getWebSockets()) {
       if (ws === except || ws.readyState !== WebSocket.OPEN) {
         continue;
@@ -2639,6 +2785,15 @@ export class GameRoom extends DurableObject<Env> {
       const attachment = socketAttachment(ws);
       if (attachment === null) {
         ws.close(1008, 'Invalid socket session');
+        continue;
+      }
+      if (attachment.role === 'display') {
+        if (attachment.generation !== generation) {
+          ws.close(4001, 'Display session expired');
+          continue;
+        }
+        serializedPublicSnapshot ??= JSON.stringify(this.publicSnapshotFrame(now));
+        this.sendSerializedSnapshot(ws, serializedPublicSnapshot);
         continue;
       }
       if (this.activeSession(attachment.sessionHash, now) === null) {

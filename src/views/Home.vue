@@ -40,6 +40,13 @@
           Play
         </button-loadable>
         <button-loadable
+          class="pimd-secondary-button home-tv-button"
+          type="button"
+          @click="openTv"
+        >
+          Use this screen as the TV
+        </button-loadable>
+        <button-loadable
           class="pimd-secondary-button home-new-game-button"
           type="button"
           @click="createRoom"
@@ -151,6 +158,23 @@ async function joinRoom(done: () => void = () => {}): Promise<void> {
       return;
     }
     await router.push({ name: 'lobby', params: { roomId: roomId.value } });
+  } finally {
+    done();
+  }
+}
+
+async function openTv(done: () => void = () => {}): Promise<void> {
+  sanitizeRoomId();
+  joinAttempted.value = true;
+  try {
+    if (!isRoomId(roomId.value)) {
+      ui.notify({
+        title: 'Invalid Room ID',
+        message: 'Enter the five-letter room ID before opening TV mode.',
+      });
+      return;
+    }
+    await router.push({ name: 'tv', params: { roomId: roomId.value } });
   } finally {
     done();
   }
@@ -302,9 +326,14 @@ async function createRoom(done: () => void = () => {}): Promise<void> {
   font-size: clamp(34px, 10vw, 52px);
 }
 
-.home-join-sheet .home-new-game-button {
+.home-join-sheet .home-tv-button {
   min-height: 56px;
   margin-top: 28px;
+}
+
+.home-join-sheet .home-new-game-button {
+  min-height: 56px;
+  margin-top: 12px;
 }
 
 .home-edge-card {

@@ -56,6 +56,7 @@ export const useGameStore = defineStore('game', {
     revision: -1,
     needsProfile: false,
     connectionState: 'idle' as ConnectionState,
+    displayMode: false,
     cardActionPending: false,
     beingKicked: false,
     terminalExit: null as 'INVALID_ROOM' | null,
@@ -119,9 +120,10 @@ export const useGameStore = defineStore('game', {
         });
       }
 
-      if (this.roomId && this.roomId !== roomId) await this.leaveRoom();
+      if (this.roomId && (this.roomId !== roomId || this.displayMode)) await this.leaveRoom();
       roomSocket?.close();
       roomSocket = null;
+      this.displayMode = false;
       this.beingKicked = false;
       this.terminalExit = null;
       this.connectionState = 'connecting';
@@ -134,6 +136,39 @@ export const useGameStore = defineStore('game', {
       this.applySnapshot(response.snapshot);
       if (response.needsProfile) this.connectionState = 'idle';
       else this.connectSocket(roomId);
+    },
+
+    async watchRoom(value: string): Promise<void> {
+      const roomId = normalizeRoomId(value);
+      if (!isRoomId(roomId)) {
+        throw new GameApiError('Room IDs contain exactly five letters (without I or O).', {
+          code: 'INVALID_ROOM_ID',
+          title: 'Invalid Room ID',
+        });
+      }
+
+      roomSocket?.close();
+      roomSocket = null;
+      this.resetRoom();
+      this.displayMode = true;
+      this.connectionState = 'connecting';
+
+      try {
+        const response = await gameApi.watchRoom(roomId);
+        if (
+          normalizeRoomId(response.snapshot.room.roomId) !== roomId ||
+          response.snapshot.me !== null
+        ) {
+          throw new GameApiError('The server returned invalid display data.', {
+            code: 'INVALID_RESPONSE',
+          });
+        }
+        this.applySnapshot(response.snapshot);
+        this.connectWatchSocket(roomId);
+      } catch (error) {
+        this.resetRoom();
+        throw error;
+      }
     },
 
     async setProfile(displayName: string, colorSet: readonly [string, string]): Promise<void> {
@@ -208,15 +243,41 @@ export const useGameStore = defineStore('game', {
       roomSocket.connect();
     },
 
+    connectWatchSocket(roomId: string): void {
+      roomSocket?.close();
+      roomSocket = new RoomSocket(
+        roomId,
+        {
+          onSnapshot: (snapshot) => {
+            if (snapshot.me !== null) {
+              useUiStore().notify({ message: 'The room sent invalid display data.' });
+              return;
+            }
+            this.applySnapshot(snapshot);
+          },
+          onError: (error) => useUiStore().notifyException(error),
+          onTerminalError: (error) => this.handleTerminalSocketError(error),
+          onConnectionState: (state) => {
+            this.connectionState = state;
+          },
+        },
+        { endpoint: 'watch-socket', readOnly: true },
+      );
+      roomSocket.connect();
+    },
+
     async leaveRoom(): Promise<void> {
       const socket = roomSocket;
+      const wasDisplayMode = this.displayMode;
       roomSocket = null;
       if (socket) {
         try {
-          await Promise.race([
-            socket.send({ type: 'leave_room', payload: {} }),
-            new Promise<void>((resolve) => window.setTimeout(resolve, 500)),
-          ]);
+          if (!wasDisplayMode) {
+            await Promise.race([
+              socket.send({ type: 'leave_room', payload: {} }),
+              new Promise<void>((resolve) => window.setTimeout(resolve, 500)),
+            ]);
+          }
         } catch {
           // Leaving is local-first; the server also expires disconnected sessions.
         } finally {
@@ -336,6 +397,7 @@ export const useGameStore = defineStore('game', {
     armRevealDeadline(snapshot: GameSnapshot): void {
       if (revealTimer !== null) window.clearTimeout(revealTimer);
       revealTimer = null;
+      if (this.displayMode) return;
       const deadline = snapshot.room.turn.revealDeadline;
       if (snapshot.room.phase !== 'REVEAL' || deadline === null) return;
       const roundId = snapshot.room.turn.roundId;
@@ -364,6 +426,7 @@ export const useGameStore = defineStore('game', {
       this.revision = -1;
       this.needsProfile = false;
       this.connectionState = 'idle';
+      this.displayMode = false;
       this.cardActionPending = false;
       this.beingKicked = false;
       this.terminalExit = null;
@@ -371,6 +434,10 @@ export const useGameStore = defineStore('game', {
 
     async send(command: Parameters<RoomSocket['send']>[0]): Promise<void> {
       try {
+        if (this.displayMode)
+          throw new GameApiError('This room display is read-only.', {
+            code: 'READ_ONLY_SESSION',
+          });
         if (!roomSocket)
           throw new GameApiError('The room connection is not ready.', { code: 'NOT_CONNECTED' });
         await roomSocket.send(command);

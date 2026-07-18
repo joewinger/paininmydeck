@@ -2,9 +2,54 @@
 
 import { evictDurableObject, env, reset, runInDurableObject, SELF } from 'cloudflare:test';
 import { afterEach, describe, expect, it } from 'vitest';
+import type { GameSnapshot, ServerSocketMessage, SnapshotMessage } from '../src/shared/protocol';
 import { GameRoom } from './game-room';
+import worker from './index';
 
 const rooms = env.GAME_ROOMS as DurableObjectNamespace<GameRoom>;
+const TEST_SESSION_SIGNING_KEY = 'worker-test-session-signing-key-32-bytes-minimum';
+const testEnv = new Proxy(env, {
+  get(target, property, receiver) {
+    if (property === 'SESSION_SIGNING_KEY') return TEST_SESSION_SIGNING_KEY;
+    if (property === 'TURNSTILE_SECRET_KEY') return 'worker-test-turnstile-secret';
+    return Reflect.get(target, property, receiver);
+  },
+});
+const turnstileRequiredTestEnv = new Proxy(testEnv, {
+  get(target, property, receiver) {
+    if (property === 'TURNSTILE_REQUIRED') return 'true';
+    return Reflect.get(target, property, receiver);
+  },
+});
+
+function fetchWorker(url: string, init?: RequestInit): Promise<Response> {
+  return worker.fetch(new Request(url, init), testEnv);
+}
+
+function fetchWorkerRequiringTurnstile(url: string, init?: RequestInit): Promise<Response> {
+  return worker.fetch(new Request(url, init), turnstileRequiredTestEnv);
+}
+
+function waitForSocketFrame<T extends ServerSocketMessage>(
+  socket: WebSocket,
+  predicate: (frame: ServerSocketMessage) => frame is T,
+  label = 'socket frame',
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      socket.removeEventListener('message', listener);
+      reject(new Error(`Timed out waiting for ${label}.`));
+    }, 2_000);
+    const listener = (event: MessageEvent) => {
+      const frame = JSON.parse(String(event.data)) as ServerSocketMessage;
+      if (!predicate(frame)) return;
+      clearTimeout(timeout);
+      socket.removeEventListener('message', listener);
+      resolve(frame);
+    };
+    socket.addEventListener('message', listener);
+  });
+}
 
 afterEach(async () => {
   await reset();
@@ -103,6 +148,322 @@ describe('GameRoom integration', () => {
         },
       },
     });
+  });
+
+  it('watches a started room through a separate read-only display session', async () => {
+    const roomId = 'TVWXY';
+    const stub = rooms.getByName(roomId);
+    const now = Date.now();
+    const generation = crypto.randomUUID();
+    const provisionalSessionHash = 'c'.repeat(64);
+
+    await stub.createRoom({
+      roomId,
+      generation,
+      provisionalSessionHash,
+      now,
+    });
+    await runInDurableObject(stub, (_instance, state) => {
+      state.storage.transactionSync(() => {
+        state.storage.sql.exec(
+          `INSERT INTO players (
+            player_id, display_name, normalized_name, color_primary,
+            color_secondary, points, czar_order, connected,
+            redraws_used, joined_at, left_at, kicked_at
+          ) VALUES (
+            'private-player', 'Private Player', 'private player', '#EE796E',
+            '#FAB4AD', 2, 0, 0, 0, ?, NULL, NULL
+          )`,
+          now,
+        );
+        state.storage.sql.exec(
+          `INSERT INTO card_instances (
+            instance_id, catalog_id, text, is_blank, location, owner_player_id, position
+          ) VALUES (
+            'private-hand-card', 'private-catalog-card', 'Never broadcast this hand.',
+            0, 'hand', 'private-player', 0
+          )`,
+        );
+        state.storage.sql.exec(
+          `UPDATE room_state
+           SET game_state = 'PLAYING', host_player_id = 'private-player',
+               round_number = 1, round_id = 'display-round',
+               question_text = 'A public question?', czar_player_id = 'private-player'
+           WHERE singleton = 1`,
+        );
+      });
+    });
+    expect(
+      await stub.getDisplaySnapshot({ generation: crypto.randomUUID(), now: now + 1 }),
+    ).toMatchObject({ ok: false, error: { code: 'INVALID_SESSION', status: 401 } });
+
+    const watchResponse = await fetchWorker(`https://game.test/api/rooms/${roomId}/watch`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Cookie: '__Host-pid_session=player-cookie-must-survive',
+        Origin: 'https://game.test',
+      },
+      body: '{}',
+    });
+    expect(watchResponse.status).toBe(200);
+    const setCookie = watchResponse.headers.get('set-cookie');
+    expect(setCookie).toContain('__Host-pid_display=');
+    expect(setCookie).toContain('Max-Age=86400');
+    expect(setCookie).toContain('HttpOnly');
+    expect(setCookie).toContain('Secure');
+    expect(setCookie).toContain('SameSite=Strict');
+    expect(setCookie).not.toContain('__Host-pid_session=');
+    const watched = await watchResponse.json<{ snapshot: GameSnapshot }>();
+    expect(watched.snapshot).toMatchObject({
+      room: {
+        roomId,
+        phase: 'COLLECTING',
+        players: [{ playerId: 'private-player', points: 2, connected: false }],
+      },
+      me: null,
+    });
+    expect(JSON.stringify(watched)).not.toContain('private-hand-card');
+    expect(JSON.stringify(watched)).not.toContain('Never broadcast this hand.');
+
+    if (setCookie === null) {
+      throw new Error('Expected a display cookie.');
+    }
+    const displayCookie = setCookie.split(';', 1)[0];
+    const resumedResponse = await fetchWorkerRequiringTurnstile(
+      `https://game.test/api/rooms/${roomId}/watch`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: `${displayCookie}; __Host-pid_session=player-cookie-must-survive`,
+          Origin: 'https://game.test',
+        },
+        body: '{}',
+      },
+    );
+    expect(resumedResponse.status).toBe(200);
+    expect(resumedResponse.headers.get('set-cookie')).toBeNull();
+    expect(await resumedResponse.json()).toMatchObject({
+      snapshot: { room: { roomId }, me: null },
+    });
+
+    const socketResponse = await fetchWorker(`https://game.test/api/rooms/${roomId}/watch-socket`, {
+      headers: {
+        Cookie: displayCookie,
+        Origin: 'https://game.test',
+        Upgrade: 'websocket',
+      },
+    });
+    expect(socketResponse.status).toBe(101);
+    const socket = socketResponse.webSocket;
+    if (socket === null) {
+      throw new Error('Expected a display WebSocket.');
+    }
+    const result = await new Promise<{
+      snapshot: GameSnapshot | null;
+      error: ServerSocketMessage | null;
+      closeCode: number;
+    }>((resolve) => {
+      let snapshot: GameSnapshot | null = null;
+      let error: ServerSocketMessage | null = null;
+      let commandSent = false;
+      socket.addEventListener('message', (event) => {
+        const frame = JSON.parse(String(event.data)) as ServerSocketMessage;
+        if (frame.type === 'snapshot') {
+          snapshot = frame.snapshot;
+          if (commandSent) return;
+          commandSent = true;
+          socket.send(
+            JSON.stringify({
+              protocolVersion: 1,
+              commandId: 'display-command',
+              type: 'request_snapshot',
+              payload: {},
+            }),
+          );
+        } else if (frame.type === 'error') {
+          error = frame;
+        }
+      });
+      socket.addEventListener('close', (event) => {
+        resolve({ snapshot, error, closeCode: event.code });
+      });
+      socket.accept();
+    });
+    expect(result.snapshot).toMatchObject({ room: { roomId }, me: null });
+    expect(result.error).toMatchObject({ type: 'error', error: { code: 'READ_ONLY' } });
+    expect(result.closeCode).toBe(1008);
+
+    const presence = await runInDurableObject(stub, (_instance, state) => ({
+      connected: state.storage.sql
+        .exec<{ connected: number }>(
+          "SELECT connected FROM players WHERE player_id = 'private-player'",
+        )
+        .one().connected,
+      disconnectJobs: state.storage.sql
+        .exec<{ value: number }>(
+          "SELECT COUNT(*) AS value FROM scheduled_jobs WHERE job_type = 'disconnect'",
+        )
+        .one().value,
+      playerCount: state.storage.sql
+        .exec<{ value: number }>('SELECT COUNT(*) AS value FROM players')
+        .one().value,
+      sessionCount: state.storage.sql
+        .exec<{ value: number }>('SELECT COUNT(*) AS value FROM sessions')
+        .one().value,
+    }));
+    expect(presence).toEqual({
+      connected: 0,
+      disconnectJobs: 0,
+      playerCount: 1,
+      sessionCount: 1,
+    });
+  });
+
+  it('broadcasts one public update to hibernated display attachments after a player command', async () => {
+    const roomId = 'VWXYZ';
+    const stub = rooms.getByName(roomId);
+    const now = Date.now();
+    const generation = crypto.randomUUID();
+    const sessionHash = 'd'.repeat(64);
+
+    await stub.createRoom({
+      roomId,
+      generation,
+      provisionalSessionHash: sessionHash,
+      now,
+    });
+    expect(
+      await stub.setProfile({
+        sessionHash,
+        generation,
+        displayName: 'Broadcaster',
+        colorSet: ['#EE796E', '#FAB4AD'],
+        now: now + 1,
+      }),
+    ).toMatchObject({ ok: true, value: { snapshot: { me: { displayName: 'Broadcaster' } } } });
+
+    const playerResponse = await stub.fetch(
+      new Request('https://game-room.internal/socket', {
+        headers: {
+          Upgrade: 'websocket',
+          'X-PID-Session-Hash': sessionHash,
+          'X-PID-Room-Generation': generation,
+          'X-PID-Socket-Role': 'player',
+        },
+      }),
+    );
+    const playerSocket = playerResponse.webSocket;
+    if (playerSocket === null) {
+      throw new Error('Expected a player WebSocket.');
+    }
+    const playerInitial = waitForSocketFrame(
+      playerSocket,
+      (frame): frame is SnapshotMessage => frame.type === 'snapshot',
+      'the player initial snapshot',
+    );
+    playerSocket.accept();
+    await playerInitial;
+
+    const watchResponse = await fetchWorker(`https://game.test/api/rooms/${roomId}/watch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Origin: 'https://game.test' },
+      body: '{}',
+    });
+    const setCookie = watchResponse.headers.get('set-cookie');
+    if (setCookie === null) {
+      throw new Error('Expected a display cookie.');
+    }
+    const displayCookie = setCookie.split(';', 1)[0];
+    const displayResponses = await Promise.all(
+      Array.from({ length: 1 }, () =>
+        fetchWorker(`https://game.test/api/rooms/${roomId}/watch-socket`, {
+          headers: {
+            Cookie: displayCookie,
+            Origin: 'https://game.test',
+            Upgrade: 'websocket',
+          },
+        }),
+      ),
+    );
+    const displaySockets = displayResponses.map((response) => {
+      if (response.webSocket === null) {
+        throw new Error('Expected a display WebSocket.');
+      }
+      return response.webSocket;
+    });
+    const displayInitials = displaySockets.map((socket) =>
+      waitForSocketFrame(
+        socket,
+        (frame): frame is SnapshotMessage => frame.type === 'snapshot',
+        'a display initial snapshot',
+      ),
+    );
+    for (const socket of displaySockets) socket.accept();
+    await Promise.all(displayInitials);
+
+    await evictDurableObject(stub, { webSockets: 'hibernate' });
+
+    const secondDisplayResponse = await fetchWorker(
+      `https://game.test/api/rooms/${roomId}/watch-socket`,
+      {
+        headers: {
+          Cookie: displayCookie,
+          Origin: 'https://game.test',
+          Upgrade: 'websocket',
+        },
+      },
+    );
+    const secondDisplaySocket = secondDisplayResponse.webSocket;
+    if (secondDisplaySocket === null) {
+      throw new Error('Expected a second display WebSocket.');
+    }
+    const secondDisplayInitial = waitForSocketFrame(
+      secondDisplaySocket,
+      (frame): frame is SnapshotMessage => frame.type === 'snapshot',
+      'the second display initial snapshot',
+    );
+    secondDisplaySocket.accept();
+    await secondDisplayInitial;
+    displaySockets.push(secondDisplaySocket);
+
+    const hasBroadcastChat = (frame: ServerSocketMessage): frame is SnapshotMessage =>
+      frame.type === 'snapshot' &&
+      frame.snapshot.room.chatMessages.some(
+        (message) => message.text === 'Still on the big screen',
+      );
+    const playerUpdate = waitForSocketFrame(
+      playerSocket,
+      hasBroadcastChat,
+      'the player chat snapshot',
+    );
+    const displayUpdates = displaySockets.map((socket) =>
+      waitForSocketFrame(socket, hasBroadcastChat, 'a display chat broadcast'),
+    );
+    playerSocket.send(
+      JSON.stringify({
+        protocolVersion: 1,
+        commandId: 'chat-after-hibernation',
+        type: 'send_chat',
+        payload: { text: 'Still on the big screen' },
+      }),
+    );
+
+    const [playerFrame, ...displayFrames] = await Promise.all([playerUpdate, ...displayUpdates]);
+    expect(playerFrame.snapshot.me).toMatchObject({ displayName: 'Broadcaster' });
+    expect(displayFrames).toHaveLength(2);
+    expect(displayFrames[0]).toEqual(displayFrames[1]);
+    for (const frame of displayFrames) {
+      expect(frame.snapshot).toMatchObject({
+        revision: playerFrame.snapshot.revision,
+        room: { roomId },
+        me: null,
+      });
+    }
+
+    playerSocket.close(1000, 'Test complete');
+    for (const socket of displaySockets) socket.close(1000, 'Test complete');
   });
 
   it('lazily applies newer migrations to existing rooms without writing on probes', async () => {
