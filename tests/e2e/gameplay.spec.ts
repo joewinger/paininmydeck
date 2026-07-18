@@ -191,3 +191,41 @@ test('TV mode watches a room without joining as a player', async ({ browser }, t
     await Promise.allSettled([hostContext.close(), displayContext.close()]);
   }
 });
+
+test('TV mode creates a room and leaves the first phone in charge', async ({
+  browser,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium-desktop');
+  test.setTimeout(90_000);
+
+  const displayContext = await browser.newContext();
+  const phoneContext = await browser.newContext();
+  const display = await displayContext.newPage();
+
+  try {
+    await display.goto('/tv');
+    await expect(display).toHaveURL(/\/tv\/[A-HJ-NP-Z]{5}$/, { timeout: 65_000 });
+    const roomId = display.url().split('/').at(-1) as string;
+
+    await expect(display.locator('#tv')).toBeVisible();
+    await expect(display.locator('.tv-header__room')).toContainText(roomId);
+    await expect(display.locator('.room-qr-code')).toHaveAttribute(
+      'data-join-url',
+      new RegExp(`/join/${roomId}$`),
+    );
+    await expect(display.getByText('0 of 8 players are checked in.')).toBeVisible();
+
+    const phone = await joinRoom(phoneContext, roomId, 'Alice', 0);
+    await expect(phone.getByRole('heading', { name: 'The table is yours' })).toBeVisible();
+    await expect(phone.getByRole('button', { name: 'Start Game' })).toBeVisible();
+    await expect(display.getByText('1 of 8 players is checked in.')).toBeVisible();
+
+    await display.reload();
+    await expect(display).toHaveURL(new RegExp(`/tv/${roomId}$`));
+    await expect(display.locator('#tv')).toBeVisible();
+    await expect(display.getByText('1 of 8 players is checked in.')).toBeVisible();
+    await expect(phone.locator('#lobby li')).toHaveCount(1);
+  } finally {
+    await Promise.allSettled([displayContext.close(), phoneContext.close()]);
+  }
+});

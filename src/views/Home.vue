@@ -165,8 +165,12 @@ async function joinRoom(done: () => void = () => {}): Promise<void> {
 
 async function openTv(done: () => void = () => {}): Promise<void> {
   sanitizeRoomId();
-  joinAttempted.value = true;
   try {
+    if (roomId.value === '') {
+      await router.push({ name: 'tv-create' });
+      return;
+    }
+    joinAttempted.value = true;
     if (!isRoomId(roomId.value)) {
       ui.notify({
         title: 'Invalid Room ID',

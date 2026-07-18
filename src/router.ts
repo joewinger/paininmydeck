@@ -23,6 +23,21 @@ const router = createRouter({
       },
     },
     {
+      path: '/tv',
+      name: 'tv-create',
+      component: Tv,
+      meta: { layout: 'tv' },
+      beforeEnter: async () => {
+        const game = useGameStore(pinia);
+        try {
+          const roomId = await game.createRoom();
+          return { name: 'tv', params: { roomId }, replace: true };
+        } catch {
+          return { name: 'home' };
+        }
+      },
+    },
+    {
       path: '/tv/:roomId',
       name: 'tv',
       component: Tv,
