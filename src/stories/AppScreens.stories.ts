@@ -100,6 +100,21 @@ export const SettingsOpen: Story = {
   play: async ({ canvasElement }) => {
     const canvas = await openStatusPanel(canvasElement, 2);
     await waitFor(() => expect(canvas.getByRole('heading', { name: 'Settings' })).toBeVisible());
+    await expect(canvas.getByRole('heading', { name: 'This device' })).toBeVisible();
+    await expect(canvas.getByRole('checkbox', { name: 'Haptics' })).toBeChecked();
+  },
+};
+
+export const HapticsPreference: Story = {
+  name: 'Lobby / local haptics preference',
+  parameters: { route: lobbyRoute, game: gameScenarios.lobbyHost },
+  play: async ({ canvasElement }) => {
+    const canvas = await openStatusPanel(canvasElement, 2);
+    const haptics = canvas.getByRole('checkbox', { name: 'Haptics' });
+    haptics.scrollIntoView({ block: 'center' });
+    await waitFor(() => expect(haptics).toBeVisible());
+    await expect(haptics).toBeChecked();
+    await expect(canvas.getByText('Saved only in this browser.')).toBeInTheDocument();
   },
 };
 

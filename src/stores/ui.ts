@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { GameApiError } from '@/api/gameClient';
+import { readHapticsPreference, writeHapticsPreference } from '@/playerHaptics';
 
 export interface NotificationOptions {
   title?: string;
@@ -15,8 +16,14 @@ export const useUiStore = defineStore('ui', {
   state: () => ({
     error: {} as { title?: string; message?: string; type?: 'ERROR' | 'INFO' },
     interstitial: {} as { title?: string; subtitle?: string },
+    hapticsEnabled: readHapticsPreference(),
   }),
   actions: {
+    setHapticsEnabled(enabled: boolean) {
+      this.hapticsEnabled = enabled;
+      writeHapticsPreference(enabled);
+    },
+
     notify(options: NotificationOptions = {}) {
       if (errorTimer !== undefined) window.clearTimeout(errorTimer);
       if (!options.message) {

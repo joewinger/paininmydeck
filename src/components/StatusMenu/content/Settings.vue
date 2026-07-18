@@ -134,16 +134,43 @@
     >
       Save
     </button>
+
+    <section class="settings-device" aria-labelledby="device-settings-title">
+      <h2 id="device-settings-title">This device</h2>
+      <div class="settings-device-row">
+        <div>
+          <label for="haptics-enabled">Haptics</label>
+          <small id="haptics-hint">
+            Vibrate when you become Czar or your action timer is running out.
+          </small>
+        </div>
+        <div class="settings-toggle-control">
+          <input
+            id="haptics-enabled"
+            v-model="hapticsEnabled"
+            class="settings-toggle"
+            type="checkbox"
+            aria-describedby="haptics-hint device-settings-note"
+          />
+          <span class="settings-toggle-state" aria-hidden="true">
+            {{ hapticsEnabled ? 'On' : 'Off' }}
+          </span>
+        </div>
+      </div>
+      <p id="device-settings-note">Saved only in this browser.</p>
+    </section>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useGameStore } from '@/stores/game';
+import { useUiStore } from '@/stores/ui';
 import type { GameSettings } from '@/shared/protocol';
 
 const emit = defineEmits<{ 'close-menu': [] }>();
 const game = useGameStore();
+const ui = useUiStore();
 const canEdit = computed(() => game.self !== null && game.phase === 'LOBBY');
 const changedActionTimerSeconds = ref<number | null>(null);
 const changedCardsPerHand = ref<number | null>(null);
@@ -153,6 +180,10 @@ const changedGuaranteedBlanks = ref<number | null>(null);
 const changedNumRedraws = ref<number | null>(null);
 const changedAllBlanks = ref<boolean | null>(null);
 const changedFamilyMode = ref<boolean | null>(null);
+const hapticsEnabled = computed<boolean>({
+  get: () => ui.hapticsEnabled,
+  set: (enabled) => ui.setHapticsEnabled(enabled),
+});
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(Number(value) || 0, min), max);
@@ -349,6 +380,50 @@ async function updateSettings() {
 
 #statusMenuContent-settings .settings-toggle:disabled + .settings-toggle-state {
   opacity: 0.58;
+}
+
+#statusMenuContent-settings .settings-device {
+  display: grid;
+  gap: 10px;
+  margin-top: 23px;
+  padding-top: 18px;
+  border-top: 3px dashed rgb(45 37 64 / 30%);
+}
+
+#statusMenuContent-settings .settings-device h2 {
+  margin: 0;
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+#statusMenuContent-settings .settings-device-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+#statusMenuContent-settings .settings-device-row label {
+  display: block;
+  font-weight: 850;
+}
+
+#statusMenuContent-settings .settings-device-row small {
+  max-width: 230px;
+  margin-top: 6px;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+#statusMenuContent-settings .settings-device p {
+  margin: 0;
+  color: var(--pimd-ink-soft);
+  font-size: 0.68rem;
+  font-weight: 750;
 }
 
 .settings-table-caption {

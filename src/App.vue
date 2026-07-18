@@ -21,11 +21,15 @@ import NavBar from '@/components/NavBar.vue';
 import StatusMenu from '@/components/StatusMenu/index.vue';
 import ErrorToast from '@/components/ErrorToast.vue';
 import Interstitial from '@/components/Interstitial.vue';
+import { PlayerHaptics, playerActionOutstanding } from '@/playerHaptics';
 import { useGameStore } from '@/stores/game';
+import { useUiStore } from '@/stores/ui';
 
 const route = useRoute();
 const router = useRouter();
 const game = useGameStore();
+const ui = useUiStore();
+const playerHaptics = new PlayerHaptics();
 const isTvRoute = computed(() => route.meta.layout === 'tv');
 const transitionName = ref('default');
 const routeOrder = ['home', 'lobby', 'game', 'gameover'];
@@ -58,7 +62,36 @@ watch(
 	},
 );
 
-onBeforeUnmount(() => game.dispose());
+watch(
+  () => {
+    const isCzar = game.isCzar;
+    return {
+      enabled: ui.hapticsEnabled,
+      connected: game.connectionState === 'open' && !game.displayMode,
+      roundId: game.turn.roundId,
+      phase: game.phase,
+      isCzar,
+      actionOutstanding: playerActionOutstanding({
+        connected: game.connectionState === 'open' && !game.displayMode,
+        hasPlayer: game.self !== null,
+        phase: game.phase,
+        isCzar,
+        playedThisTurn: game.playedThisTurn,
+        cardActionPending: game.cardActionPending,
+        hasWinningCard: game.turn.winningCard !== null,
+      }),
+      actionDeadline: game.turn.actionDeadline,
+      serverNow: Date.now() + game.serverTimeOffsetMs,
+    };
+  },
+  (state) => playerHaptics.sync(state),
+  { immediate: true },
+);
+
+onBeforeUnmount(() => {
+  playerHaptics.dispose();
+  game.dispose();
+});
 </script>
 
 <style>
