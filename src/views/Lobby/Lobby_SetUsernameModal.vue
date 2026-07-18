@@ -19,16 +19,25 @@
         <form class="pimd-paper profile-form" @submit.prevent="addUser">
           <div class="profile-field">
             <label for="profile-name">Call sign</label>
-            <input
-              id="profile-name"
-              v-model="username"
-              type="text"
-              placeholder="What should we call you?"
-              maxlength="12"
-              autocomplete="nickname"
-              aria-describedby="profile-name-help"
-              autofocus
-            />
+            <div class="profile-name-control">
+              <input
+                id="profile-name"
+                v-model="username"
+                type="text"
+                placeholder="What should we call you?"
+                maxlength="12"
+                autocomplete="nickname"
+                aria-describedby="profile-name-help"
+                autofocus
+              />
+              <button
+                class="pimd-secondary-button profile-random-button"
+                type="button"
+                @click="randomizeUsername"
+              >
+                Random
+              </button>
+            </div>
             <small id="profile-name-help">Up to 12 characters. Make it recognizable.</small>
           </div>
 
@@ -71,6 +80,7 @@ import { ref } from 'vue';
 import ProductMark from '@/components/ProductMark.vue';
 import { useGameStore } from '@/stores/game';
 import { useUiStore } from '@/stores/ui';
+import { generateRandomUsername } from './randomUsername';
 
 const game = useGameStore();
 const ui = useUiStore();
@@ -104,6 +114,13 @@ function rememberedUsername(): string {
 
 function selectColor(colorSet: string) {
   if (!game.usedColorSets.includes(colorSet)) myColorSet.value = colorSet;
+}
+
+function randomizeUsername() {
+  username.value = generateRandomUsername([
+    ...game.users.map((user) => user.displayName),
+    username.value,
+  ]);
 }
 
 async function addUser() {
@@ -249,6 +266,13 @@ async function addUser() {
   gap: 9px;
 }
 
+.profile-name-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 10px;
+}
+
 .profile-field label,
 #colorSelector legend {
   width: fit-content;
@@ -277,6 +301,15 @@ async function addUser() {
 .profile-field input::placeholder {
   color: var(--pimd-ink-soft);
   opacity: 0.65;
+}
+
+.profile-name-control .profile-random-button {
+  width: auto;
+  min-height: 58px;
+  padding: 10px 13px;
+  border-width: 3px;
+  box-shadow: 3px 4px 0 var(--pimd-meta);
+  font-size: clamp(11px, 3vw, 14px);
 }
 
 .profile-field small {
