@@ -142,6 +142,60 @@ const roundHistory: RoundHistoryEntry[] = [
   },
 ];
 
+const completedGameHistory: RoundHistoryEntry[] = [
+  ...roundHistory,
+  {
+    round: 3,
+    question: 'The group chat went silent right after _.',
+    winningAnswer: 'Someone replied-all with a personality test.',
+    winningPlayerId: 'alex',
+    winningPlayerDisplayName: 'Alex',
+    winningAnswerApplause: 1,
+    otherAnswers: [],
+  },
+  {
+    round: 4,
+    question: 'Nothing ruins a first impression like _.',
+    winningAnswer: 'Introducing your emotional-support spreadsheet.',
+    winningPlayerId: 'jules',
+    winningPlayerDisplayName: 'Jules',
+    winningAnswerApplause: 2,
+    otherAnswers: [],
+  },
+  {
+    round: 5,
+    question: 'I knew the party was over when _.',
+    winningAnswer: 'Someone brought a spreadsheet.',
+    winningPlayerId: 'sam',
+    winningPlayerDisplayName: 'Sam',
+    winningAnswerApplause: 3,
+    otherAnswers: [],
+  },
+  {
+    round: 6,
+    question: 'My villain origin story started with _.',
+    winningAnswer: 'A calendar invite titled “quick sync.”',
+    winningPlayerId: 'rowan',
+    winningPlayerDisplayName: 'Rowan',
+    winningAnswerApplause: 1,
+    otherAnswers: [],
+  },
+  {
+    round: 7,
+    question: 'The real treasure was _ all along.',
+    winningAnswer: 'The snacks we hid from everybody else.',
+    winningPlayerId: 'alex',
+    winningPlayerDisplayName: 'Alex',
+    winningAnswerApplause: 1,
+    otherAnswers: [],
+  },
+];
+
+const cancelledPlayers = players.map((player, index) => ({
+  ...player,
+  points: [2, 1, 1, 0][index],
+}));
+
 function privatePlayer(
   playerId: string,
   options: Partial<PrivatePlayerState> = {},
@@ -278,7 +332,7 @@ export const gameScenarios = {
         gameState: 'FINISHED',
         players,
         chatMessages,
-        roundHistory,
+        roundHistory: completedGameHistory,
         finalRecord: {
           outcome: 'won',
           winner: players[0],
@@ -322,14 +376,14 @@ export const gameScenarios = {
         roomId: ROOM_ID,
         phase: 'CANCELLED',
         gameState: 'FINISHED',
-        players,
+        players: cancelledPlayers,
         chatMessages,
-        roundHistory,
+        roundHistory: completedGameHistory.slice(0, 4),
         finalRecord: {
           outcome: 'cancelled',
           winner: null,
           rounds: 4,
-          leaderboard: players,
+          leaderboard: cancelledPlayers,
           applauseRecap: {
             totalApplause: 0,
             crowdFavorites: [],

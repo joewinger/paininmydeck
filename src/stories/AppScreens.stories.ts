@@ -280,6 +280,13 @@ export const LeaderboardOpen: Story = {
 export const GameWon: Story = {
   name: 'Results / game won',
   parameters: { route: resultsRoute, game: gameScenarios.gameWon },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('heading', { name: 'The whole messy story' })).toBeVisible();
+    await expect(canvas.getByRole('img', { name: /Cumulative score by round/u })).toBeVisible();
+    await expect(canvas.getByRole('list', { name: 'Player chart key' })).toBeVisible();
+    await expect(canvas.getByRole('heading', { name: 'What took each point' })).toBeVisible();
+  },
 };
 
 export const GameCancelled: Story = {
