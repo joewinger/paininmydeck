@@ -9,10 +9,11 @@ import type {
   RoomState,
   SetProfileRequest,
 } from '@/shared/protocol';
-import { isRoomId, normalizeRoomId } from '@/shared/protocol';
+import { isRoomId, normalizeRoomId, PROTOCOL_VERSION } from '@/shared/protocol';
 import { useUiStore } from '@/stores/ui';
 
 const DEFAULT_SETTINGS: GameSettings = {
+  actionTimerSeconds: 20,
   cardsPerHand: 7,
   pointsToWin: 10,
   numBlankCards: 0,
@@ -31,6 +32,7 @@ function emptyRoom(): RoomState {
     settings: { ...DEFAULT_SETTINGS },
     turn: {
       roundId: '',
+      actionDeadline: null,
       revealDeadline: null,
       round: 0,
       status: 'WAITING_FOR_CARDS',
@@ -38,7 +40,9 @@ function emptyRoom(): RoomState {
       czarPlayerId: '',
       playedCards: [],
       submittedPlayerIds: [],
+      automaticSubmissionPlayerIds: [],
       winningCard: null,
+      winnerSelectionSource: null,
     },
     chatMessages: [],
     roundHistory: [],
@@ -47,13 +51,14 @@ function emptyRoom(): RoomState {
 }
 
 let roomSocket: RoomSocket | null = null;
-let revealTimer: number | null = null;
+let dueTimer: number | null = null;
 
 export const useGameStore = defineStore('game', {
   state: () => ({
     room: emptyRoom(),
     self: null as GameSnapshot['me'],
     revision: -1,
+    serverTimeOffsetMs: 0,
     needsProfile: false,
     connectionState: 'idle' as ConnectionState,
     displayMode: false,
@@ -328,7 +333,7 @@ export const useGameStore = defineStore('game', {
     applySnapshot(snapshot: GameSnapshot): void {
       if (
         !snapshot?.room ||
-        snapshot.protocolVersion !== 1 ||
+        snapshot.protocolVersion !== PROTOCOL_VERSION ||
         typeof snapshot.revision !== 'number' ||
         typeof snapshot.serverTime !== 'number'
       ) {
@@ -345,7 +350,8 @@ export const useGameStore = defineStore('game', {
       this.room = snapshot.room;
       this.self = snapshot.me;
       this.revision = snapshot.revision;
-      this.armRevealDeadline(snapshot);
+      this.serverTimeOffsetMs = snapshot.serverTime - Date.now();
+      this.armDueDeadline(snapshot);
 
       if (snapshot.me?.sessionStatus === 'KICKED') {
         this.handleTerminalSocketError(
@@ -383,8 +389,8 @@ export const useGameStore = defineStore('game', {
       const socket = roomSocket;
       roomSocket = null;
       socket?.close();
-      if (revealTimer !== null) window.clearTimeout(revealTimer);
-      revealTimer = null;
+      if (dueTimer !== null) window.clearTimeout(dueTimer);
+      dueTimer = null;
       if (error.code === 'KICKED_SESSION') {
         this.beingKicked = true;
         useUiStore().notify({ title: 'Kicked!', message: "You've been kicked :(" });
@@ -394,17 +400,23 @@ export const useGameStore = defineStore('game', {
       useUiStore().notify({ title: 'Invalid Room', message: 'This room is no longer available.' });
     },
 
-    armRevealDeadline(snapshot: GameSnapshot): void {
-      if (revealTimer !== null) window.clearTimeout(revealTimer);
-      revealTimer = null;
+    armDueDeadline(snapshot: GameSnapshot): void {
+      if (dueTimer !== null) window.clearTimeout(dueTimer);
+      dueTimer = null;
       if (this.displayMode) return;
-      const deadline = snapshot.room.turn.revealDeadline;
-      if (snapshot.room.phase !== 'REVEAL' || deadline === null) return;
+      const phase = snapshot.room.phase;
+      const deadline =
+        phase === 'REVEAL'
+          ? snapshot.room.turn.revealDeadline
+          : phase === 'COLLECTING' || phase === 'JUDGING'
+            ? snapshot.room.turn.actionDeadline
+            : null;
+      if (deadline === null) return;
       const roundId = snapshot.room.turn.roundId;
-      revealTimer = window.setTimeout(
+      dueTimer = window.setTimeout(
         () => {
-          revealTimer = null;
-          if (!roomSocket || this.room.phase !== 'REVEAL' || this.turn.roundId !== roundId) return;
+          dueTimer = null;
+          if (!roomSocket || this.room.phase !== phase || this.turn.roundId !== roundId) return;
           void roomSocket.send({ type: 'process_due', payload: {} }).catch(() => undefined);
         },
         Math.max(0, deadline - snapshot.serverTime),
@@ -412,18 +424,19 @@ export const useGameStore = defineStore('game', {
     },
 
     dispose(): void {
-      if (revealTimer !== null) window.clearTimeout(revealTimer);
-      revealTimer = null;
+      if (dueTimer !== null) window.clearTimeout(dueTimer);
+      dueTimer = null;
       roomSocket?.close();
       roomSocket = null;
     },
 
     resetRoom(): void {
-      if (revealTimer !== null) window.clearTimeout(revealTimer);
-      revealTimer = null;
+      if (dueTimer !== null) window.clearTimeout(dueTimer);
+      dueTimer = null;
       this.room = emptyRoom();
       this.self = null;
       this.revision = -1;
+      this.serverTimeOffsetMs = 0;
       this.needsProfile = false;
       this.connectionState = 'idle';
       this.displayMode = false;

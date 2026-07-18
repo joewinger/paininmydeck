@@ -1,4 +1,11 @@
-const LATEST_MIGRATION_VERSION = 2;
+const LATEST_MIGRATION_VERSION = 3;
+
+function hasColumn(sql: SqlStorage, table: string, column: string): boolean {
+  return sql
+    .exec<Record<string, SqlStorageValue> & { name: string }>(`PRAGMA table_info(${table})`)
+    .toArray()
+    .some((row) => row.name === column);
+}
 
 export function migrate(storage: DurableObjectStorage): void {
   const sql = storage.sql;
@@ -226,6 +233,62 @@ export function migrate(storage: DurableObjectStorage): void {
       sql.exec(
         'INSERT INTO _sql_schema_migrations(version, applied_at) VALUES (?, ?)',
         2,
+        Date.now(),
+      );
+    });
+    current = 2;
+  }
+
+  if (current < 3) {
+    storage.transactionSync(() => {
+      if (!hasColumn(sql, 'room_state', 'action_timer_seconds')) {
+        sql.exec(`
+			ALTER TABLE room_state ADD COLUMN action_timer_seconds INTEGER NOT NULL DEFAULT 20
+			CHECK (action_timer_seconds = 0 OR action_timer_seconds BETWEEN 5 AND 120)
+		`);
+      }
+      if (!hasColumn(sql, 'room_state', 'action_deadline')) {
+        sql.exec('ALTER TABLE room_state ADD COLUMN action_deadline INTEGER');
+      }
+      if (!hasColumn(sql, 'room_state', 'winner_selection_source')) {
+        sql.exec(`
+			ALTER TABLE room_state ADD COLUMN winner_selection_source TEXT
+			CHECK (winner_selection_source IN ('CZAR', 'TIMEOUT'))
+		`);
+      }
+      if (!hasColumn(sql, 'submissions', 'is_automatic')) {
+        sql.exec(`
+			ALTER TABLE submissions ADD COLUMN is_automatic INTEGER NOT NULL DEFAULT 0
+			CHECK (is_automatic IN (0, 1))
+		`);
+      }
+
+      const jobsSql =
+        sql
+          .exec<Record<string, SqlStorageValue> & { sql: string | null }>(
+            `SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'scheduled_jobs'`,
+          )
+          .one().sql ?? '';
+      if (!jobsSql.includes("'action'")) {
+        sql.exec('ALTER TABLE scheduled_jobs RENAME TO scheduled_jobs_v2');
+        sql.exec(`
+			CREATE TABLE scheduled_jobs (
+				job_type TEXT NOT NULL CHECK (job_type IN ('action', 'reveal', 'disconnect', 'ttl')),
+				job_key TEXT NOT NULL,
+				due_at INTEGER NOT NULL,
+				PRIMARY KEY (job_type, job_key)
+			)
+		`);
+        sql.exec(`
+			INSERT INTO scheduled_jobs(job_type, job_key, due_at)
+			SELECT job_type, job_key, due_at FROM scheduled_jobs_v2
+		`);
+        sql.exec('DROP TABLE scheduled_jobs_v2');
+        sql.exec('CREATE INDEX jobs_due ON scheduled_jobs(due_at)');
+      }
+      sql.exec(
+        'INSERT INTO _sql_schema_migrations(version, applied_at) VALUES (?, ?)',
+        3,
         Date.now(),
       );
     });

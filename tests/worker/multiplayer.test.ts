@@ -1,6 +1,6 @@
 /// <reference types="@cloudflare/vitest-pool-workers/types" />
 
-import { env, reset } from 'cloudflare:test';
+import { env, reset, runInDurableObject } from 'cloudflare:test';
 import { afterEach, describe, expect, it } from 'vitest';
 import type {
   ClientCommand,
@@ -26,6 +26,7 @@ const COLORS = [
 ] as const;
 
 const QUICK_SETTINGS: GameSettings = {
+  actionTimerSeconds: 20,
   cardsPerHand: 3,
   pointsToWin: 1,
   numBlankCards: 0,
@@ -155,7 +156,7 @@ function snapshotFrom(result: CommandResult): GameSnapshot {
 
 function expectError(result: CommandResult, code: string): void {
   expect(result.response.frame).toMatchObject({
-    protocolVersion: 1,
+    protocolVersion: 2,
     type: 'error',
     error: { code },
   });
@@ -231,7 +232,7 @@ function simpleCommand(
   commandId: string,
   type: 'start_game' | 'leave_room' | 'request_snapshot' | 'process_due',
 ): ClientCommand {
-  return { protocolVersion: 1, commandId, type, payload: {} };
+  return { protocolVersion: 2, commandId, type, payload: {} };
 }
 
 afterEach(async () => {
@@ -254,7 +255,7 @@ describe('GameRoom multiplayer contract', () => {
     );
 
     const settingsResult = await playerTwo.command({
-      protocolVersion: 1,
+      protocolVersion: 2,
       commandId: 'quick-settings',
       type: 'update_settings',
       payload: { settings: QUICK_SETTINGS },
@@ -298,7 +299,7 @@ describe('GameRoom multiplayer contract', () => {
       throw new Error('Expected dealt cards.');
     }
     const firstSubmission: ClientCommand = {
-      protocolVersion: 1,
+      protocolVersion: 2,
       commandId: 'player-two-submit',
       type: 'submit_card',
       roundId: playerTwoStart.room.turn.roundId,
@@ -339,7 +340,7 @@ describe('GameRoom multiplayer contract', () => {
       throw new Error('Expected a third-player card.');
     }
     const secondSubmission = await playerThree.command({
-      protocolVersion: 1,
+      protocolVersion: 2,
       commandId: 'player-three-submit',
       type: 'submit_card',
       roundId: playerThreeStart.room.turn.roundId,
@@ -368,7 +369,7 @@ describe('GameRoom multiplayer contract', () => {
     }
     const reveal = snapshotFrom(
       await host.command({
-        protocolVersion: 1,
+        protocolVersion: 2,
         commandId: 'choose-round-one',
         type: 'choose_winner',
         roundId: hostJudgingFrame.frame.snapshot.room.turn.roundId,
@@ -400,6 +401,280 @@ describe('GameRoom multiplayer contract', () => {
     expect(finished.room.roundHistory).toHaveLength(1);
   });
 
+  it('authoritatively submits stock cards, picks a random winner, and ignores a stale round job', async () => {
+    const lobby = await createLobby('ACDEF', 3);
+    const sockets = await Promise.all(lobby.players.map((_, index) => connect(lobby, index)));
+    const timedSettings: GameSettings = {
+      ...QUICK_SETTINGS,
+      actionTimerSeconds: 5,
+      pointsToWin: 2,
+    };
+    await sockets[1].command({
+      protocolVersion: 2,
+      commandId: 'timed-settings',
+      type: 'update_settings',
+      payload: { settings: timedSettings },
+    });
+
+    const started = snapshotFrom(
+      await sockets[0].command(simpleCommand('start-timed-game', 'start_game')),
+    );
+    const collectingDeadline = started.room.turn.actionDeadline;
+    if (collectingDeadline === null) throw new Error('Expected a collecting deadline.');
+    expect(collectingDeadline - started.serverTime).toBe(5_000);
+
+    const playerThreeStart = await sockets[2].waitForSnapshot(
+      (snapshot) => snapshot.room.phase === 'COLLECTING' && snapshot.me?.hand.length === 3,
+    );
+    if (playerThreeStart.frame.type !== 'snapshot') throw new Error('Expected a dealt hand.');
+    const manualCard = playerThreeStart.frame.snapshot.me?.hand[0];
+    if (manualCard === undefined) throw new Error('Expected a manual answer card.');
+    await sockets[2].command({
+      protocolVersion: 2,
+      commandId: 'one-before-timeout',
+      type: 'submit_card',
+      roundId: started.room.turn.roundId,
+      payload: { cardId: manualCard.id },
+    });
+
+    const judging = unwrap(
+      await lobby.stub.getSessionSnapshot({
+        sessionHash: lobby.players[0].sessionHash,
+        generation: lobby.generation,
+        now: collectingDeadline + 1,
+      }),
+    );
+    expect(judging.room).toMatchObject({
+      phase: 'JUDGING',
+      turn: {
+        automaticSubmissionPlayerIds: [lobby.players[1].playerId],
+        winnerSelectionSource: null,
+      },
+    });
+    expect(judging.room.turn.playedCards).toHaveLength(2);
+    expect(judging.room.chatMessages.at(-1)?.text).toBe(
+      `Time! The timer played a card for ${lobby.players[1].name}.`,
+    );
+    const automaticSubmission = await runInDurableObject(lobby.stub, (_instance, state) =>
+      state.storage.sql
+        .exec<{ is_blank: number; is_automatic: number; player_id: string }>(
+          `SELECT c.is_blank, s.is_automatic, s.player_id
+             FROM submissions s
+             JOIN card_instances c ON c.instance_id = s.card_instance_id
+             WHERE s.is_automatic = 1`,
+        )
+        .one(),
+    );
+    expect(automaticSubmission).toEqual({
+      is_blank: 0,
+      is_automatic: 1,
+      player_id: lobby.players[1].playerId,
+    });
+
+    const judgingDeadline = judging.room.turn.actionDeadline;
+    if (judgingDeadline === null) throw new Error('Expected a judging deadline.');
+    expect(judgingDeadline - (collectingDeadline + 1)).toBe(5_000);
+    const reveal = unwrap(
+      await lobby.stub.getSessionSnapshot({
+        sessionHash: lobby.players[0].sessionHash,
+        generation: lobby.generation,
+        now: judgingDeadline + 1,
+      }),
+    );
+    expect(reveal.room).toMatchObject({
+      phase: 'REVEAL',
+      turn: { actionDeadline: null, winnerSelectionSource: 'TIMEOUT' },
+    });
+    expect(reveal.room.turn.playedCards.map((card) => card.id)).toContain(
+      reveal.room.turn.winningCard?.id,
+    );
+    expect(reveal.room.chatMessages.at(-1)?.text).toMatch(
+      /^Time! The timer picked Player [23]'s card at random\.$/u,
+    );
+
+    const revealDeadline = reveal.room.turn.revealDeadline;
+    if (revealDeadline === null) throw new Error('Expected a reveal deadline.');
+    const nextRound = unwrap(
+      await lobby.stub.getSessionSnapshot({
+        sessionHash: lobby.players[0].sessionHash,
+        generation: lobby.generation,
+        now: revealDeadline + 1,
+      }),
+    );
+    expect(nextRound.room).toMatchObject({
+      phase: 'COLLECTING',
+      turn: { round: 2, playedCards: [], automaticSubmissionPlayerIds: [] },
+    });
+    expect(nextRound.room.turn.roundId).not.toBe(started.room.turn.roundId);
+
+    const staleKey = `${started.room.turn.roundId}:WAITING_FOR_CARDS:${collectingDeadline}`;
+    await runInDurableObject(lobby.stub, (_instance, state) => {
+      state.storage.sql.exec(
+        `INSERT INTO scheduled_jobs(job_type, job_key, due_at)
+         VALUES ('action', ?, ?)`,
+        staleKey,
+        revealDeadline + 1,
+      );
+    });
+    const afterStaleJob = unwrap(
+      await lobby.stub.getSessionSnapshot({
+        sessionHash: lobby.players[0].sessionHash,
+        generation: lobby.generation,
+        now: revealDeadline + 2,
+      }),
+    );
+    expect(afterStaleJob.room).toMatchObject({
+      phase: 'COLLECTING',
+      turn: {
+        roundId: nextRound.room.turn.roundId,
+        playedCards: [],
+        actionDeadline: nextRound.room.turn.actionDeadline,
+      },
+    });
+    const staleJobs = await runInDurableObject(
+      lobby.stub,
+      (_instance, state) =>
+        state.storage.sql
+          .exec<{ value: number }>(
+            `SELECT COUNT(*) AS value FROM scheduled_jobs WHERE job_key = ?`,
+            staleKey,
+          )
+          .one().value,
+    );
+    expect(staleJobs).toBe(0);
+  });
+
+  it('commits a due timeout even when the triggering player command is rejected', async () => {
+    const lobby = await createLobby('ACDFE', 3);
+    const sockets = await Promise.all(lobby.players.map((_, index) => connect(lobby, index)));
+    await sockets[1].command({
+      protocolVersion: 2,
+      commandId: 'deadline-race-settings',
+      type: 'update_settings',
+      payload: { settings: { ...QUICK_SETTINGS, actionTimerSeconds: 5, pointsToWin: 2 } },
+    });
+    const started = snapshotFrom(
+      await sockets[0].command(simpleCommand('start-deadline-race', 'start_game')),
+    );
+    const playerTwoStart = await sockets[1].waitForSnapshot(
+      (snapshot) => snapshot.room.phase === 'COLLECTING' && snapshot.me?.hand.length === 3,
+    );
+    if (playerTwoStart.frame.type !== 'snapshot') throw new Error('Expected a dealt hand.');
+    const attemptedCard = playerTwoStart.frame.snapshot.me?.hand[0];
+    if (attemptedCard === undefined) throw new Error('Expected an answer card.');
+
+    const pastDeadline = Date.now() - 1;
+    await runInDurableObject(lobby.stub, (_instance, state) => {
+      state.storage.transactionSync(() => {
+        state.storage.sql.exec(
+          'UPDATE room_state SET action_deadline = ? WHERE singleton = 1',
+          pastDeadline,
+        );
+        state.storage.sql.exec("DELETE FROM scheduled_jobs WHERE job_type = 'action'");
+        state.storage.sql.exec(
+          `INSERT INTO scheduled_jobs(job_type, job_key, due_at)
+           VALUES ('action', ?, ?)`,
+          `${started.room.turn.roundId}:WAITING_FOR_CARDS:${pastDeadline}`,
+          pastDeadline,
+        );
+      });
+    });
+
+    const rejected = await sockets[1].command({
+      protocolVersion: 2,
+      commandId: 'too-late-submission',
+      type: 'submit_card',
+      roundId: started.room.turn.roundId,
+      payload: { cardId: attemptedCard.id },
+    });
+    expectError(rejected, 'SUBMISSIONS_CLOSED');
+
+    const judging = unwrap(
+      await lobby.stub.getSessionSnapshot({
+        sessionHash: lobby.players[1].sessionHash,
+        generation: lobby.generation,
+        now: Date.now(),
+      }),
+    );
+    expect(judging.room).toMatchObject({
+      phase: 'JUDGING',
+      turn: { automaticSubmissionPlayerIds: expect.arrayContaining([lobby.players[1].playerId]) },
+    });
+    expect(judging.me).toMatchObject({ playedThisTurn: true });
+  });
+
+  it('uses a safe joke answer when every outstanding hand contains only blanks', async () => {
+    const lobby = await createLobby('ACDFG', 3);
+    const sockets = await Promise.all(lobby.players.map((_, index) => connect(lobby, index)));
+    await sockets[1].command({
+      protocolVersion: 2,
+      commandId: 'all-blank-timer-settings',
+      type: 'update_settings',
+      payload: {
+        settings: {
+          ...QUICK_SETTINGS,
+          actionTimerSeconds: 5,
+          pointsToWin: 2,
+          allBlanks: true,
+        },
+      },
+    });
+    const started = snapshotFrom(
+      await sockets[0].command(simpleCommand('start-all-blank-timer', 'start_game')),
+    );
+    const deadline = started.room.turn.actionDeadline;
+    if (deadline === null) throw new Error('Expected a collecting deadline.');
+
+    const judging = unwrap(
+      await lobby.stub.getSessionSnapshot({
+        sessionHash: lobby.players[0].sessionHash,
+        generation: lobby.generation,
+        now: deadline + 1,
+      }),
+    );
+    expect(judging.room.phase).toBe('JUDGING');
+    expect(judging.room.turn.automaticSubmissionPlayerIds).toHaveLength(2);
+    expect(judging.room.turn.automaticSubmissionPlayerIds).toEqual(
+      expect.arrayContaining([lobby.players[1].playerId, lobby.players[2].playerId]),
+    );
+    const safeFallbacks = new Set([
+      'Me, apparently not playing a card.',
+      'The timer doing my homework.',
+      'A brave and extremely last-second guess.',
+      'My card arriving fashionably late.',
+    ]);
+    expect(judging.room.turn.playedCards).toHaveLength(2);
+    for (const card of judging.room.turn.playedCards) {
+      expect(card.blank).toBe(true);
+      expect(safeFallbacks.has(card.text)).toBe(true);
+    }
+  });
+
+  it('keeps action jobs disabled when the room timer is set to zero', async () => {
+    const lobby = await createLobby('ACDFH', 3);
+    const sockets = await Promise.all(lobby.players.map((_, index) => connect(lobby, index)));
+    await sockets[1].command({
+      protocolVersion: 2,
+      commandId: 'timer-off-settings',
+      type: 'update_settings',
+      payload: { settings: { ...QUICK_SETTINGS, actionTimerSeconds: 0 } },
+    });
+    const started = snapshotFrom(
+      await sockets[0].command(simpleCommand('start-without-timer', 'start_game')),
+    );
+    expect(started.room.turn.actionDeadline).toBeNull();
+    const actionJobs = await runInDurableObject(
+      lobby.stub,
+      (_instance, state) =>
+        state.storage.sql
+          .exec<{ value: number }>(
+            `SELECT COUNT(*) AS value FROM scheduled_jobs WHERE job_type = 'action'`,
+          )
+          .one().value,
+    );
+    expect(actionJobs).toBe(0);
+  });
+
   it('preserves blank-card and redraw rules configured by a non-host lobby member', async () => {
     const lobby = await createLobby('FGHJK', 3);
     const host = await connect(lobby, 0);
@@ -414,7 +689,7 @@ describe('GameRoom multiplayer contract', () => {
 
     const updated = snapshotFrom(
       await playerTwo.command({
-        protocolVersion: 1,
+        protocolVersion: 2,
         commandId: 'member-settings',
         type: 'update_settings',
         payload: { settings: blankSettings },
@@ -444,7 +719,7 @@ describe('GameRoom multiplayer contract', () => {
 
     const redraw = snapshotFrom(
       await playerTwo.command({
-        protocolVersion: 1,
+        protocolVersion: 2,
         commandId: 'redraw-once',
         type: 'redraw_card',
         roundId: playerTwoFrame.frame.snapshot.room.turn.roundId,
@@ -460,7 +735,7 @@ describe('GameRoom multiplayer contract', () => {
     }
     expectError(
       await playerTwo.command({
-        protocolVersion: 1,
+        protocolVersion: 2,
         commandId: 'redraw-twice',
         type: 'redraw_card',
         roundId: redraw.room.turn.roundId,
@@ -471,7 +746,7 @@ describe('GameRoom multiplayer contract', () => {
 
     const blankSubmission = snapshotFrom(
       await playerTwo.command({
-        protocolVersion: 1,
+        protocolVersion: 2,
         commandId: 'submit-blank',
         type: 'submit_blank',
         roundId: redraw.room.turn.roundId,
@@ -488,7 +763,7 @@ describe('GameRoom multiplayer contract', () => {
     }
     const judging = snapshotFrom(
       await playerThree.command({
-        protocolVersion: 1,
+        protocolVersion: 2,
         commandId: 'submit-stock',
         type: 'submit_card',
         roundId: playerThreeFrame.frame.snapshot.room.turn.roundId,
@@ -505,7 +780,7 @@ describe('GameRoom multiplayer contract', () => {
 
     const reveal = snapshotFrom(
       await host.command({
-        protocolVersion: 1,
+        protocolVersion: 2,
         commandId: 'choose-blank',
         type: 'choose_winner',
         roundId: judging.room.turn.roundId,
@@ -537,7 +812,7 @@ describe('GameRoom multiplayer contract', () => {
 
     const sockets = await Promise.all(lobby.players.map((_, index) => connect(lobby, index)));
     await sockets[1].command({
-      protocolVersion: 1,
+      protocolVersion: 2,
       commandId: 'eight-player-settings',
       type: 'update_settings',
       payload: { settings: QUICK_SETTINGS },
@@ -566,7 +841,7 @@ describe('GameRoom multiplayer contract', () => {
       }
       judging = snapshotFrom(
         await sockets[index].command({
-          protocolVersion: 1,
+          protocolVersion: 2,
           commandId: `eight-player-submit-${index}`,
           type: 'submit_card',
           roundId: dealtSnapshots[index].room.turn.roundId,
@@ -589,7 +864,7 @@ describe('GameRoom multiplayer contract', () => {
     }
     const reveal = snapshotFrom(
       await sockets[0].command({
-        protocolVersion: 1,
+        protocolVersion: 2,
         commandId: 'eight-player-winner',
         type: 'choose_winner',
         roundId: hostJudging.frame.snapshot.room.turn.roundId,
@@ -618,7 +893,7 @@ describe('GameRoom multiplayer contract', () => {
     const lobby = await createLobby('KLMNP', 4);
     const sockets = await Promise.all(lobby.players.map((_, index) => connect(lobby, index)));
     await sockets[1].command({
-      protocolVersion: 1,
+      protocolVersion: 2,
       commandId: 'departure-settings',
       type: 'update_settings',
       payload: { settings: { ...QUICK_SETTINGS, pointsToWin: 10 } },
@@ -637,7 +912,7 @@ describe('GameRoom multiplayer contract', () => {
       throw new Error('Expected a card to submit.');
     }
     await sockets[1].command({
-      protocolVersion: 1,
+      protocolVersion: 2,
       commandId: 'submit-before-host-leaves',
       type: 'submit_card',
       roundId: beforeDeparture.room.turn.roundId,

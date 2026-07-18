@@ -11,6 +11,21 @@
       </caption>
       <tbody>
         <tr>
+          <th scope="row"><label for="action-timer">Action Timer</label></th>
+          <td>
+            <input
+              id="action-timer"
+              v-model.number="actionTimerSeconds"
+              type="number"
+              min="0"
+              max="120"
+              :disabled="!canEdit"
+              aria-describedby="action-timer-hint"
+            />
+            <small id="action-timer-hint">seconds · 0 = off</small>
+          </td>
+        </tr>
+        <tr>
           <th scope="row"><label for="cards-per-hand">Cards Per Hand</label></th>
           <td>
             <input
@@ -130,6 +145,7 @@ import type { GameSettings } from '@/shared/protocol';
 const emit = defineEmits<{ 'close-menu': [] }>();
 const game = useGameStore();
 const canEdit = computed(() => game.self !== null && game.phase === 'LOBBY');
+const changedActionTimerSeconds = ref<number | null>(null);
 const changedCardsPerHand = ref<number | null>(null);
 const changedPointsToWin = ref<number | null>(null);
 const changedNumBlankCards = ref<number | null>(null);
@@ -146,6 +162,13 @@ const cardsPerHand = computed<number>({
   get: () => changedCardsPerHand.value ?? game.settings.cardsPerHand,
   set: (value) => {
     changedCardsPerHand.value = clamp(value, 3, 30);
+  },
+});
+const actionTimerSeconds = computed<number>({
+  get: () => changedActionTimerSeconds.value ?? game.settings.actionTimerSeconds,
+  set: (value) => {
+    const numeric = Number(value) || 0;
+    changedActionTimerSeconds.value = numeric <= 0 ? 0 : clamp(numeric, 5, 120);
   },
 });
 const pointsToWin = computed<number>({
@@ -188,6 +211,7 @@ const familyMode = computed<boolean>({
 async function updateSettings() {
   if (!canEdit.value) return;
   const settings: GameSettings = {
+    actionTimerSeconds: actionTimerSeconds.value,
     cardsPerHand: cardsPerHand.value,
     pointsToWin: pointsToWin.value,
     numBlankCards: numBlankCards.value,
@@ -238,6 +262,16 @@ async function updateSettings() {
   font-weight: 900;
   text-align: right;
   appearance: textfield;
+}
+
+#statusMenuContent-settings small {
+  display: block;
+  margin-top: 5px;
+  color: var(--pimd-ink-soft);
+  font-size: 0.63rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 #statusMenuContent-settings input[type='number']::-webkit-outer-spin-button,

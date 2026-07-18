@@ -13,6 +13,7 @@ import {
   shieldCheckmarkOutline,
   time,
   timeOutline,
+  timerOutline,
   trash,
   trashOutline,
 } from 'ionicons/icons';
@@ -31,6 +32,7 @@ const ICONS: Record<string, string> = {
   'shield-checkmark-outline': shieldCheckmarkOutline,
   time,
   'time-outline': timeOutline,
+  'timer-outline': timerOutline,
   trash,
   'trash-outline': trashOutline,
 };

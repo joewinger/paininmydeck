@@ -1,4 +1,5 @@
 import type { GameSettings, GameSnapshot, RoomState, TurnState } from '@/shared/protocol';
+import { PROTOCOL_VERSION } from '@/shared/protocol';
 
 type RoomOverrides = Omit<Partial<RoomState>, 'settings' | 'turn'> & {
   settings?: Partial<GameSettings>;
@@ -19,7 +20,7 @@ export function makeGameSnapshot(overrides: GameSnapshotOverrides = {}): GameSna
   const { settings: settingsOverrides, turn: turnOverrides, ...room } = roomOverrides;
 
   return {
-    protocolVersion: 1,
+    protocolVersion: PROTOCOL_VERSION,
     revision: 1,
     serverTime: 1_000,
     me: null,
@@ -30,6 +31,7 @@ export function makeGameSnapshot(overrides: GameSnapshotOverrides = {}): GameSna
       gameState: 'LOBBY',
       players: [],
       settings: {
+        actionTimerSeconds: 20,
         cardsPerHand: 7,
         pointsToWin: 10,
         numBlankCards: 0,
@@ -41,6 +43,7 @@ export function makeGameSnapshot(overrides: GameSnapshotOverrides = {}): GameSna
       },
       turn: {
         roundId: '',
+        actionDeadline: null,
         revealDeadline: null,
         round: 0,
         status: 'WAITING_FOR_CARDS',
@@ -48,7 +51,9 @@ export function makeGameSnapshot(overrides: GameSnapshotOverrides = {}): GameSna
         czarPlayerId: '',
         playedCards: [],
         submittedPlayerIds: [],
+        automaticSubmissionPlayerIds: [],
         winningCard: null,
+        winnerSelectionSource: null,
         ...turnOverrides,
       },
       chatMessages: [],

@@ -16,7 +16,10 @@ import type {
   ServerSocketMessage,
   SetProfileResponse,
   SnapshotMessage,
+  TurnStatus,
+  WinnerSelectionSource,
 } from '../src/shared/protocol';
+import { PROTOCOL_VERSION } from '../src/shared/protocol';
 import { answerCards, questionCards, shuffled } from './cards';
 import { asRoomError, RoomError, type RpcResult } from './errors';
 import { migrate } from './schema';
@@ -28,6 +31,7 @@ import {
 } from './validation';
 
 const DEFAULT_SETTINGS: GameSettings = Object.freeze({
+  actionTimerSeconds: 20,
   cardsPerHand: 7,
   pointsToWin: 10,
   numBlankCards: 0,
@@ -54,6 +58,12 @@ const INTERNAL_SESSION_HEADER = 'X-PID-Session-Hash';
 const INTERNAL_GENERATION_HEADER = 'X-PID-Room-Generation';
 const INTERNAL_SOCKET_ROLE_HEADER = 'X-PID-Socket-Role';
 const GAME_LABEL = 'Game';
+const AUTOMATIC_BLANK_ANSWERS = Object.freeze([
+  'Me, apparently not playing a card',
+  'The timer doing my homework',
+  'A brave and extremely last-second guess',
+  'My card arriving fashionably late',
+]);
 
 type SqlRow<T extends Record<string, SqlStorageValue>> = T & Record<string, SqlStorageValue>;
 
@@ -66,6 +76,7 @@ type RoomRow = SqlRow<{
   updated_at: number;
   expires_at: number;
   host_player_id: string | null;
+  action_timer_seconds: number;
   cards_per_hand: number;
   points_to_win: number;
   num_blank_cards: number;
@@ -81,7 +92,9 @@ type RoomRow = SqlRow<{
   question_text: string | null;
   czar_player_id: string | null;
   winning_submission_id: string | null;
+  action_deadline: number | null;
   reveal_deadline: number | null;
+  winner_selection_source: string | null;
 }>;
 
 type SessionRow = SqlRow<{
@@ -128,6 +141,7 @@ type SubmissionRow = SqlRow<{
   custom_text: string | null;
   display_order: number | null;
   is_winner: number;
+  is_automatic: number;
   created_at: number;
   card_text: string;
   is_blank: number;
@@ -324,6 +338,12 @@ function playerSummary(row: PlayerRow): PlayerSummary {
   };
 }
 
+function displayNameList(names: readonly string[]): string {
+  if (names.length <= 1) return names[0] ?? '';
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  return `${names.slice(0, -1).join(', ')}, and ${names.at(-1)}`;
+}
+
 export class GameRoom extends DurableObject<Env> {
   private schemaReady = false;
   private operationQueue: Promise<void> = Promise.resolve();
@@ -355,15 +375,16 @@ export class GameRoom extends DurableObject<Env> {
           this.sql.exec(
             `INSERT INTO room_state (
 							singleton, room_id, generation, game_state, revision,
-							created_at, updated_at, expires_at, cards_per_hand,
+							created_at, updated_at, expires_at, action_timer_seconds, cards_per_hand,
 							points_to_win, num_blank_cards, guaranteed_blanks,
 							all_blanks, family_mode, num_redraws
-						) VALUES (1, ?, ?, 'LOBBY', 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+						) VALUES (1, ?, ?, 'LOBBY', 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             input.roomId,
             input.generation,
             now,
             now,
             expiresAt,
+            DEFAULT_SETTINGS.actionTimerSeconds,
             DEFAULT_SETTINGS.cardsPerHand,
             DEFAULT_SETTINGS.pointsToWin,
             DEFAULT_SETTINGS.numBlankCards,
@@ -755,7 +776,7 @@ export class GameRoom extends DurableObject<Env> {
           room.turn_status === 'WAITING_FOR_CARDS' &&
           room.round_id !== null
         ) {
-          this.maybeOpenJudging(room.round_id);
+          this.maybeOpenJudging(room.round_id, now);
         }
         this.touchSession(sessionHash, now);
         this.touchRoom(now);
@@ -922,8 +943,16 @@ export class GameRoom extends DurableObject<Env> {
       let responseJson = '';
       let dueChanged = false;
       try {
+        // Commit authoritative deadlines before applying the user command. If the
+        // command is now stale and rolls back, the timeout transition must not.
         this.ctx.storage.transactionSync(() => {
           dueChanged = this.processDueJobsSync(now);
+          if (dueChanged) {
+            this.bumpRevision(now);
+            this.touchRoom(now);
+          }
+        });
+        this.ctx.storage.transactionSync(() => {
           const commandError =
             command.type === 'send_chat' ? this.consumeChatRate(attachment.sessionHash, now) : null;
           if (commandError === null) {
@@ -931,7 +960,7 @@ export class GameRoom extends DurableObject<Env> {
           } else {
             outcome = { changed: false, duplicate: false, closeSelf: false };
           }
-          if (dueChanged || outcome.changed) {
+          if (outcome.changed) {
             this.bumpRevision(now);
           }
           this.touchSession(attachment.sessionHash, now);
@@ -939,7 +968,11 @@ export class GameRoom extends DurableObject<Env> {
           frames =
             commandError === null
               ? [
-                  { protocolVersion: 1, type: 'ack', commandId: command.commandId },
+                  {
+                    protocolVersion: PROTOCOL_VERSION,
+                    type: 'ack',
+                    commandId: command.commandId,
+                  },
                   this.snapshotFrame(attachment.sessionHash, now),
                 ]
               : [this.errorFrame(commandError, command.commandId)];
@@ -977,7 +1010,8 @@ export class GameRoom extends DurableObject<Env> {
         this.closePlayerSocketsWithError(outcome.closePlayerId);
       }
       if (dueChanged || outcome.changed) {
-        this.broadcastSnapshots(now, ws);
+        const senderHasSnapshot = frames.some((frame) => frame.type === 'snapshot');
+        this.broadcastSnapshots(now, senderHasSnapshot ? ws : undefined);
       }
       if (outcome.closeSelf) {
         ws.close(1000, 'Left room');
@@ -1308,7 +1342,7 @@ export class GameRoom extends DurableObject<Env> {
           };
 
     return {
-      protocolVersion: 1,
+      protocolVersion: PROTOCOL_VERSION,
       revision: room.revision,
       serverTime: now,
       room: {
@@ -1324,6 +1358,7 @@ export class GameRoom extends DurableObject<Env> {
         settings: this.settings(room),
         turn: {
           roundId: room.round_id ?? '',
+          actionDeadline: room.action_deadline,
           revealDeadline: room.reveal_deadline,
           round: room.round_number,
           status:
@@ -1336,6 +1371,12 @@ export class GameRoom extends DurableObject<Env> {
           czarPlayerId: room.czar_player_id ?? '',
           playedCards,
           submittedPlayerIds,
+          automaticSubmissionPlayerIds:
+            room.round_id === null
+              ? []
+              : visibleSubmissions
+                  .filter((submission) => submission.is_automatic === 1)
+                  .map((submission) => submission.player_id),
           winningCard:
             winner === null
               ? null
@@ -1346,6 +1387,12 @@ export class GameRoom extends DurableObject<Env> {
                   playedByPlayerId: winner.player_id,
                   playedByDisplayName: winner.display_name,
                 },
+          winnerSelectionSource:
+            room.winner_selection_source === 'TIMEOUT'
+              ? 'TIMEOUT'
+              : room.winner_selection_source === 'CZAR'
+                ? 'CZAR'
+                : null,
         },
         chatMessages: this.chatMessages(),
         roundHistory: this.roundHistory(),
@@ -1361,6 +1408,7 @@ export class GameRoom extends DurableObject<Env> {
 
   private settings(room: RoomRow): GameSettings {
     return {
+      actionTimerSeconds: room.action_timer_seconds,
       cardsPerHand: room.cards_per_hand,
       pointsToWin: room.points_to_win,
       numBlankCards: room.num_blank_cards,
@@ -1573,9 +1621,10 @@ export class GameRoom extends DurableObject<Env> {
     const valid = parseSettings(settings);
     this.sql.exec(
       `UPDATE room_state
-			 SET cards_per_hand = ?, points_to_win = ?, num_blank_cards = ?,
+			 SET action_timer_seconds = ?, cards_per_hand = ?, points_to_win = ?, num_blank_cards = ?,
 			     guaranteed_blanks = ?, all_blanks = ?, family_mode = ?, num_redraws = ?
 			 WHERE singleton = 1`,
+      valid.actionTimerSeconds,
       valid.cardsPerHand,
       valid.pointsToWin,
       valid.numBlankCards,
@@ -1638,6 +1687,7 @@ export class GameRoom extends DurableObject<Env> {
     this.sql.exec('DELETE FROM rounds');
     this.sql.exec('DELETE FROM round_answers');
     this.sql.exec('DELETE FROM final_players');
+    this.sql.exec("DELETE FROM scheduled_jobs WHERE job_type = 'action'");
     this.deleteJob('reveal', room.round_id ?? '');
 
     if (!settings.allBlanks) {
@@ -1699,13 +1749,15 @@ export class GameRoom extends DurableObject<Env> {
       `UPDATE room_state
 			 SET game_state = 'PLAYING', round_number = 1, completed_rounds = 0, round_id = ?,
 			     turn_status = 'WAITING_FOR_CARDS', question_id = ?, question_text = ?,
-			     czar_player_id = ?, winning_submission_id = NULL, reveal_deadline = NULL
+			     czar_player_id = ?, winning_submission_id = NULL, action_deadline = NULL,
+			     reveal_deadline = NULL, winner_selection_source = NULL
 			 WHERE singleton = 1`,
       roundId,
       question.instance_id,
       question.text,
       players[0].player_id,
     );
+    this.setActionDeadline(roundId, 'WAITING_FOR_CARDS', now);
     this.systemMessage(`Round 1: ${players[0].display_name} is the Czar.`, now);
   }
 
@@ -1860,10 +1912,34 @@ export class GameRoom extends DurableObject<Env> {
     return question;
   }
 
-  private maybeOpenJudging(roundId: string): void {
-    const room = this.roomOrThrow();
-    if (this.activePlayers().some((player) => player.connected === 0)) {
+  private setActionDeadline(roundId: string, turnStatus: TurnStatus, now: number): void {
+    this.sql.exec("DELETE FROM scheduled_jobs WHERE job_type = 'action'");
+    const seconds = this.roomOrThrow().action_timer_seconds;
+    if (seconds === 0 || turnStatus === 'REVEAL') {
+      this.sql.exec('UPDATE room_state SET action_deadline = NULL WHERE singleton = 1');
       return;
+    }
+    const deadline = now + seconds * 1_000;
+    this.sql.exec('UPDATE room_state SET action_deadline = ? WHERE singleton = 1', deadline);
+    this.putJob('action', `${roundId}:${turnStatus}:${deadline}`, deadline);
+  }
+
+  private clearActionDeadline(): void {
+    this.sql.exec('UPDATE room_state SET action_deadline = NULL WHERE singleton = 1');
+    this.sql.exec("DELETE FROM scheduled_jobs WHERE job_type = 'action'");
+  }
+
+  private maybeOpenJudging(roundId: string, now: number, force = false): boolean {
+    const room = this.roomOrThrow();
+    if (
+      room.game_state !== 'PLAYING' ||
+      room.turn_status !== 'WAITING_FOR_CARDS' ||
+      room.round_id !== roundId
+    ) {
+      return false;
+    }
+    if (!force && this.activePlayers().some((player) => player.connected === 0)) {
+      return false;
     }
     const required = this.activePlayers().filter(
       (player) => player.player_id !== room.czar_player_id,
@@ -1875,7 +1951,7 @@ export class GameRoom extends DurableObject<Env> {
       )
       .toArray();
     if (required === 0 || submissions.length < required) {
-      return;
+      return false;
     }
     for (const [displayOrder, submission] of shuffled(submissions).entries()) {
       this.sql.exec(
@@ -1884,7 +1960,13 @@ export class GameRoom extends DurableObject<Env> {
         submission.submission_id,
       );
     }
-    this.sql.exec(`UPDATE room_state SET turn_status = 'WAITING_FOR_CZAR' WHERE singleton = 1`);
+    this.sql.exec(
+      `UPDATE room_state
+       SET turn_status = 'WAITING_FOR_CZAR', winner_selection_source = NULL
+       WHERE singleton = 1`,
+    );
+    this.setActionDeadline(roundId, 'WAITING_FOR_CZAR', now);
+    return true;
   }
 
   private submitCard(
@@ -1892,6 +1974,7 @@ export class GameRoom extends DurableObject<Env> {
     cardId: string,
     customText: string | null,
     now: number,
+    automatic = false,
   ): void {
     const room = this.roomOrThrow();
     if (room.game_state !== 'PLAYING' || room.turn_status !== 'WAITING_FOR_CARDS') {
@@ -1945,14 +2028,15 @@ export class GameRoom extends DurableObject<Env> {
     this.sql.exec(
       `INSERT INTO submissions (
 				submission_id, round_id, player_id, card_instance_id,
-				custom_text, display_order, is_winner, created_at
-			) VALUES (?, ?, ?, ?, ?, NULL, 0, ?)`,
+				custom_text, display_order, is_winner, created_at, is_automatic
+			) VALUES (?, ?, ?, ?, ?, NULL, 0, ?, ?)`,
       submissionId,
       room.round_id,
       player.player_id,
       card.instance_id,
       customText,
       now,
+      automatic ? 1 : 0,
     );
     this.sql.exec(
       `UPDATE card_instances
@@ -1960,7 +2044,7 @@ export class GameRoom extends DurableObject<Env> {
 			 WHERE instance_id = ?`,
       card.instance_id,
     );
-    this.maybeOpenJudging(room.round_id);
+    this.maybeOpenJudging(room.round_id, now);
   }
 
   private redrawCard(player: PlayerRow, cardId: string): void {
@@ -2042,6 +2126,19 @@ export class GameRoom extends DurableObject<Env> {
       throw new RoomError('INVALID_SUBMISSION', 'Choose one of the displayed answers.', 409);
     }
 
+    this.selectWinner(room, winner, now, 'CZAR');
+  }
+
+  private selectWinner(
+    room: RoomRow,
+    winner: SubmissionRow,
+    now: number,
+    source: WinnerSelectionSource,
+  ): void {
+    if (room.round_id === null) {
+      throw new RoomError('ROUND_NOT_READY', 'The round is not ready.', 409);
+    }
+    this.sql.exec('UPDATE submissions SET is_winner = 0 WHERE round_id = ?', room.round_id);
     this.sql.exec(
       'UPDATE submissions SET is_winner = 1 WHERE submission_id = ?',
       winner.submission_id,
@@ -2050,13 +2147,19 @@ export class GameRoom extends DurableObject<Env> {
     const revealDeadline = now + WINNER_REVEAL_MS;
     this.sql.exec(
       `UPDATE room_state
-			 SET turn_status = 'REVEAL', winning_submission_id = ?, reveal_deadline = ?
+			 SET turn_status = 'REVEAL', winning_submission_id = ?, action_deadline = NULL,
+			     reveal_deadline = ?, winner_selection_source = ?
 			 WHERE singleton = 1`,
       winner.submission_id,
       revealDeadline,
+      source,
     );
+    this.sql.exec("DELETE FROM scheduled_jobs WHERE job_type = 'action'");
     this.recordRound(room, winner, now);
     this.putJob('reveal', room.round_id, revealDeadline);
+    if (source === 'TIMEOUT') {
+      this.systemMessage(`Time! The timer picked ${winner.display_name}'s card at random.`, now);
+    }
   }
 
   private chatMessage(player: PlayerRow, text: string, now: number): void {
@@ -2168,7 +2271,8 @@ export class GameRoom extends DurableObject<Env> {
       `UPDATE room_state
 			 SET round_number = ?, round_id = ?, turn_status = 'WAITING_FOR_CARDS',
 			     question_id = ?, question_text = ?, czar_player_id = ?,
-			     winning_submission_id = NULL, reveal_deadline = NULL
+			     winning_submission_id = NULL, action_deadline = NULL, reveal_deadline = NULL,
+			     winner_selection_source = NULL
 			 WHERE singleton = 1`,
       nextRound,
       roundId,
@@ -2176,6 +2280,7 @@ export class GameRoom extends DurableObject<Env> {
       question.text,
       nextCzar.player_id,
     );
+    this.setActionDeadline(roundId, 'WAITING_FOR_CARDS', now);
     this.deleteJob('reveal', room.round_id ?? '');
     this.systemMessage(`Round ${nextRound}: ${nextCzar.display_name} is the Czar.`, now);
   }
@@ -2223,7 +2328,7 @@ export class GameRoom extends DurableObject<Env> {
       `UPDATE room_state
 			 SET round_number = ?, round_id = ?, turn_status = 'WAITING_FOR_CARDS', czar_player_id = ?,
 			     question_id = ?, question_text = ?, winning_submission_id = NULL,
-			     reveal_deadline = NULL
+			     action_deadline = NULL, reveal_deadline = NULL, winner_selection_source = NULL
 			 WHERE singleton = 1`,
       nextRoundNumber,
       crypto.randomUUID(),
@@ -2231,6 +2336,8 @@ export class GameRoom extends DurableObject<Env> {
       question.instance_id,
       question.text,
     );
+    const restartedRoom = this.roomOrThrow();
+    this.setActionDeadline(restartedRoom.round_id ?? '', 'WAITING_FOR_CARDS', now);
     this.deleteJob('reveal', room.round_id ?? '');
     this.systemMessage(`Round ${nextRoundNumber}: ${currentCzar.display_name} is the Czar.`, now);
   }
@@ -2277,9 +2384,11 @@ export class GameRoom extends DurableObject<Env> {
     this.sql.exec(
       `UPDATE room_state
 			 SET game_state = 'FINISHED', winning_submission_id = NULL,
-			     reveal_deadline = NULL
+			     action_deadline = NULL, reveal_deadline = NULL,
+			     winner_selection_source = NULL
 			 WHERE singleton = 1`,
     );
+    this.sql.exec("DELETE FROM scheduled_jobs WHERE job_type = 'action'");
     this.deleteJob('reveal', room.round_id ?? '');
     void now;
   }
@@ -2357,6 +2466,85 @@ export class GameRoom extends DurableObject<Env> {
     return true;
   }
 
+  private automaticSubmitOutstanding(room: RoomRow, now: number): string[] {
+    if (room.round_id === null) {
+      return [];
+    }
+    const submitted = new Set(
+      this.sql
+        .exec<SqlRow<{ player_id: string }>>(
+          'SELECT player_id FROM submissions WHERE round_id = ?',
+          room.round_id,
+        )
+        .toArray()
+        .map((row) => row.player_id),
+    );
+    const automaticNames: string[] = [];
+    for (const player of this.activePlayers()) {
+      if (player.player_id === room.czar_player_id || submitted.has(player.player_id)) continue;
+
+      let hand = this.sql
+        .exec<CardRow>(
+          `SELECT * FROM card_instances
+           WHERE owner_player_id = ? AND location = 'hand'`,
+          player.player_id,
+        )
+        .toArray();
+      if (hand.length === 0) {
+        hand = [this.drawCard(player.player_id)];
+      }
+      const stockCards = hand.filter((card) => card.is_blank === 0);
+      const card = shuffled(stockCards.length > 0 ? stockCards : hand)[0];
+      if (card === undefined) {
+        throw new RoomError('DECK_EXHAUSTED', 'The timer could not deal an answer card.', 409);
+      }
+      const customText =
+        card.is_blank === 1
+          ? this.formatBlankAnswer(shuffled(AUTOMATIC_BLANK_ANSWERS)[0] ?? 'The timer panicking')
+          : null;
+      this.submitCard(player, card.instance_id, customText, now, true);
+      automaticNames.push(player.display_name);
+    }
+    this.maybeOpenJudging(room.round_id, now, true);
+    return automaticNames;
+  }
+
+  private completeActionDeadline(jobKey: string, now: number): boolean {
+    const room = this.roomOrThrow();
+    if (
+      room.game_state !== 'PLAYING' ||
+      room.round_id === null ||
+      room.action_deadline === null ||
+      room.action_deadline > now ||
+      `${room.round_id}:${room.turn_status}:${room.action_deadline}` !== jobKey
+    ) {
+      return false;
+    }
+
+    if (room.turn_status === 'WAITING_FOR_CARDS') {
+      const automaticNames = this.automaticSubmitOutstanding(room, now);
+      if (automaticNames.length > 0) {
+        this.systemMessage(
+          `Time! The timer played a card for ${displayNameList(automaticNames)}.`,
+          now,
+        );
+      }
+      return true;
+    }
+
+    if (room.turn_status === 'WAITING_FOR_CZAR') {
+      const winner = shuffled(this.submissions(room.round_id))[0];
+      if (winner === undefined) {
+        this.clearActionDeadline();
+        return true;
+      }
+      this.selectWinner(room, winner, now, 'TIMEOUT');
+      return true;
+    }
+
+    return false;
+  }
+
   private async runDueJobs(now: number): Promise<DueResult> {
     if (await this.expireRoomIfDue(now)) {
       return { changed: false, deleted: true };
@@ -2403,7 +2591,9 @@ export class GameRoom extends DurableObject<Env> {
       .toArray();
     let changed = false;
     for (const job of dueJobs) {
-      if (job.job_type === 'reveal') {
+      if (job.job_type === 'action') {
+        changed = this.completeActionDeadline(job.job_key, now) || changed;
+      } else if (job.job_type === 'reveal') {
         changed = this.completeReveal(job.job_key, now) || changed;
       } else if (job.job_type === 'disconnect') {
         const player = this.player(job.job_key, false);
@@ -2677,7 +2867,7 @@ export class GameRoom extends DurableObject<Env> {
 
   private snapshotFrame(sessionHash: string, now: number): SnapshotMessage {
     return {
-      protocolVersion: 1,
+      protocolVersion: PROTOCOL_VERSION,
       type: 'snapshot',
       snapshot: this.snapshot(sessionHash, now),
     };
@@ -2685,7 +2875,7 @@ export class GameRoom extends DurableObject<Env> {
 
   private publicSnapshotFrame(now: number): SnapshotMessage {
     return {
-      protocolVersion: 1,
+      protocolVersion: PROTOCOL_VERSION,
       type: 'snapshot',
       snapshot: this.publicSnapshot(now),
     };
@@ -2693,7 +2883,7 @@ export class GameRoom extends DurableObject<Env> {
 
   private errorFrame(error: RoomError, commandId?: string): ErrorMessage {
     return {
-      protocolVersion: 1,
+      protocolVersion: PROTOCOL_VERSION,
       type: 'error',
       ...(commandId === undefined ? {} : { commandId }),
       error: {

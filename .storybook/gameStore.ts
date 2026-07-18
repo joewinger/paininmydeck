@@ -51,6 +51,7 @@ export function seedStoryStores(
       room: snapshot.room,
       self: snapshot.me,
       revision: snapshot.revision,
+      serverTimeOffsetMs: snapshot.serverTime - Date.now(),
       needsProfile: false,
       connectionState: 'open',
       cardActionPending: false,
