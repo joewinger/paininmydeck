@@ -3,6 +3,7 @@ import { setup, type Preview } from '@storybook/vue3-vite';
 
 import IonIcon from '@/components/IonIcon';
 import { HAPTICS_PREFERENCE_KEY } from '@/playerHaptics';
+import { SOUND_MUTED_PREFERENCE_KEY, SOUND_VOLUME_PREFERENCE_KEY } from '@/soundEffects';
 import { useGameStore } from '@/stores/game';
 import { useUiStore } from '@/stores/ui';
 import 'normalize.css';
@@ -44,6 +45,8 @@ function clearRememberedUsername(): void {
   try {
     localStorage.removeItem('username');
     localStorage.removeItem(HAPTICS_PREFERENCE_KEY);
+    localStorage.removeItem(SOUND_MUTED_PREFERENCE_KEY);
+    localStorage.removeItem(SOUND_VOLUME_PREFERENCE_KEY);
   } catch {
     // Storage can be disabled in hardened browser contexts.
   }

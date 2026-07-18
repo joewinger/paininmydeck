@@ -91,6 +91,7 @@ import StatusMenuContentHistory from './content/History.vue';
 import StatusMenuContentChat from './content/Chat/index.vue';
 import StatusMenuContentSettings from './content/Settings.vue';
 import StatusMenuContentLeaderboard from './content/Leaderboard/index.vue';
+import { shouldPlayHiddenChatCue, soundEffects } from '@/soundEffects';
 import { useGameStore } from '@/stores/game';
 
 type MenuName = 'INFO' | 'HISTORY' | 'CHAT' | 'SETTINGS' | 'LEADERBOARD';
@@ -126,6 +127,19 @@ watch(
   (messageId, previousMessageId) => {
     if (currentMenu.value !== 'CHAT' && messageId && messageId !== previousMessageId) {
       hasUnreadMessages.value = true;
+    }
+    const message = game.chatMessages.at(-1);
+    if (
+      shouldPlayHiddenChatCue({
+        messageId,
+        previousMessageId,
+        messageType: message?.type,
+        senderPlayerId: message?.senderPlayerId,
+        selfPlayerId: game.self?.playerId,
+        chatVisible: currentMenu.value === 'CHAT',
+      })
+    ) {
+      soundEffects.play('message');
     }
   },
 );

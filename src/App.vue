@@ -15,13 +15,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import NavBar from '@/components/NavBar.vue';
 import StatusMenu from '@/components/StatusMenu/index.vue';
 import ErrorToast from '@/components/ErrorToast.vue';
 import Interstitial from '@/components/Interstitial.vue';
 import { PlayerHaptics, playerActionOutstanding } from '@/playerHaptics';
+import { GameSoundCoordinator, soundEffects } from '@/soundEffects';
 import { useGameStore } from '@/stores/game';
 import { useUiStore } from '@/stores/ui';
 
@@ -30,6 +31,7 @@ const router = useRouter();
 const game = useGameStore();
 const ui = useUiStore();
 const playerHaptics = new PlayerHaptics();
+const gameSounds = new GameSoundCoordinator(soundEffects);
 const isTvRoute = computed(() => route.meta.layout === 'tv');
 const transitionName = ref('default');
 const routeOrder = ['home', 'lobby', 'game', 'gameover'];
@@ -88,7 +90,38 @@ watch(
   { immediate: true },
 );
 
+watch(
+  () => ({ muted: ui.soundMuted, volumePercent: ui.soundVolumePercent }),
+  (preferences) => soundEffects.configure(preferences),
+  { immediate: true },
+);
+
+watch(
+  () => ({
+    connected: game.connectionState === 'open' && !game.displayMode,
+    playerId: game.self?.playerId ?? null,
+    phase: game.phase,
+    winningCardId: game.turn.winningCard?.id ?? null,
+    finalWinnerId: game.room.finalRecord?.winner?.playerId ?? null,
+  }),
+  (state) => gameSounds.sync(state),
+  { immediate: true },
+);
+
+function unlockSoundEffects(): void {
+  if (game.displayMode || isTvRoute.value) return;
+  void soundEffects.unlock();
+}
+
+onMounted(() => {
+  window.addEventListener('pointerdown', unlockSoundEffects, { passive: true });
+  window.addEventListener('keydown', unlockSoundEffects);
+});
+
 onBeforeUnmount(() => {
+  window.removeEventListener('pointerdown', unlockSoundEffects);
+  window.removeEventListener('keydown', unlockSoundEffects);
+  soundEffects.dispose();
   playerHaptics.dispose();
   game.dispose();
 });

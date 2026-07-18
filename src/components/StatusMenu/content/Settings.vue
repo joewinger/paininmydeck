@@ -157,6 +157,46 @@
           </span>
         </div>
       </div>
+
+      <div class="settings-device-row settings-device-row--sound">
+        <div>
+          <label for="sound-enabled">Sound effects</label>
+          <small id="sound-effects-hint">
+            Confirm card plays, celebrate winners, and flag hidden chat messages.
+          </small>
+        </div>
+        <div class="settings-toggle-control">
+          <input
+            id="sound-enabled"
+            v-model="soundEnabled"
+            class="settings-toggle"
+            type="checkbox"
+            aria-describedby="sound-effects-hint device-settings-note"
+          />
+          <span class="settings-toggle-state" aria-hidden="true">
+            {{ soundEnabled ? 'On' : 'Muted' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="settings-volume">
+        <label for="sound-volume">
+          Volume
+          <output for="sound-volume">{{ soundVolumePercent }}%</output>
+        </label>
+        <input
+          id="sound-volume"
+          v-model.number="soundVolumePercent"
+          type="range"
+          min="0"
+          max="100"
+          step="5"
+          :disabled="!soundEnabled"
+          aria-label="Sound volume"
+          :aria-valuetext="`${soundVolumePercent}%`"
+          aria-describedby="sound-effects-hint device-settings-note"
+        />
+      </div>
       <p id="device-settings-note">Saved only in this browser.</p>
     </section>
   </section>
@@ -183,6 +223,14 @@ const changedFamilyMode = ref<boolean | null>(null);
 const hapticsEnabled = computed<boolean>({
   get: () => ui.hapticsEnabled,
   set: (enabled) => ui.setHapticsEnabled(enabled),
+});
+const soundEnabled = computed<boolean>({
+  get: () => !ui.soundMuted,
+  set: (enabled) => ui.setSoundMuted(!enabled),
+});
+const soundVolumePercent = computed<number>({
+  get: () => ui.soundVolumePercent,
+  set: (volumePercent) => ui.setSoundVolumePercent(volumePercent),
 });
 
 function clamp(value: number, min: number, max: number): number {
@@ -419,6 +467,48 @@ async function updateSettings() {
   white-space: normal;
 }
 
+#statusMenuContent-settings .settings-device-row--sound {
+  padding-top: 12px;
+  border-top: 2px dashed rgb(45 37 64 / 22%);
+}
+
+#statusMenuContent-settings .settings-device-row--sound .settings-toggle-control {
+  grid-template-columns: 54px 48px;
+}
+
+#statusMenuContent-settings .settings-volume {
+  display: grid;
+  gap: 8px;
+  padding: 2px 0 4px;
+}
+
+#statusMenuContent-settings .settings-volume label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 850;
+}
+
+#statusMenuContent-settings .settings-volume output {
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+#statusMenuContent-settings input[type='range'] {
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  accent-color: var(--pimd-primary-dark);
+  cursor: pointer;
+}
+
+#statusMenuContent-settings input[type='range']:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
 #statusMenuContent-settings .settings-device p {
   margin: 0;
   color: var(--pimd-ink-soft);
@@ -457,6 +547,7 @@ async function updateSettings() {
 
 @media (forced-colors: active) {
   #statusMenuContent-settings input[type='number'],
+  #statusMenuContent-settings input[type='range'],
   #statusMenuContent-settings .settings-toggle,
   #statusMenuContent-settings .settings-toggle-state,
   #statusMenuContent-settings .settings-toggle:checked + .settings-toggle-state {
