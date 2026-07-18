@@ -1,4 +1,4 @@
-import type { ConnectionState, GameSnapshot } from '@/shared/protocol';
+import type { ConnectionState, GameSettings, GameSnapshot } from '@/shared/protocol';
 import { useGameStore } from '@/stores/game';
 import { useUiStore, type NotificationOptions } from '@/stores/ui';
 import { fn } from 'storybook/test';
@@ -24,6 +24,7 @@ export interface UiStoryFixture {
 
 /** Observable transport doubles used by interaction stories. */
 export const storyActions = {
+  updateSettings: fn(async (settings: GameSettings): Promise<void> => void settings),
   submitCard: fn(async (cardId: string): Promise<void> => void cardId),
   submitBlank: fn(async (cardId: string, text: string): Promise<void> => void [cardId, text]),
   redrawCard: fn(async (cardId: string): Promise<void> => void cardId),
@@ -71,7 +72,7 @@ export function stubStoryTransport(game: GameStore): void {
   game.setProfile = async () => undefined;
   game.connectSocket = () => undefined;
   game.leaveRoom = async () => undefined;
-  game.updateSettings = async () => undefined;
+  game.updateSettings = storyActions.updateSettings;
   game.startGame = async () => undefined;
   game.submitCard = storyActions.submitCard;
   game.submitBlank = storyActions.submitBlank;

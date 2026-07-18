@@ -109,6 +109,21 @@
             />
           </td>
         </tr>
+        <tr>
+          <th scope="row"><label for="hand-redeal-mode">Hand re-deal</label></th>
+          <td>
+            <select
+              id="hand-redeal-mode"
+              v-model="handRedealMode"
+              class="settings-select"
+              :disabled="!canEdit"
+            >
+              <option value="replenish">Replenish played cards</option>
+              <option value="every_round">Every round</option>
+              <option value="czar_rotation">After a full Czar rotation</option>
+            </select>
+          </td>
+        </tr>
       </tbody>
     </table>
     <button
@@ -125,7 +140,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useGameStore } from '@/stores/game';
-import type { GameSettings } from '@/shared/protocol';
+import type { GameSettings, HandRedealMode } from '@/shared/protocol';
 
 const emit = defineEmits<{ 'close-menu': [] }>();
 const game = useGameStore();
@@ -137,6 +152,7 @@ const changedGuaranteedBlanks = ref<number | null>(null);
 const changedNumRedraws = ref<number | null>(null);
 const changedAllBlanks = ref<boolean | null>(null);
 const changedFamilyMode = ref<boolean | null>(null);
+const changedHandRedealMode = ref<HandRedealMode | null>(null);
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(Number(value) || 0, min), max);
@@ -184,6 +200,12 @@ const familyMode = computed<boolean>({
     changedFamilyMode.value = value;
   },
 });
+const handRedealMode = computed<HandRedealMode>({
+  get: () => changedHandRedealMode.value ?? game.settings.handRedealMode,
+  set: (value) => {
+    changedHandRedealMode.value = value;
+  },
+});
 
 async function updateSettings() {
   if (!canEdit.value) return;
@@ -195,6 +217,7 @@ async function updateSettings() {
     numRedraws: numRedraws.value,
     allBlanks: allBlanks.value,
     familyMode: familyMode.value,
+    handRedealMode: handRedealMode.value,
   };
   try {
     await game.updateSettings(settings);
@@ -247,6 +270,27 @@ async function updateSettings() {
 }
 
 #statusMenuContent-settings input:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+#statusMenuContent-settings .settings-select {
+  width: 205px;
+  max-width: 52vw;
+  min-height: 40px;
+  margin: 0;
+  padding: 6px 7px;
+  border: 3px solid var(--pimd-ink);
+  border-radius: 0;
+  background: var(--pimd-paper);
+  box-shadow: 2px 3px 0 var(--pimd-meta);
+  color: var(--pimd-ink);
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+#statusMenuContent-settings .settings-select:disabled {
   opacity: 0.58;
   cursor: not-allowed;
 }
@@ -329,14 +373,29 @@ async function updateSettings() {
   border: 0;
 }
 
-@media (max-width: 360px) {
+@media (max-width: 420px) {
   #statusMenuContent-settings table th,
   #statusMenuContent-settings table td {
-    padding-block: 8px;
+    padding-block: 5px;
   }
 
+  #statusMenuContent-settings input[type='number'],
+  #statusMenuContent-settings .settings-select {
+    min-height: 36px;
+  }
+
+  #statusMenuContent-settings .status-menu-action {
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 360px) {
   #statusMenuContent-settings table th {
     font-size: 0.84rem;
+  }
+
+  #statusMenuContent-settings .settings-select {
+    font-size: 0.7rem;
   }
 }
 
@@ -348,6 +407,7 @@ async function updateSettings() {
 
 @media (forced-colors: active) {
   #statusMenuContent-settings input[type='number'],
+  #statusMenuContent-settings .settings-select,
   #statusMenuContent-settings .settings-toggle,
   #statusMenuContent-settings .settings-toggle-state,
   #statusMenuContent-settings .settings-toggle:checked + .settings-toggle-state {

@@ -8,6 +8,7 @@ export type TurnStatus = 'WAITING_FOR_CARDS' | 'WAITING_FOR_CZAR' | 'REVEAL';
 export type ConnectionState = 'idle' | 'connecting' | 'open' | 'reconnecting' | 'closed';
 export type SessionStatus = 'ACTIVE' | 'KICKED' | 'LOST';
 export type ColorSet = readonly [string, string];
+export type HandRedealMode = 'replenish' | 'every_round' | 'czar_rotation';
 
 export interface GameSettings {
   cardsPerHand: number;
@@ -17,6 +18,7 @@ export interface GameSettings {
   allBlanks: boolean;
   familyMode: boolean;
   numRedraws: number;
+  handRedealMode: HandRedealMode;
 }
 
 export interface Card {

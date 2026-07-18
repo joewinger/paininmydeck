@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS: GameSettings = {
   allBlanks: false,
   familyMode: false,
   numRedraws: 4,
+  handRedealMode: 'replenish',
 };
 
 function emptyRoom(): RoomState {

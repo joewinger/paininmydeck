@@ -189,6 +189,8 @@ stateDiagram-v2
 
 The first joined player is the first Czar, then Czar duty follows join order. The server shuffles submissions once before judging and reveals authors only after selection. A win adds one point.
 
+The lobby chooses one of three server-owned hand policies: replenish only the played cards (the default), replace every active hand whenever a round restarts, or replace hands after a full active-Czar rotation. A rotation completes when the next Czar's immutable join order wraps to a value less than or equal to the outgoing Czar's order. Departures are applied before that lookup, so the remaining active cycle defines the boundary; restarting with the same Czar is not a rotation transition. Reconnects only restore the persisted snapshot and never deal cards.
+
 An unexpected disconnect creates a 90-second grace job. Reconnecting with the valid session restores the same player and hand. If grace expires, the room removes the player, transfers host privilege to the longest-tenured remaining member, and either restarts the round or finishes as cancelled when fewer than three players remain. Explicit leave applies the same transition immediately.
 
 ## Durable Object persistence

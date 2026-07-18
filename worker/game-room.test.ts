@@ -488,7 +488,8 @@ describe('GameRoom integration', () => {
             last_refill_at INTEGER NOT NULL
           )
         `);
-        state.storage.sql.exec('DELETE FROM _sql_schema_migrations WHERE version = 2');
+        state.storage.sql.exec('ALTER TABLE room_state DROP COLUMN hand_redeal_mode');
+        state.storage.sql.exec('DELETE FROM _sql_schema_migrations WHERE version >= 2');
       });
     });
     await evictDurableObject(stub);
@@ -510,11 +511,21 @@ describe('GameRoom integration', () => {
            WHERE type = 'table' AND name = 'command_rate_limits'`,
         )
         .one().value,
+      handRedealMode: state.storage.sql
+        .exec<{ value: string }>(
+          'SELECT hand_redeal_mode AS value FROM room_state WHERE singleton = 1',
+        )
+        .one().value,
       version: state.storage.sql
         .exec<{ value: number }>('SELECT MAX(version) AS value FROM _sql_schema_migrations')
         .one().value,
     }));
-    expect(schema).toEqual({ inboundTable: 1, legacyTable: 0, version: 2 });
+    expect(schema).toEqual({
+      inboundTable: 1,
+      legacyTable: 0,
+      handRedealMode: 'replenish',
+      version: 3,
+    });
   });
 
   it('debits the authenticated inbound limit before parsing and receipt replay', async () => {

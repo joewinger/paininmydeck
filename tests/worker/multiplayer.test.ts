@@ -33,6 +33,7 @@ const QUICK_SETTINGS: GameSettings = {
   allBlanks: false,
   familyMode: false,
   numRedraws: 1,
+  handRedealMode: 'replenish',
 };
 
 interface TestPlayer {
@@ -232,6 +233,106 @@ function simpleCommand(
   type: 'start_game' | 'leave_room' | 'request_snapshot' | 'process_due',
 ): ClientCommand {
   return { protocolVersion: 1, commandId, type, payload: {} };
+}
+
+async function sessionSnapshot(
+  lobby: TestLobby,
+  playerIndex: number,
+  now = Date.now(),
+): Promise<GameSnapshot> {
+  return unwrap(
+    await lobby.stub.getSessionSnapshot({
+      sessionHash: lobby.players[playerIndex].sessionHash,
+      generation: lobby.generation,
+      now,
+    }),
+  ) as GameSnapshot;
+}
+
+async function playerSnapshots(
+  lobby: TestLobby,
+  playerIndexes?: number[],
+): Promise<GameSnapshot[]> {
+  const indexes = playerIndexes ?? lobby.players.map((_, index) => index);
+  return Promise.all(indexes.map((index) => sessionSnapshot(lobby, index)));
+}
+
+async function completeRound(
+  lobby: TestLobby,
+  sockets: SocketHarness[],
+  commandPrefix: string,
+): Promise<GameSnapshot[]> {
+  const before = await playerSnapshots(lobby);
+  const roundId = before[0]?.room.turn.roundId;
+  const czarPlayerId = before[0]?.room.turn.czarPlayerId;
+  if (roundId === undefined || czarPlayerId === undefined) {
+    throw new Error('Expected an active round.');
+  }
+
+  let judging: GameSnapshot | null = null;
+  for (const [index, snapshot] of before.entries()) {
+    if (snapshot.me?.playerId === czarPlayerId) {
+      continue;
+    }
+    const card = snapshot.me?.hand[0];
+    if (card === undefined) {
+      throw new Error('Expected every non-Czar to have a card.');
+    }
+    judging = snapshotFrom(
+      await sockets[index].command(
+        card.blank === true
+          ? {
+              protocolVersion: 1,
+              commandId: `${commandPrefix}-submit-${index}`,
+              type: 'submit_blank',
+              roundId,
+              payload: { cardId: card.id, text: `${commandPrefix} blank ${index}` },
+            }
+          : {
+              protocolVersion: 1,
+              commandId: `${commandPrefix}-submit-${index}`,
+              type: 'submit_card',
+              roundId,
+              payload: { cardId: card.id },
+            },
+      ),
+    );
+  }
+  if (judging?.room.phase !== 'JUDGING') {
+    throw new Error('Expected the completed submissions to enter judging.');
+  }
+  const choice = judging.room.turn.playedCards[0];
+  const czarIndex = lobby.players.findIndex((player) => player.playerId === czarPlayerId);
+  if (choice === undefined || czarIndex < 0) {
+    throw new Error('Expected a Czar and at least one submission.');
+  }
+  const reveal = snapshotFrom(
+    await sockets[czarIndex].command({
+      protocolVersion: 1,
+      commandId: `${commandPrefix}-winner`,
+      type: 'choose_winner',
+      roundId,
+      payload: { cardId: choice.id },
+    }),
+  );
+  if (reveal.room.turn.revealDeadline === null) {
+    throw new Error('Expected a reveal deadline.');
+  }
+  await sessionSnapshot(lobby, 0, reveal.room.turn.revealDeadline + 1);
+  return playerSnapshots(lobby);
+}
+
+function handIds(snapshot: GameSnapshot, includeBlank = true): Set<string> {
+  return new Set(
+    (snapshot.me?.hand ?? [])
+      .filter((card) => includeBlank || card.blank !== true)
+      .map((card) => card.id),
+  );
+}
+
+function handOverlap(before: GameSnapshot, after: GameSnapshot, includeBlank = true): number {
+  const previous = handIds(before, includeBlank);
+  return [...handIds(after, includeBlank)].filter((id) => previous.has(id)).length;
 }
 
 afterEach(async () => {
@@ -518,6 +619,155 @@ describe('GameRoom multiplayer contract', () => {
       playedByPlayerId: lobby.players[1].playerId,
       playedByDisplayName: lobby.players[1].name,
     });
+  });
+
+  it('defaults to replenishing played cards, locks the setting after start, and reconnects without dealing', async () => {
+    const lobby = await createLobby('RDEAL', 3);
+    const sockets = await Promise.all(lobby.players.map((_, index) => connect(lobby, index)));
+    expect((await sessionSnapshot(lobby, 0)).room.settings.handRedealMode).toBe('replenish');
+    await sockets[1].command({
+      protocolVersion: 1,
+      commandId: 'replenish-settings',
+      type: 'update_settings',
+      payload: { settings: { ...QUICK_SETTINGS, pointsToWin: 100 } },
+    });
+    await sockets[0].command(simpleCommand('replenish-start', 'start_game'));
+
+    const before = await playerSnapshots(lobby);
+    const reconnected = await connect(lobby, 0);
+    const reconnectSnapshot = await reconnected.initialSnapshot();
+    expect(handIds(reconnectSnapshot)).toEqual(handIds(before[0]));
+    expectError(
+      await sockets[1].command({
+        protocolVersion: 1,
+        commandId: 'late-redeal-setting',
+        type: 'update_settings',
+        payload: {
+          settings: { ...QUICK_SETTINGS, pointsToWin: 100, handRedealMode: 'every_round' },
+        },
+      }),
+      'GAME_ALREADY_STARTED',
+    );
+
+    const after = await completeRound(lobby, sockets, 'replenish-round');
+    expect(after[0]?.room.turn.czarPlayerId).toBe(lobby.players[1].playerId);
+    expect(before.map((snapshot, index) => handOverlap(snapshot, after[index]))).toEqual([3, 2, 2]);
+  });
+
+  it('re-deals every round while preserving redraw usage and guaranteed blanks', async () => {
+    const lobby = await createLobby('FRESH', 3);
+    const sockets = await Promise.all(lobby.players.map((_, index) => connect(lobby, index)));
+    await sockets[1].command({
+      protocolVersion: 1,
+      commandId: 'fresh-settings',
+      type: 'update_settings',
+      payload: {
+        settings: {
+          ...QUICK_SETTINGS,
+          pointsToWin: 100,
+          guaranteedBlanks: 1,
+          handRedealMode: 'every_round',
+        },
+      },
+    });
+    await sockets[0].command(simpleCommand('fresh-start', 'start_game'));
+
+    const playerThree = await sessionSnapshot(lobby, 2);
+    const stock = playerThree.me?.hand.find((card) => card.blank !== true);
+    if (stock === undefined) {
+      throw new Error('Expected a stock card to redraw.');
+    }
+    await sockets[2].command({
+      protocolVersion: 1,
+      commandId: 'fresh-redraw',
+      type: 'redraw_card',
+      roundId: playerThree.room.turn.roundId,
+      payload: { cardId: stock.id },
+    });
+    const before = await playerSnapshots(lobby);
+    const after = await completeRound(lobby, sockets, 'fresh-round');
+
+    for (const [index, snapshot] of after.entries()) {
+      expect(snapshot.me?.hand.filter((card) => card.blank === true)).toHaveLength(1);
+      expect(handOverlap(before[index], snapshot, false)).toBe(0);
+    }
+    expect(after[2]?.me?.redrawsUsed).toBe(1);
+    const afterStock = after[2]?.me?.hand.find((card) => card.blank !== true);
+    if (afterStock === undefined) {
+      throw new Error('Expected a stock card after the fresh deal.');
+    }
+    expectError(
+      await sockets[2].command({
+        protocolVersion: 1,
+        commandId: 'fresh-second-redraw',
+        type: 'redraw_card',
+        roundId: after[2].room.turn.roundId,
+        payload: { cardId: afterStock.id },
+      }),
+      'NO_REDRAWS_LEFT',
+    );
+    expect(handIds(await sessionSnapshot(lobby, 2))).toEqual(handIds(after[2]));
+  });
+
+  it('re-deals only when the active Czar order wraps', async () => {
+    const lobby = await createLobby('CZARS', 3);
+    const sockets = await Promise.all(lobby.players.map((_, index) => connect(lobby, index)));
+    await sockets[1].command({
+      protocolVersion: 1,
+      commandId: 'rotation-settings',
+      type: 'update_settings',
+      payload: {
+        settings: { ...QUICK_SETTINGS, pointsToWin: 100, handRedealMode: 'czar_rotation' },
+      },
+    });
+    await sockets[0].command(simpleCommand('rotation-start', 'start_game'));
+
+    const roundOne = await playerSnapshots(lobby);
+    const roundTwo = await completeRound(lobby, sockets, 'rotation-one');
+    expect(roundOne.map((snapshot, index) => handOverlap(snapshot, roundTwo[index]))).toEqual([
+      3, 2, 2,
+    ]);
+
+    const roundThree = await completeRound(lobby, sockets, 'rotation-two');
+    expect(roundTwo.map((snapshot, index) => handOverlap(snapshot, roundThree[index]))).toEqual([
+      2, 3, 2,
+    ]);
+
+    const wrapped = await completeRound(lobby, sockets, 'rotation-three');
+    expect(roundThree.map((snapshot, index) => handOverlap(snapshot, wrapped[index]))).toEqual([
+      0, 0, 0,
+    ]);
+    expect(wrapped[0]?.room.turn.czarPlayerId).toBe(lobby.players[0].playerId);
+  });
+
+  it('uses the remaining active Czar order when a departure creates the rotation wrap', async () => {
+    const lobby = await createLobby('WRAPS', 4);
+    const sockets = await Promise.all(lobby.players.map((_, index) => connect(lobby, index)));
+    await sockets[1].command({
+      protocolVersion: 1,
+      commandId: 'departure-rotation-settings',
+      type: 'update_settings',
+      payload: {
+        settings: { ...QUICK_SETTINGS, pointsToWin: 100, handRedealMode: 'czar_rotation' },
+      },
+    });
+    await sockets[0].command(simpleCommand('departure-rotation-start', 'start_game'));
+    await completeRound(lobby, sockets, 'departure-rotation-one');
+    await completeRound(lobby, sockets, 'departure-rotation-two');
+    const beforeDeparture = await completeRound(lobby, sockets, 'departure-rotation-three');
+    expect(beforeDeparture[0]?.room.turn.czarPlayerId).toBe(lobby.players[3].playerId);
+
+    const oldRoundId = beforeDeparture[0]?.room.turn.roundId;
+    await sockets[3].command(simpleCommand('departing-czar-leaves', 'leave_room'));
+    const afterDeparture = await playerSnapshots(lobby, [0, 1, 2]);
+    expect(afterDeparture[0]?.room.turn).toMatchObject({
+      round: 4,
+      czarPlayerId: lobby.players[0].playerId,
+    });
+    expect(afterDeparture[0]?.room.turn.roundId).not.toBe(oldRoundId);
+    expect(
+      afterDeparture.map((snapshot, index) => handOverlap(beforeDeparture[index], snapshot)),
+    ).toEqual([0, 0, 0]);
   });
 
   it('runs an eight-player game while refusing a ninth active member', async () => {

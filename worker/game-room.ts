@@ -35,6 +35,7 @@ const DEFAULT_SETTINGS: GameSettings = Object.freeze({
   allBlanks: false,
   familyMode: false,
   numRedraws: 4,
+  handRedealMode: 'replenish',
 });
 
 const MIN_PLAYERS = 3;
@@ -73,6 +74,7 @@ type RoomRow = SqlRow<{
   all_blanks: number;
   family_mode: number;
   num_redraws: number;
+  hand_redeal_mode: GameSettings['handRedealMode'];
   round_number: number;
   completed_rounds: number;
   round_id: string | null;
@@ -357,8 +359,8 @@ export class GameRoom extends DurableObject<Env> {
 							singleton, room_id, generation, game_state, revision,
 							created_at, updated_at, expires_at, cards_per_hand,
 							points_to_win, num_blank_cards, guaranteed_blanks,
-							all_blanks, family_mode, num_redraws
-						) VALUES (1, ?, ?, 'LOBBY', 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+							all_blanks, family_mode, num_redraws, hand_redeal_mode
+						) VALUES (1, ?, ?, 'LOBBY', 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             input.roomId,
             input.generation,
             now,
@@ -371,6 +373,7 @@ export class GameRoom extends DurableObject<Env> {
             DEFAULT_SETTINGS.allBlanks ? 1 : 0,
             DEFAULT_SETTINGS.familyMode ? 1 : 0,
             DEFAULT_SETTINGS.numRedraws,
+            DEFAULT_SETTINGS.handRedealMode,
           );
           this.sql.exec(
             `INSERT INTO sessions (
@@ -1368,6 +1371,7 @@ export class GameRoom extends DurableObject<Env> {
       allBlanks: room.all_blanks === 1,
       familyMode: room.family_mode === 1,
       numRedraws: room.num_redraws,
+      handRedealMode: room.hand_redeal_mode,
     };
   }
 
@@ -1574,7 +1578,8 @@ export class GameRoom extends DurableObject<Env> {
     this.sql.exec(
       `UPDATE room_state
 			 SET cards_per_hand = ?, points_to_win = ?, num_blank_cards = ?,
-			     guaranteed_blanks = ?, all_blanks = ?, family_mode = ?, num_redraws = ?
+			     guaranteed_blanks = ?, all_blanks = ?, family_mode = ?, num_redraws = ?,
+			     hand_redeal_mode = ?
 			 WHERE singleton = 1`,
       valid.cardsPerHand,
       valid.pointsToWin,
@@ -1583,6 +1588,7 @@ export class GameRoom extends DurableObject<Env> {
       valid.allBlanks ? 1 : 0,
       valid.familyMode ? 1 : 0,
       valid.numRedraws,
+      valid.handRedealMode,
     );
   }
 
@@ -1681,16 +1687,7 @@ export class GameRoom extends DurableObject<Env> {
       );
     }
 
-    for (const player of players) {
-      for (let count = 0; count < settings.guaranteedBlanks; count += 1) {
-        this.drawBlankCard(player.player_id);
-      }
-    }
-    for (const player of players) {
-      while (this.handSize(player.player_id) < settings.cardsPerHand) {
-        this.drawCard(player.player_id);
-      }
-    }
+    this.dealHandsForRound(players, true);
 
     const question = this.takeQuestion();
     const roundId = crypto.randomUUID();
@@ -1785,7 +1782,7 @@ export class GameRoom extends DurableObject<Env> {
   }
 
   private drawBlankCard(playerId: string): CardRow {
-    const blank = first(
+    let blank = first(
       this.sql
         .exec<CardRow>(
           `SELECT * FROM card_instances
@@ -1794,6 +1791,39 @@ export class GameRoom extends DurableObject<Env> {
         )
         .toArray(),
     );
+    if (blank === null) {
+      const discardedBlanks = this.sql
+        .exec<SqlRow<{ instance_id: string }>>(
+          `SELECT instance_id FROM card_instances
+						 WHERE location = 'discard' AND is_blank = 1`,
+        )
+        .toArray()
+        .map((row) => row.instance_id);
+      const nextPosition = this.sql
+        .exec<SqlRow<{ value: number }>>(
+          `SELECT COALESCE(MAX(position), -1) + 1 AS value
+						 FROM card_instances WHERE location = 'draw'`,
+        )
+        .one().value;
+      for (const [offset, instanceId] of shuffled(discardedBlanks).entries()) {
+        this.sql.exec(
+          `UPDATE card_instances
+					 SET location = 'draw', owner_player_id = NULL, position = ?
+					 WHERE instance_id = ?`,
+          nextPosition + offset,
+          instanceId,
+        );
+      }
+      blank = first(
+        this.sql
+          .exec<CardRow>(
+            `SELECT * FROM card_instances
+						 WHERE location = 'draw' AND is_blank = 1
+						 ORDER BY position ASC LIMIT 1`,
+          )
+          .toArray(),
+      );
+    }
     if (blank === null) {
       throw new RoomError('NOT_ENOUGH_BLANKS', 'There are not enough blank cards.', 409);
     }
@@ -2146,6 +2176,43 @@ export class GameRoom extends DurableObject<Env> {
     return next;
   }
 
+  private dealHandsForRound(players: PlayerRow[], replaceHands: boolean): void {
+    const room = this.roomOrThrow();
+    if (replaceHands) {
+      this.sql.exec(
+        `UPDATE card_instances
+				 SET location = 'discard', owner_player_id = NULL
+				 WHERE location = 'hand'`,
+      );
+      for (const player of players) {
+        for (let count = 0; count < room.guaranteed_blanks; count += 1) {
+          this.drawBlankCard(player.player_id);
+        }
+      }
+    }
+    for (const player of players) {
+      while (this.handSize(player.player_id) < room.cards_per_hand) {
+        this.drawCard(player.player_id);
+      }
+    }
+  }
+
+  private shouldReplaceHands(
+    room: RoomRow,
+    czarChanged: boolean,
+    outgoingCzarOrder: number,
+    nextCzar: PlayerRow,
+  ): boolean {
+    if (room.hand_redeal_mode === 'every_round') {
+      return true;
+    }
+    return (
+      room.hand_redeal_mode === 'czar_rotation' &&
+      czarChanged &&
+      nextCzar.czar_order <= outgoingCzarOrder
+    );
+  }
+
   private advanceRound(now: number): void {
     const room = this.roomOrThrow();
     if (room.czar_player_id === null) {
@@ -2155,12 +2222,8 @@ export class GameRoom extends DurableObject<Env> {
     const oldOrder = oldCzar?.czar_order ?? -1;
     this.discardSubmissions();
     const players = this.activePlayers();
-    for (const player of players) {
-      while (this.handSize(player.player_id) < room.cards_per_hand) {
-        this.drawCard(player.player_id);
-      }
-    }
     const nextCzar = this.nextCzarAfter(oldOrder);
+    this.dealHandsForRound(players, this.shouldReplaceHands(room, true, oldOrder, nextCzar));
     const question = this.takeQuestion();
     const nextRound = room.round_number + 1;
     const roundId = crypto.randomUUID();
@@ -2202,20 +2265,19 @@ export class GameRoom extends DurableObject<Env> {
     }
     this.sql.exec('DELETE FROM submissions');
     const players = this.activePlayers();
-    for (const player of players) {
-      while (this.handSize(player.player_id) < room.cards_per_hand) {
-        this.drawCard(player.player_id);
-      }
-    }
-    const currentCzar =
-      room.czar_player_id === departed.player_id
-        ? this.nextCzarAfter(departed.czar_order)
-        : room.czar_player_id === null
-          ? players[0]
-          : this.player(room.czar_player_id, false);
+    const czarChanged = room.czar_player_id === departed.player_id;
+    const currentCzar = czarChanged
+      ? this.nextCzarAfter(departed.czar_order)
+      : room.czar_player_id === null
+        ? players[0]
+        : this.player(room.czar_player_id, false);
     if (currentCzar === null || currentCzar === undefined) {
       throw new RoomError('PLAYER_COUNT', 'There are no active players.', 409);
     }
+    this.dealHandsForRound(
+      players,
+      this.shouldReplaceHands(room, czarChanged, departed.czar_order, currentCzar),
+    );
     const question = this.takeQuestion();
     const nextRoundNumber =
       room.turn_status === 'REVEAL' ? room.round_number + 1 : room.round_number;
