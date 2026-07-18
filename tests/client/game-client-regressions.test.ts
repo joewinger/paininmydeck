@@ -8,6 +8,64 @@ import { makeGameSnapshot } from '../support/gameSnapshot';
 
 const ROOM_ID = 'ABCDE';
 
+describe('server deadline adaptation', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(100_000);
+    vi.stubGlobal('window', globalThis);
+    setActivePinia(createPinia());
+  });
+
+  afterEach(() => {
+    useGameStore().dispose();
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it('uses server time for action and reveal wakeups while replacing the prior timer', () => {
+    const timeout = vi.spyOn(globalThis, 'setTimeout');
+    const game = useGameStore();
+    game.applySnapshot(
+      makeGameSnapshot({
+        revision: 1,
+        serverTime: 40_000,
+        room: {
+          roomId: ROOM_ID,
+          phase: 'COLLECTING',
+          gameState: 'PLAYING',
+          turn: { roundId: 'round-1', actionDeadline: 43_500 },
+        },
+      }),
+    );
+
+    expect(game.serverTimeOffsetMs).toBe(-60_000);
+    expect(timeout).toHaveBeenLastCalledWith(expect.any(Function), 3_500);
+    expect(vi.getTimerCount()).toBe(1);
+
+    game.applySnapshot(
+      makeGameSnapshot({
+        revision: 2,
+        serverTime: 41_000,
+        room: {
+          roomId: ROOM_ID,
+          phase: 'REVEAL',
+          gameState: 'PLAYING',
+          turn: {
+            roundId: 'round-1',
+            actionDeadline: null,
+            revealDeadline: 45_000,
+            status: 'REVEAL',
+          },
+        },
+      }),
+    );
+
+    expect(timeout).toHaveBeenLastCalledWith(expect.any(Function), 4_000);
+    expect(vi.getTimerCount()).toBe(1);
+  });
+});
+
 describe('provisional profile failures', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -157,7 +215,7 @@ describe('RoomSocket replacement races', () => {
     replacement.open();
 
     const frame = {
-      protocolVersion: 1,
+      protocolVersion: 2,
       type: 'snapshot',
       snapshot: makeGameSnapshot(),
     };

@@ -185,9 +185,13 @@ function playingFixture(
     cardActionPending?: boolean;
     connectionState?: 'open' | 'reconnecting';
     disconnectedPlayerId?: string;
+    actionSecondsRemaining?: number;
+    automaticSubmissionPlayerIds?: string[];
+    winnerSelectionSource?: 'CZAR' | 'TIMEOUT';
   } = {},
 ): GameStoryFixture {
   const phase = options.phase ?? 'COLLECTING';
+  const serverTime = 1_700_000_010_000;
   const submittedPlayerIds =
     phase === 'COLLECTING' && !options.playedThisTurn
       ? ['jules', 'sam']
@@ -198,7 +202,7 @@ function playingFixture(
   return {
     snapshot: makeGameSnapshot({
       revision: 12,
-      serverTime: 1_700_000_010_000,
+      serverTime,
       room: {
         roomId: ROOM_ID,
         phase,
@@ -209,6 +213,10 @@ function playingFixture(
         })),
         turn: {
           roundId: 'round-3',
+          actionDeadline:
+            phase !== 'REVEAL' && options.actionSecondsRemaining !== undefined
+              ? serverTime + options.actionSecondsRemaining * 1_000
+              : null,
           round: 3,
           status:
             phase === 'COLLECTING'
@@ -220,7 +228,10 @@ function playingFixture(
           czarPlayerId: 'alex',
           playedCards: submittedCards,
           submittedPlayerIds,
+          automaticSubmissionPlayerIds: options.automaticSubmissionPlayerIds ?? [],
           winningCard: phase === 'REVEAL' ? winningCard : null,
+          winnerSelectionSource:
+            phase === 'REVEAL' ? (options.winnerSelectionSource ?? 'CZAR') : null,
         },
         chatMessages,
         roundHistory,
@@ -247,6 +258,21 @@ export const gameScenarios = {
   czarCollecting: playingFixture('alex'),
   czarJudging: playingFixture('alex', { phase: 'JUDGING' }),
   winnerReveal: playingFixture('alex', { phase: 'REVEAL' }),
+  playerCountdown: playingFixture('rowan', { actionSecondsRemaining: 18 }),
+  czarCountdownUrgent: playingFixture('alex', {
+    phase: 'JUDGING',
+    actionSecondsRemaining: 5,
+  }),
+  automaticPlayerSubmitted: playingFixture('rowan', {
+    phase: 'JUDGING',
+    playedThisTurn: true,
+    actionSecondsRemaining: 12,
+    automaticSubmissionPlayerIds: ['rowan'],
+  }),
+  randomWinnerReveal: playingFixture('alex', {
+    phase: 'REVEAL',
+    winnerSelectionSource: 'TIMEOUT',
+  }),
   gameWon: {
     snapshot: makeGameSnapshot({
       revision: 20,

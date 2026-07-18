@@ -212,6 +212,36 @@ export const CzarJudging: Story = {
   },
 };
 
+export const PlayerCountdown: Story = {
+  name: 'Game / player action countdown',
+  parameters: { route: gameRoute, game: gameScenarios.playerCountdown },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('timer', { name: /Play timer:/ })).toBeVisible();
+    await expect(canvas.getByText('Play', { selector: '.action-timer span' })).toBeVisible();
+  },
+};
+
+export const CzarCountdownUrgent: Story = {
+  name: 'Game / Czar countdown urgent',
+  parameters: { route: gameRoute, game: gameScenarios.czarCountdownUrgent },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('timer', { name: /Judge timer:/ })).toBeVisible();
+  },
+};
+
+export const AutomaticPlayerSubmission: Story = {
+  name: 'Game / timer submitted for player',
+  parameters: { route: gameRoute, game: gameScenarios.automaticPlayerSubmitted },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByText('Time ran out, so the timer played a random card for you.'),
+    ).toBeVisible();
+  },
+};
+
 export const WinnerReveal: Story = {
   name: 'Game / winner reveal',
   parameters: { route: gameRoute, game: gameScenarios.winnerReveal },
@@ -219,6 +249,15 @@ export const WinnerReveal: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByText('Sam wins the round!')).toBeVisible();
     await expect(canvas.queryByText('Select the winning card!')).not.toBeInTheDocument();
+  },
+};
+
+export const RandomWinnerReveal: Story = {
+  name: 'Game / timer picked random winner',
+  parameters: { route: gameRoute, game: gameScenarios.randomWinnerReveal },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Time! The timer picked Sam's card at random.")).toBeVisible();
   },
 };
 

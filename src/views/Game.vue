@@ -88,6 +88,14 @@ const infoStatus = computed<{ text: string; kind: InfoStatusKind } | null>(() =>
     return { text: `Waiting for ${disconnected.join(', ')} to reconnect...`, kind: 'waiting' };
   if (game.phase === 'REVEAL') {
     const winner = game.turn.winningCard?.playedByDisplayName;
+    if (game.turn.winnerSelectionSource === 'TIMEOUT') {
+      return {
+        text: winner
+          ? `Time! The timer picked ${winner}'s card at random.`
+          : 'Time! The timer picked a winner at random.',
+        kind: 'success',
+      };
+    }
     return {
       text: winner ? `${winner} wins the round!` : 'The winner is in!',
       kind: 'success',
@@ -97,6 +105,15 @@ const infoStatus = computed<{ text: string; kind: InfoStatusKind } | null>(() =>
     return game.phase === 'JUDGING'
       ? { text: 'Select the winning card!', kind: 'action' }
       : { text: 'You are the Card Czar!', kind: 'role' };
+  if (
+    game.self &&
+    game.turn.automaticSubmissionPlayerIds.includes(game.self.playerId)
+  ) {
+    return {
+      text: 'Time ran out, so the timer played a random card for you.',
+      kind: 'waiting',
+    };
+  }
   if (game.playedThisTurn) {
     if (game.phase === 'COLLECTING')
       return { text: 'Waiting for everyone to play a card!', kind: 'waiting' };

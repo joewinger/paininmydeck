@@ -87,7 +87,7 @@ sequenceDiagram
 | `GET /api/rooms/:roomId/socket`       | Upgrade an authenticated room session to WebSocket.                                                                                                      |
 | `POST /api/rooms/:roomId/watch`       | Apply the join limit and accept `{ turnstileToken }` when no valid display cookie exists; issue the cookie and return a public snapshot with `me: null`. |
 | `GET /api/rooms/:roomId/watch-socket` | Upgrade an authenticated display session to a read-only WebSocket.                                                                                       |
-| `GET /api/healthz`                    | Return `{ buildVersion, protocolVersion: 1 }` without touching a room.                                                                                   |
+| `GET /api/healthz`                    | Return `{ buildVersion, protocolVersion: 2 }` without touching a room.                                                                                   |
 
 No endpoint lists rooms or exposes a hand or deck. `POST /watch` exchanges a live room ID for a room-scoped display credential and the public projection; the watch WebSocket requires that signed credential.
 
@@ -129,7 +129,7 @@ The browser sends a flat, versioned command envelope:
 
 ```ts
 type ClientCommand = {
-  protocolVersion: 1;
+  protocolVersion: 2;
   commandId: string;
   type: string;
   roundId?: string;
@@ -151,7 +151,7 @@ Authenticated player sockets support these command types:
 - `request_snapshot`
 - `process_due`
 
-The room returns acknowledgement, typed error, and snapshot frames. Every snapshot envelope includes `protocolVersion: 1`, a monotonically increasing `revision`, and `serverTime`, followed by the shared room projection and connection-specific `me` projection. An incompatible client is rejected and must reload. A reconnect receives a complete snapshot rather than replaying an event stream.
+The room returns acknowledgement, typed error, and snapshot frames. Every snapshot envelope includes `protocolVersion: 2`, a monotonically increasing `revision`, and `serverTime`, followed by the shared room projection and connection-specific `me` projection. An incompatible client is rejected and must reload. A reconnect receives a complete snapshot rather than replaying an event stream.
 
 Commands are idempotent. The room records the command identifier, request digest, and prior result; repeating the same command can return the prior result, while reusing an identifier with different input is rejected. Mutations, revision increments, and idempotency records commit together before any broadcast.
 

@@ -1,15 +1,19 @@
 export const ROOM_ID_PATTERN = /^[A-HJ-NP-Z]{5}$/;
+export const PROTOCOL_VERSION = 2 as const;
 
 export type RoomId = string;
 export type GameState = 'LOBBY' | 'PLAYING' | 'FINISHED';
 export type GamePhase = 'LOBBY' | 'COLLECTING' | 'JUDGING' | 'REVEAL' | 'FINISHED' | 'CANCELLED';
 export type RoomPhase = GamePhase;
 export type TurnStatus = 'WAITING_FOR_CARDS' | 'WAITING_FOR_CZAR' | 'REVEAL';
+export type WinnerSelectionSource = 'CZAR' | 'TIMEOUT';
 export type ConnectionState = 'idle' | 'connecting' | 'open' | 'reconnecting' | 'closed';
 export type SessionStatus = 'ACTIVE' | 'KICKED' | 'LOST';
 export type ColorSet = readonly [string, string];
 
 export interface GameSettings {
+  /** Zero disables action deadlines; otherwise this is 5–120 seconds. */
+  actionTimerSeconds: number;
   cardsPerHand: number;
   pointsToWin: number;
   numBlankCards: number;
@@ -53,6 +57,7 @@ export interface PrivatePlayerState {
 
 export interface TurnState {
   roundId: string;
+  actionDeadline: number | null;
   revealDeadline: number | null;
   round: number;
   status: TurnStatus;
@@ -60,7 +65,9 @@ export interface TurnState {
   czarPlayerId: string;
   playedCards: PlayedCard[];
   submittedPlayerIds: string[];
+  automaticSubmissionPlayerIds: string[];
   winningCard: RevealedCard | null;
+  winnerSelectionSource: WinnerSelectionSource | null;
 }
 
 export interface ChatMessage {
@@ -112,7 +119,7 @@ export interface RoomState {
  * different player's hand.
  */
 export interface GameSnapshot {
-  protocolVersion: 1;
+  protocolVersion: typeof PROTOCOL_VERSION;
   revision: number;
   serverTime: number;
   room: RoomState;
@@ -172,7 +179,7 @@ export type ClientCommandType = keyof CommandPayloads;
 
 export type ClientCommand = {
   [K in ClientCommandType]: {
-    protocolVersion: 1;
+    protocolVersion: typeof PROTOCOL_VERSION;
     commandId: string;
     type: K;
     roundId?: string;
@@ -189,20 +196,20 @@ export type ClientCommandDraft = {
 }[ClientCommandType];
 
 export interface AckMessage {
-  protocolVersion: 1;
+  protocolVersion: typeof PROTOCOL_VERSION;
   type: 'ack';
   commandId: string;
 }
 
 export interface ErrorMessage {
-  protocolVersion: 1;
+  protocolVersion: typeof PROTOCOL_VERSION;
   type: 'error';
   commandId?: string;
   error: ApiErrorBody['error'];
 }
 
 export interface SnapshotMessage {
-  protocolVersion: 1;
+  protocolVersion: typeof PROTOCOL_VERSION;
   type: 'snapshot';
   snapshot: GameSnapshot;
 }

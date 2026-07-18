@@ -12,7 +12,7 @@ import type {
   SetProfileResponse,
   WatchRoomResponse,
 } from '@/shared/protocol';
-import { isRoomId, normalizeRoomId } from '@/shared/protocol';
+import { isRoomId, normalizeRoomId, PROTOCOL_VERSION } from '@/shared/protocol';
 import { getTurnstileToken } from '@/api/turnstile';
 import { commitHash } from '@/config';
 
@@ -207,7 +207,7 @@ export class RoomSocket {
     const commandId = createCommandId();
     const message = {
       ...command,
-      protocolVersion: 1 as const,
+      protocolVersion: PROTOCOL_VERSION,
       commandId,
     } as ClientCommand;
 
@@ -303,13 +303,13 @@ export class RoomSocket {
       return;
     }
 
-    if (message.protocolVersion !== 1) {
+    if (message.protocolVersion !== PROTOCOL_VERSION) {
       this.handleProtocolMismatch((message as { protocolVersion?: unknown }).protocolVersion);
       return;
     }
 
     if (message.type === 'snapshot') {
-      if (message.snapshot.protocolVersion !== 1) {
+      if (message.snapshot.protocolVersion !== PROTOCOL_VERSION) {
         this.handleProtocolMismatch(message.snapshot.protocolVersion);
         return;
       }

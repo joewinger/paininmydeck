@@ -1,5 +1,5 @@
 import type { CreateRoomResponse } from '../src/shared/protocol';
-import { isRoomId, normalizeRoomId } from '../src/shared/protocol';
+import { isRoomId, normalizeRoomId, PROTOCOL_VERSION } from '../src/shared/protocol';
 import packageMetadata from '../package.json';
 import { apiErrorBody, asRoomError, RoomError, type RpcResult } from './errors';
 import { GameRoom } from './game-room';
@@ -117,7 +117,7 @@ function socketErrorResponse(error: RoomError, closeCode: number): Response {
   server.accept();
   server.send(
     JSON.stringify({
-      protocolVersion: 1,
+      protocolVersion: PROTOCOL_VERSION,
       type: 'error',
       error: {
         code: error.code,
@@ -524,7 +524,7 @@ async function route(request: Request, env: WorkerEnv): Promise<Response> {
         { Allow: 'GET' },
       );
     }
-    return jsonResponse({ buildVersion: BUILD_VERSION, protocolVersion: 1 });
+    return jsonResponse({ buildVersion: BUILD_VERSION, protocolVersion: PROTOCOL_VERSION });
   }
   if (url.pathname === '/api/rooms') {
     if (request.method !== 'POST') {

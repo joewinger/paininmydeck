@@ -59,7 +59,7 @@ describe('GameRoom integration', () => {
   it('serves the versioned health contract with API security headers', async () => {
     const response = await SELF.fetch('https://game.test/api/healthz');
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ buildVersion: '1.0.0', protocolVersion: 1 });
+    expect(await response.json()).toEqual({ buildVersion: '1.0.0', protocolVersion: 2 });
     expect(response.headers.get('cache-control')).toBe('no-store');
     expect(response.headers.get('x-content-type-options')).toBe('nosniff');
     expect(response.headers.get('x-frame-options')).toBe('DENY');
@@ -86,7 +86,7 @@ describe('GameRoom integration', () => {
       socket.accept();
     });
     expect(result).toMatchObject({
-      frame: { protocolVersion: 1, type: 'error', error: { code: 'INVALID_SESSION' } },
+      frame: { protocolVersion: 2, type: 'error', error: { code: 'INVALID_SESSION' } },
       closeCode: 4001,
     });
   });
@@ -142,7 +142,7 @@ describe('GameRoom integration', () => {
         generation,
         needsProfile: true,
         snapshot: {
-          protocolVersion: 1,
+          protocolVersion: 2,
           room: { roomId: 'ABCDE', phase: 'LOBBY', players: [] },
           me: null,
         },
@@ -276,7 +276,7 @@ describe('GameRoom integration', () => {
           commandSent = true;
           socket.send(
             JSON.stringify({
-              protocolVersion: 1,
+              protocolVersion: 2,
               commandId: 'display-command',
               type: 'request_snapshot',
               payload: {},
@@ -443,7 +443,7 @@ describe('GameRoom integration', () => {
     );
     playerSocket.send(
       JSON.stringify({
-        protocolVersion: 1,
+        protocolVersion: 2,
         commandId: 'chat-after-hibernation',
         type: 'send_chat',
         payload: { text: 'Still on the big screen' },
@@ -488,7 +488,7 @@ describe('GameRoom integration', () => {
             last_refill_at INTEGER NOT NULL
           )
         `);
-        state.storage.sql.exec('DELETE FROM _sql_schema_migrations WHERE version = 2');
+        state.storage.sql.exec('DELETE FROM _sql_schema_migrations WHERE version >= 2');
       });
     });
     await evictDurableObject(stub);
@@ -514,7 +514,7 @@ describe('GameRoom integration', () => {
         .exec<{ value: number }>('SELECT MAX(version) AS value FROM _sql_schema_migrations')
         .one().value,
     }));
-    expect(schema).toEqual({ inboundTable: 1, legacyTable: 0, version: 2 });
+    expect(schema).toEqual({ inboundTable: 1, legacyTable: 0, version: 3 });
   });
 
   it('debits the authenticated inbound limit before parsing and receipt replay', async () => {
@@ -616,7 +616,7 @@ describe('GameRoom integration', () => {
       );
     });
     const exactCommand = JSON.stringify({
-      protocolVersion: 1,
+      protocolVersion: 2,
       commandId: 'same-receipt',
       type: 'request_snapshot',
       payload: {},

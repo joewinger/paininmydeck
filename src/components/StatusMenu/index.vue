@@ -29,8 +29,10 @@
           <ion-icon name="information-circle-outline"></ion-icon>
         </status-bar-button>
 
+        <action-timer v-if="showActionTimer" />
+
         <status-bar-button
-          v-if="route.name === 'game' || route.name === 'gameover'"
+          v-if="(route.name === 'game' || route.name === 'gameover') && !showActionTimer"
           label="History"
           :active="currentMenu === 'HISTORY'"
           @click="toggleMenu('HISTORY')"
@@ -83,6 +85,7 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import StatusBarButton from './StatusBarButton.vue';
+import ActionTimer from '@/components/ActionTimer.vue';
 import StatusMenuContentInfo from './content/Info.vue';
 import StatusMenuContentHistory from './content/History.vue';
 import StatusMenuContentChat from './content/Chat/index.vue';
@@ -96,6 +99,12 @@ const game = useGameStore();
 const currentMenu = ref<MenuName | null>(null);
 const hasUnreadMessages = ref(false);
 const open = computed(() => currentMenu.value !== null);
+const showActionTimer = computed(
+  () =>
+    route.name === 'game' &&
+    (game.phase === 'COLLECTING' || game.phase === 'JUDGING') &&
+    game.turn.actionDeadline !== null,
+);
 const menuComponents = {
   INFO: StatusMenuContentInfo,
   HISTORY: StatusMenuContentHistory,
@@ -120,6 +129,10 @@ watch(
     }
   },
 );
+
+watch(showActionTimer, (active) => {
+  if (active && currentMenu.value === 'HISTORY') currentMenu.value = null;
+});
 
 watch(
   () => route.name,

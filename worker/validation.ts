@@ -4,6 +4,7 @@ import type {
   GameSettings,
   SetProfileRequest,
 } from '../src/shared/protocol';
+import { PROTOCOL_VERSION } from '../src/shared/protocol';
 import { RoomError } from './errors';
 
 const COMMAND_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/u;
@@ -37,6 +38,8 @@ export function parseSettings(value: unknown): GameSettings {
   }
 
   if (
+    !integerInRange(value.actionTimerSeconds, 0, 120) ||
+    (Number(value.actionTimerSeconds) > 0 && Number(value.actionTimerSeconds) < 5) ||
     !integerInRange(value.cardsPerHand, 3, 30) ||
     !integerInRange(value.pointsToWin, 1, 100) ||
     !integerInRange(value.numBlankCards, 0, 2_000) ||
@@ -52,6 +55,7 @@ export function parseSettings(value: unknown): GameSettings {
   }
 
   return {
+    actionTimerSeconds: value.actionTimerSeconds,
     cardsPerHand: value.cardsPerHand,
     pointsToWin: value.pointsToWin,
     numBlankCards: value.numBlankCards,
@@ -97,7 +101,7 @@ function commandBase(value: Record<string, unknown>): {
   commandId: string;
   roundId: string | undefined;
 } {
-  if (value.protocolVersion !== 1) {
+  if (value.protocolVersion !== PROTOCOL_VERSION) {
     throw new RoomError('OUTDATED_CLIENT', 'Refresh this page to use the current game protocol.');
   }
   if (typeof value.commandId !== 'string' || !COMMAND_ID_PATTERN.test(value.commandId)) {
@@ -129,7 +133,7 @@ export function parseClientCommand(value: unknown): ClientCommand {
         throw new RoomError('INVALID_COMMAND', 'Settings payload is invalid.');
       }
       return {
-        protocolVersion: 1,
+        protocolVersion: PROTOCOL_VERSION,
         commandId,
         type: 'update_settings',
         payload: { settings: parseSettings(payload.settings) },
@@ -142,7 +146,7 @@ export function parseClientCommand(value: unknown): ClientCommand {
         throw new RoomError('INVALID_COMMAND', 'This command does not accept a payload.');
       }
       return {
-        protocolVersion: 1,
+        protocolVersion: PROTOCOL_VERSION,
         commandId,
         type: value.type,
         payload: {},
@@ -157,7 +161,7 @@ export function parseClientCommand(value: unknown): ClientCommand {
         throw new RoomError('INVALID_COMMAND', 'Card id is invalid.');
       }
       return {
-        protocolVersion: 1,
+        protocolVersion: PROTOCOL_VERSION,
         commandId,
         type: value.type,
         roundId: gameplayRoundId(roundId),
@@ -183,7 +187,7 @@ export function parseClientCommand(value: unknown): ClientCommand {
         throw new RoomError('INVALID_BLANK', 'Blank-card answers must be 1–60 visible characters.');
       }
       return {
-        protocolVersion: 1,
+        protocolVersion: PROTOCOL_VERSION,
         commandId,
         type: 'submit_blank',
         roundId: gameplayRoundId(roundId),
@@ -199,7 +203,7 @@ export function parseClientCommand(value: unknown): ClientCommand {
         throw new RoomError('INVALID_CHAT', 'Chat messages must be 1–280 visible characters.');
       }
       return {
-        protocolVersion: 1,
+        protocolVersion: PROTOCOL_VERSION,
         commandId,
         type: 'send_chat',
         payload: { text },
@@ -215,7 +219,7 @@ export function parseClientCommand(value: unknown): ClientCommand {
         throw new RoomError('INVALID_COMMAND', 'Player payload is invalid.');
       }
       return {
-        protocolVersion: 1,
+        protocolVersion: PROTOCOL_VERSION,
         commandId,
         type: 'kick_player',
         payload: { playerId: payload.playerId },
