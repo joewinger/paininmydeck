@@ -558,7 +558,7 @@ function getOrdinalSuffix(number: number): string {
   right: 15%;
 }
 
-@media (min-width: 900px) {
+@container player-content (min-width: 1200px) {
   #gameover {
     grid-template-columns: minmax(330px, 0.9fr) minmax(410px, 1.1fr);
     align-items: center;

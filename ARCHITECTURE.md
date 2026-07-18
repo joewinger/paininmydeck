@@ -115,6 +115,12 @@ Codes are normalized with trim plus uppercase at every boundary. The short code 
 
 Five-letter IDs are intentionally easy to share and brute-forceable at sufficient scale. Rate limits and Turnstile reduce casual probing; they do not turn room chat into a secure messaging system.
 
+## Player chat layout
+
+Player routes use a persistent chat column when the viewport is at least 1380px wide. That threshold is content-driven: it reserves about 1040px for the room surface alongside a 320px chat column and a 24px gap. The room views use container queries for their own column changes, so they respond to the space left after chat is allocated rather than the device or full viewport width.
+
+The status menu owns one mounted chat subtree across the lobby, game, and results routes. Narrow layouts visually hide that subtree behind the Chat button; wide layouts place the same subtree in the sidebar. Keeping one message log and input mounted preserves the draft and browser scroll anchor when the breakpoint changes. New-message state is marked unread only while that subtree is hidden, and opening chat or entering the persistent layout clears it. TV mode keeps its separate read-only chat projection.
+
 ## Read-only TV display
 
 `/tv/:roomId` is the universal big-screen route. It obtains a signed display credential through `POST /api/rooms/:roomId/watch`, then receives live public snapshots from `GET /api/rooms/:roomId/watch-socket`. The display renders the room's join QR code, chat, leaderboard, and latest completed-round receipt without creating a player profile or occupying a seat.

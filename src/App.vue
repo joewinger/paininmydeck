@@ -1,5 +1,11 @@
 <template>
-	<div class="app-shell" :class="{ 'app-shell--tv': isTvRoute }">
+	<div
+		class="app-shell"
+		:class="{
+			'app-shell--tv': isTvRoute,
+			'app-shell--persistent-chat': showPersistentChat,
+		}"
+	>
 		<nav-bar v-if="!isTvRoute" />
 		<main class="app-content" :class="{ 'app-content--tv': isTvRoute }">
 			<router-view v-slot="{ Component }">
@@ -8,7 +14,10 @@
 				</transition>
 			</router-view>
 		</main>
-		<status-menu v-if="game.roomId !== null && !isTvRoute" />
+		<status-menu
+			v-if="game.roomId !== null && !isTvRoute"
+			:persistent-chat="showPersistentChat"
+		/>
 		<error-toast />
 		<interstitial v-if="!isTvRoute" />
 	</div>
@@ -21,13 +30,24 @@ import NavBar from '@/components/NavBar.vue';
 import StatusMenu from '@/components/StatusMenu/index.vue';
 import ErrorToast from '@/components/ErrorToast.vue';
 import Interstitial from '@/components/Interstitial.vue';
+import { usePersistentChatLayout } from '@/composables/usePersistentChatLayout';
 import { useGameStore } from '@/stores/game';
 
 const route = useRoute();
 const router = useRouter();
 const game = useGameStore();
 const isTvRoute = computed(() => route.meta.layout === 'tv');
+const isPlayerRoute = computed(() => ['lobby', 'game', 'gameover'].includes(String(route.name)));
 const transitionName = ref('default');
+const persistentChat = usePersistentChatLayout();
+const showPersistentChat = computed(
+	() =>
+		persistentChat.value &&
+		isPlayerRoute.value &&
+		game.roomId !== null &&
+		game.username !== '' &&
+		!isTvRoute.value,
+);
 const routeOrder = ['home', 'lobby', 'game', 'gameover'];
 
 watch(
@@ -76,10 +96,32 @@ onBeforeUnmount(() => game.dispose());
 	grid-row: 2;
 	min-width: 0;
 	min-height: calc(100svh - var(--navbar-height));
+	container-name: player-content;
+	container-type: inline-size;
 }
 
 .app-content > * {
 	grid-area: 1 / 1;
+	min-width: 0;
+}
+
+.app-shell--persistent-chat {
+	grid-template-columns: minmax(0, 1fr) minmax(300px, 320px);
+	column-gap: 24px;
+}
+
+.app-shell--persistent-chat > #navbar {
+	grid-row: 1;
+	grid-column: 1 / -1;
+}
+
+.app-shell--persistent-chat > .app-content {
+	grid-column: 1;
+}
+
+.app-shell--persistent-chat > #statusMenuWrapper {
+	grid-row: 2;
+	grid-column: 2;
 	min-width: 0;
 }
 
@@ -90,6 +132,7 @@ onBeforeUnmount(() => game.dispose());
 .app-content--tv {
 	grid-row: auto;
 	min-height: 100svh;
+	container-type: normal;
 }
 
 .slide-left-enter-active,

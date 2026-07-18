@@ -77,6 +77,11 @@ const preview = {
           styles: { width: '1440px', height: '900px' },
           type: 'desktop',
         },
+        narrowDesktop: {
+          name: 'Narrow desktop (1024 × 800)',
+          styles: { width: '1024px', height: '800px' },
+          type: 'desktop',
+        },
       },
     },
     options: {

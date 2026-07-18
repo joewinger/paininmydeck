@@ -257,7 +257,7 @@ async function startGame(done: () => void) {
   clip-path: polygon(1% 2%, 99% 0, 100% 96%, 2% 100%);
 }
 
-@media (min-width: 780px) {
+@container player-content (min-width: 780px) {
   .lobby-screen {
     padding-inline: clamp(26px, 5vw, 70px);
   }
@@ -288,7 +288,7 @@ async function startGame(done: () => void) {
   }
 }
 
-@media (min-width: 1120px) {
+@container player-content (min-width: 1120px) {
   .lobby-layout {
     grid-template-columns: minmax(280px, 0.76fr) minmax(350px, 1fr) minmax(280px, 0.72fr);
     align-items: center;
