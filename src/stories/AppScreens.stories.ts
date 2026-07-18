@@ -75,6 +75,29 @@ export const ProfileRequired: Story = {
   },
 };
 
+export const ProfileRandomName: Story = {
+  name: 'Lobby / random profile name',
+  parameters: {
+    route: lobbyRoute,
+    game: gameScenarios.profileRequired,
+    a11y: { test: 'error' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole('textbox', { name: 'Call sign' }) as HTMLInputElement;
+    const random = canvas.getByRole('button', { name: 'Random' });
+
+    await expect(input).toHaveValue('');
+    await userEvent.click(random);
+    const firstName = input.value;
+    expect(firstName).toMatch(/^[A-Z][a-z]+ [A-Z][a-z]+$/);
+    expect(firstName.length).toBeLessThanOrEqual(12);
+
+    await userEvent.click(random);
+    expect(input.value).not.toBe(firstName);
+  },
+};
+
 export const LobbyHost: Story = {
   name: 'Lobby / host',
   parameters: { route: lobbyRoute, game: gameScenarios.lobbyHost, a11y: { test: 'error' } },
