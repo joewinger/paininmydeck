@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 import App from '@/App.vue';
+import { useGameStore } from '@/stores/game';
 import { storyActions } from '../../.storybook/gameStore';
 import { gameScenarios, ROOM_ID } from './fixtures/gameScenarios';
 
@@ -120,11 +121,26 @@ export const PlayerCollecting: Story = {
   parameters: { route: gameRoute, game: gameScenarios.playerCollecting },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByRole('button', {
-        name: 'Play answer: An aggressively enthusiastic thumbs-up.',
-      }),
-    );
+    const firstAnswer = canvas.getByRole('button', {
+      name: 'Select answer: An aggressively enthusiastic thumbs-up.',
+    });
+    const secondAnswer = canvas.getByRole('button', {
+      name: 'Select answer: Trying to look casual while everything is on fire.',
+    });
+
+    firstAnswer.focus();
+    await userEvent.keyboard('{Enter}');
+    await expect(firstAnswer).toHaveAttribute('aria-pressed', 'true');
+    await expect(storyActions.submitCard).not.toHaveBeenCalled();
+
+    await userEvent.click(secondAnswer);
+    await expect(firstAnswer).toHaveAttribute('aria-pressed', 'false');
+    await expect(secondAnswer).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.click(canvas.getByRole('button', { name: 'Cancel' }));
+    await expect(canvas.getByRole('button', { name: 'Play Card' })).toBeDisabled();
+
+    await userEvent.click(firstAnswer);
+    await userEvent.click(canvas.getByRole('button', { name: 'Play Card' }));
     await expect(storyActions.submitCard).toHaveBeenCalledWith('answer-1');
   },
 };
@@ -136,9 +152,28 @@ export const PlayerActionPending: Story = {
     const canvas = within(canvasElement);
     await expect(
       canvas.getByRole('button', {
-        name: 'Play answer: An aggressively enthusiastic thumbs-up.',
+        name: 'Select answer: An aggressively enthusiastic thumbs-up.',
       }),
     ).toBeDisabled();
+  },
+};
+
+export const PlayerSelectionClearsOnRoundChange: Story = {
+  name: 'Game / stale selection clears',
+  parameters: { route: gameRoute, game: gameScenarios.playerCollecting },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const answer = canvas.getByRole('button', {
+      name: 'Select answer: An aggressively enthusiastic thumbs-up.',
+    });
+
+    await userEvent.click(answer);
+    await expect(answer).toHaveAttribute('aria-pressed', 'true');
+
+    useGameStore().room.turn.roundId = 'round-4';
+
+    await waitFor(() => expect(answer).toHaveAttribute('aria-pressed', 'false'));
+    await expect(canvas.getByRole('button', { name: 'Play Card' })).toBeDisabled();
   },
 };
 
@@ -163,9 +198,12 @@ export const BlankCardEditing: Story = {
     const canvas = within(canvasElement);
     const blankCard = canvas.getByPlaceholderText('Blank Card');
     await userEvent.click(blankCard);
+    await expect(canvas.getByText('Write an answer on the selected blank card.')).toBeVisible();
+    await expect(canvas.getByRole('button', { name: 'Play Card' })).toBeDisabled();
     await userEvent.type(blankCard, 'A suspicious number of tiny cowboy hats');
     await expect(canvas.findByText('39/60')).resolves.toBeVisible();
-    await userEvent.click(canvas.getByRole('button', { name: 'Play blank answer' }));
+    await expect(storyActions.submitBlank).not.toHaveBeenCalled();
+    await userEvent.click(canvas.getByRole('button', { name: 'Play Card' }));
     await expect(storyActions.submitBlank).toHaveBeenCalledWith(
       'blank-1',
       'A suspicious number of tiny cowboy hats',
@@ -203,11 +241,13 @@ export const CzarJudging: Story = {
   parameters: { route: gameRoute, game: gameScenarios.czarJudging },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByRole('button', {
-        name: 'Choose winner: A group chat that should have stayed private.',
-      }),
-    );
+    const answer = canvas.getByRole('button', {
+      name: 'Select winner: A group chat that should have stayed private.',
+    });
+    await userEvent.click(answer);
+    await expect(answer).toHaveAttribute('aria-pressed', 'true');
+    await expect(storyActions.chooseWinner).not.toHaveBeenCalled();
+    await userEvent.click(canvas.getByRole('button', { name: 'Choose Winner' }));
     await expect(storyActions.chooseWinner).toHaveBeenCalledWith('played-rowan');
   },
 };
