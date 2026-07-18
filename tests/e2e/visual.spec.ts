@@ -219,12 +219,12 @@ test('approved refresh: mobile Settings', async ({ page }, testInfo) => {
 
   const settings = page.locator('#statusMenuContent-settings');
   await expect(settings).toBeVisible();
-  await expect(settings.locator('tr')).toHaveCount(7);
+  await expect(settings.getByRole('spinbutton', { name: 'Action Timer' })).toHaveValue('20');
   await expect(settings).not.toContainText('Public Game');
   await expect
     .poll(() =>
       settings
-        .locator('input[type="number"]')
+        .locator('input[type="number"]:not(#action-timer)')
         .evaluateAll((inputs) => inputs.map((input) => (input as HTMLInputElement).value)),
     )
     .toEqual(['7', '10', '0', '0', '4']);
