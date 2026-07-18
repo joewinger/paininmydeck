@@ -102,6 +102,8 @@ export const SettingsOpen: Story = {
     await waitFor(() => expect(canvas.getByRole('heading', { name: 'Settings' })).toBeVisible());
     await expect(canvas.getByRole('heading', { name: 'This device' })).toBeVisible();
     await expect(canvas.getByRole('checkbox', { name: 'Haptics' })).toBeChecked();
+    await expect(canvas.getByRole('checkbox', { name: 'Sound effects' })).toBeChecked();
+    await expect(canvas.getByRole('slider', { name: 'Sound volume' })).toHaveValue('40');
   },
 };
 
@@ -115,6 +117,26 @@ export const HapticsPreference: Story = {
     await waitFor(() => expect(haptics).toBeVisible());
     await expect(haptics).toBeChecked();
     await expect(canvas.getByText('Saved only in this browser.')).toBeInTheDocument();
+  },
+};
+
+export const SoundPreferences: Story = {
+  name: 'Lobby / local sound preferences',
+  parameters: { route: lobbyRoute, game: gameScenarios.lobbyHost },
+  play: async ({ canvasElement }) => {
+    const canvas = await openStatusPanel(canvasElement, 2);
+    const soundEnabled = canvas.getByRole('checkbox', { name: 'Sound effects' });
+    const volume = canvas.getByRole('slider', { name: 'Sound volume' });
+    volume.scrollIntoView({ block: 'center' });
+    await waitFor(() => expect(volume).toBeVisible());
+    await expect(soundEnabled).toBeChecked();
+    await expect(volume).toHaveValue('40');
+    await userEvent.click(soundEnabled);
+    await expect(soundEnabled).not.toBeChecked();
+    await expect(volume).toBeDisabled();
+    await userEvent.click(soundEnabled);
+    await expect(soundEnabled).toBeChecked();
+    await expect(volume).toBeEnabled();
   },
 };
 

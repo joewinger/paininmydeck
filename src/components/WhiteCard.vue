@@ -98,6 +98,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import interact from 'interactjs';
 import { hasScrollableCardText } from '@/components/cardTextOverflow';
+import { soundEffects } from '@/soundEffects';
 import type { Card, PlayedCard } from '@/shared/protocol';
 import { useGameStore } from '@/stores/game';
 import { useUiStore } from '@/stores/ui';
@@ -273,6 +274,7 @@ async function onClick(mouseEvent: MouseEvent) {
       }
     } else if (game.phase === 'COLLECTING' && !game.playedThisTurn) {
       await game.submitCard(props.card.id);
+      soundEffects.play('confirmation');
     }
   } catch {
     // The store reports command failures in the existing toast.
@@ -315,6 +317,7 @@ async function submitBlankCard() {
   game.cardActionPending = true;
   try {
     await game.submitBlank(props.card.id, blanktext.value);
+    soundEffects.play('confirmation');
   } catch {
     // The store reports command failures in the existing toast.
   } finally {

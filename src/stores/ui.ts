@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia';
 import { GameApiError } from '@/api/gameClient';
 import { readHapticsPreference, writeHapticsPreference } from '@/playerHaptics';
+import {
+  readSoundPreferences,
+  writeSoundMutedPreference,
+  writeSoundVolumePreference,
+} from '@/soundEffects';
 
 export interface NotificationOptions {
   title?: string;
@@ -13,15 +18,29 @@ let errorTimer: number | undefined;
 let interstitialTimer: number | undefined;
 
 export const useUiStore = defineStore('ui', {
-  state: () => ({
-    error: {} as { title?: string; message?: string; type?: 'ERROR' | 'INFO' },
-    interstitial: {} as { title?: string; subtitle?: string },
-    hapticsEnabled: readHapticsPreference(),
-  }),
+  state: () => {
+    const soundPreferences = readSoundPreferences();
+    return {
+      error: {} as { title?: string; message?: string; type?: 'ERROR' | 'INFO' },
+      interstitial: {} as { title?: string; subtitle?: string },
+      hapticsEnabled: readHapticsPreference(),
+      soundMuted: soundPreferences.muted,
+      soundVolumePercent: soundPreferences.volumePercent,
+    };
+  },
   actions: {
     setHapticsEnabled(enabled: boolean) {
       this.hapticsEnabled = enabled;
       writeHapticsPreference(enabled);
+    },
+
+    setSoundMuted(muted: boolean) {
+      this.soundMuted = muted;
+      writeSoundMutedPreference(muted);
+    },
+
+    setSoundVolumePercent(volumePercent: number) {
+      this.soundVolumePercent = writeSoundVolumePreference(volumePercent);
     },
 
     notify(options: NotificationOptions = {}) {
