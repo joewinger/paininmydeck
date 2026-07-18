@@ -8,6 +8,7 @@ import { gameScenarios, ROOM_ID } from './fixtures/gameScenarios';
 const lobbyRoute = `/join/${ROOM_ID}`;
 const gameRoute = `${lobbyRoute}/game`;
 const resultsRoute = `${lobbyRoute}/results`;
+const tvRoute = `/tv/${ROOM_ID}`;
 
 const meta = {
   title: 'Screens/Game states',
@@ -186,6 +187,11 @@ export const PlayerSubmitted: Story = {
 export const PlayerReconnecting: Story = {
   name: 'Game / reconnecting',
   parameters: { route: gameRoute, game: gameScenarios.playerReconnecting },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Reader / Czar: Alex')).toBeVisible();
+    await expect(canvas.getByText('Reconnecting to the room...')).toBeVisible();
+  },
 };
 
 export const WaitingForPlayer: Story = {
@@ -196,6 +202,11 @@ export const WaitingForPlayer: Story = {
 export const CzarCollecting: Story = {
   name: 'Game / Czar collecting',
   parameters: { route: gameRoute, game: gameScenarios.czarCollecting },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Reader / Czar: Alex')).toBeVisible();
+    await expect(canvas.getByText('You’re the Czar — read this prompt aloud')).toBeVisible();
+  },
 };
 
 export const CzarJudging: Story = {
@@ -218,6 +229,7 @@ export const WinnerReveal: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText('Sam wins the round!')).toBeVisible();
+    await expect(canvas.getByText('Reader / Czar: Alex')).toBeVisible();
     await expect(canvas.queryByText('Select the winning card!')).not.toBeInTheDocument();
   },
 };
@@ -227,14 +239,23 @@ export const RoundInterstitial: Story = {
   parameters: {
     route: gameRoute,
     game: gameScenarios.playerCollecting,
-    ui: { interstitial: { title: 'Round 3', subtitle: 'Alex is the Card Czar' } },
+    ui: { interstitial: { title: 'Round 3', subtitle: 'Reader / Czar: Alex.' } },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const status = await canvas.findByRole('status');
     await expect(status).toBeVisible();
     await expect(within(status).getByRole('heading', { name: 'Round 3' })).toBeVisible();
-    await expect(within(status).getByText('Alex is the Card Czar')).toBeVisible();
+    await expect(within(status).getByText('Reader / Czar: Alex.')).toBeVisible();
+  },
+};
+
+export const TvCollecting: Story = {
+  name: 'TV / collecting',
+  parameters: { route: tvRoute, game: gameScenarios.tvCollecting },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('Reader / Czar: Alex')).toBeVisible();
   },
 };
 

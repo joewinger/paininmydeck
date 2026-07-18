@@ -46,6 +46,10 @@ function emptyRoom(): RoomState {
   };
 }
 
+export function czarAnnouncement(displayName: string, isCzar: boolean): string {
+  return isCzar ? 'You’re the Czar — read this prompt aloud.' : `Reader / Czar: ${displayName}.`;
+}
+
 let roomSocket: RoomSocket | null = null;
 let revealTimer: number | null = null;
 
@@ -363,7 +367,7 @@ export const useGameStore = defineStore('game', {
       if (previous.selfId && snapshot.room.phase === 'COLLECTING' && previous.phase === 'LOBBY') {
         useUiStore().showInterstitial(
           `Round ${snapshot.room.turn.round || 1}`,
-          `${this.czar?.displayName ?? 'Someone'} is the Czar.`,
+          czarAnnouncement(this.czar?.displayName ?? 'Not assigned', this.isCzar),
         );
       } else if (
         previous.selfId &&
@@ -371,11 +375,18 @@ export const useGameStore = defineStore('game', {
         snapshot.room.turn.round > previous.round
       ) {
         const sorted = this.sortedUsers;
-        let subtitle = `${this.czar?.displayName ?? 'Someone'} is the Czar`;
+        const announcement = czarAnnouncement(
+          this.czar?.displayName ?? 'Not assigned',
+          this.isCzar,
+        );
+        let scoreUpdate = '';
         if (sorted.length > 1 && sorted[0].points === sorted[1].points && sorted[0].points > 0)
-          subtitle = 'First place is tied.';
-        else if (sorted[0]?.points > 0) subtitle = `${sorted[0].displayName} is in the lead.`;
-        useUiStore().showInterstitial(`Round ${snapshot.room.turn.round}`, subtitle);
+          scoreUpdate = 'First place is tied.';
+        else if (sorted[0]?.points > 0) scoreUpdate = `${sorted[0].displayName} is in the lead.`;
+        useUiStore().showInterstitial(
+          `Round ${snapshot.room.turn.round}`,
+          [announcement, scoreUpdate].filter(Boolean).join(' '),
+        );
       }
     },
 

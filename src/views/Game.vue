@@ -20,6 +20,15 @@
         <div class="game-prompt-stack" :class="{ 'game-prompt-stack--sticky': questionPinned }">
           <question-card :text="questionText" @sticky-change="questionPinned = $event" />
 
+          <div
+            class="game-czar-callout"
+            :class="{ 'game-czar-callout--self': game.isCzar }"
+            aria-live="polite"
+          >
+            <strong>Reader / Czar: {{ game.czar?.displayName ?? 'Not assigned' }}</strong>
+            <span v-if="game.isCzar">You’re the Czar — read this prompt aloud</span>
+          </div>
+
           <info-bar v-if="infoStatus" :text="infoStatus.text" :kind="infoStatus.kind" />
         </div>
       </aside>
@@ -223,6 +232,38 @@ onBeforeRouteLeave((to) => {
   box-shadow: 4px 5px 0 var(--pimd-meta);
 }
 
+.game-czar-callout {
+  display: grid;
+  gap: 5px;
+  padding: 12px 14px 11px;
+  transform: rotate(0.35deg);
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-primary-dark);
+  box-shadow: 4px 5px 0 var(--pimd-highlight);
+  color: var(--pimd-paper);
+}
+
+.game-czar-callout strong {
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(12px, 3.4vw, 16px);
+  font-weight: 400;
+  line-height: 1.08;
+  text-transform: uppercase;
+}
+
+.game-czar-callout span {
+  font-size: clamp(12px, 3vw, 14px);
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.game-czar-callout--self {
+  transform: rotate(-0.45deg);
+  background: var(--pimd-highlight);
+  box-shadow: 4px 5px 0 var(--pimd-primary-dark);
+  color: var(--pimd-ink);
+}
+
 .game-card-area {
   display: grid;
   align-content: start;
@@ -326,7 +367,8 @@ onBeforeRouteLeave((to) => {
 }
 
 @media (forced-colors: active) {
-  .game-round-meta {
+  .game-round-meta,
+  .game-czar-callout {
     border-color: CanvasText;
     background: Canvas;
     box-shadow: none;
