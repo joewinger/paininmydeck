@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Pain in my Deck! development card icon</title>
+  <defs>
+    <pattern id="grid" width="8" height="8" patternUnits="userSpaceOnUse">
+      <path d="M 8 0 L 0 0 0 8" fill="none" stroke="#2d2540" stroke-opacity=".18" stroke-width="1" />
+    </pattern>
+  </defs>
+  <rect width="64" height="64" fill="#b491ff" />
+  <rect width="64" height="64" fill="url(#grid)" />
+  <path d="M11 13 45 8 51 49 17 55Z" fill="#c83f31" stroke="#2d2540" stroke-width="4" stroke-linejoin="round" />
+  <path d="M21 7 54 13 47 57 14 51Z" fill="#fffaf0" stroke="#2d2540" stroke-width="4" stroke-linejoin="round" />
+  <path d="M22 10 52 15 51 22 21 17Z" fill="#57cdbd" />
+  <path d="m31 22 10 2-4 19-8-2Z" fill="#2d2540" />
+  <circle cx="31.5" cy="47.5" r="4.5" fill="#2d2540" />
+</svg>

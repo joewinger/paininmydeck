@@ -3,6 +3,7 @@ import { fileURLToPath, URL } from 'node:url';
 import { cloudflare } from '@cloudflare/vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
+import { faviconPathForMode } from './build/favicon';
 
 function buildVersion(): string {
   if (process.env.VITE_COMMIT_HASH) return process.env.VITE_COMMIT_HASH;
@@ -16,8 +17,17 @@ function buildVersion(): string {
 
 const currentBuildVersion = buildVersion();
 
-export default defineConfig({
-  plugins: [vue(), cloudflare()],
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    vue(),
+    cloudflare(),
+    {
+      name: 'environment-favicon',
+      transformIndexHtml(html) {
+        return html.replace('/favicon.svg', faviconPathForMode(mode));
+      },
+    },
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -43,4 +53,4 @@ export default defineConfig({
     sourcemap: false,
     target: 'es2022',
   },
-});
+}));
