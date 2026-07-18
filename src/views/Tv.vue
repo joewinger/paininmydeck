@@ -15,7 +15,7 @@
     </header>
 
     <div class="tv-dashboard">
-      <main class="tv-stage" aria-live="polite">
+      <section class="tv-stage" aria-label="TV game display" aria-live="polite">
         <section v-if="game.phase === 'LOBBY'" class="tv-lobby" aria-labelledby="tv-lobby-title">
           <room-qr-code :room-id="game.roomId ?? ''" :size="300" />
 
@@ -47,6 +47,12 @@
                 <dd>{{ submittedCount }} / {{ expectedAnswerCount }}</dd>
               </div>
             </dl>
+
+            <div class="tv-czar-callout" aria-live="polite">
+              <span>Current reader</span>
+              <strong>Reader / Czar: {{ game.czar?.displayName ?? 'Not assigned' }}</strong>
+              <em>Pass them the room.</em>
+            </div>
 
             <article class="tv-question">
               <span class="pimd-tape tv-question__tape" aria-hidden="true"></span>
@@ -129,7 +135,7 @@
           </p>
           <tv-latest-round-receipt v-if="latestRound" :round="latestRound" />
         </section>
-      </main>
+      </section>
 
       <aside class="tv-rail" aria-label="Room activity">
         <section class="tv-panel tv-leaderboard" aria-labelledby="tv-leaderboard-title">
@@ -469,6 +475,41 @@ function playerStatus(player: PlayerSummary): string {
   font-weight: 900;
   line-height: 1;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tv-czar-callout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(10px, 1.4vw, 22px);
+  padding: 10px clamp(12px, 1.5vw, 22px) 9px;
+  transform: rotate(-0.25deg);
+  border: 4px solid var(--pimd-ink);
+  background: var(--pimd-highlight);
+  box-shadow: 5px 6px 0 var(--pimd-primary-dark);
+  color: var(--pimd-ink);
+}
+
+.tv-czar-callout span,
+.tv-czar-callout em {
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(8px, 0.7vw, 11px);
+  font-style: normal;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.tv-czar-callout strong {
+  overflow: hidden;
+  color: var(--pimd-primary-dark);
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(17px, 2vw, 30px);
+  font-weight: 400;
+  line-height: 1;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -857,6 +898,11 @@ function playerStatus(player: PlayerSummary): string {
   -webkit-line-clamp: 3;
 }
 
+.tv-chat :deep(.chatMessage .sender) {
+  color: var(--pimd-ink) !important;
+  font-weight: 900;
+}
+
 @keyframes tv-connection-pulse {
   50% {
     opacity: 0.45;
@@ -930,6 +976,16 @@ function playerStatus(player: PlayerSummary): string {
     grid-template-columns: 0.65fr 1fr 0.85fr;
   }
 
+  .tv-czar-callout {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+  }
+
+  .tv-czar-callout strong {
+    white-space: normal;
+  }
+
   .tv-question__heading,
   .tv-winning-card {
     grid-template-columns: minmax(0, 1fr);
@@ -962,6 +1018,7 @@ function playerStatus(player: PlayerSummary): string {
   .tv-question,
   .tv-answer-card,
   .tv-winning-card,
+  .tv-czar-callout,
   .tv-leaderboard li {
     border-color: CanvasText;
     background: Canvas;

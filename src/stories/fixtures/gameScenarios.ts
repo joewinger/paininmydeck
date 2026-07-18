@@ -234,6 +234,14 @@ function playingFixture(
   };
 }
 
+function displayFixture(options: Parameters<typeof playingFixture>[1] = {}): GameStoryFixture {
+  const fixture = playingFixture('rowan', options);
+  return {
+    snapshot: { ...fixture.snapshot, me: null },
+    state: fixture.state,
+  };
+}
+
 export const gameScenarios = {
   profileRequired: lobbyFixture('rowan', { needsProfile: true }),
   lobbyHost: lobbyFixture('alex'),
@@ -247,6 +255,7 @@ export const gameScenarios = {
   czarCollecting: playingFixture('alex'),
   czarJudging: playingFixture('alex', { phase: 'JUDGING' }),
   winnerReveal: playingFixture('alex', { phase: 'REVEAL' }),
+  tvCollecting: displayFixture(),
   gameWon: {
     snapshot: makeGameSnapshot({
       revision: 20,
