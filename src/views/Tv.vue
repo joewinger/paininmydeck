@@ -91,14 +91,31 @@
             </div>
 
             <div v-else class="tv-reveal">
-              <p class="pimd-eyebrow">Round winner</p>
-              <article v-if="game.turn.winningCard" class="tv-winning-card">
-                <strong>{{ game.turn.winningCard.text }}</strong>
-                <span>
-                  Played by
-                  <b>{{ game.turn.winningCard.playedByDisplayName }}</b>
-                </span>
-              </article>
+              <p class="pimd-eyebrow">Round results</p>
+              <div
+                v-if="game.turn.winningCard"
+                class="tv-card-grid tv-card-grid--reveal"
+                aria-label="Revealed answers and applause totals"
+              >
+                <article
+                  v-for="(card, index) in game.turn.playedCards"
+                  :key="card.id"
+                  class="tv-answer-card tv-answer-card--revealed"
+                  :class="{ 'tv-answer-card--winner': card.id === game.turn.winningCard.id }"
+                >
+                  <span class="tv-answer-card__number">{{ formatCardNumber(index) }}</span>
+                  <strong>{{ card.text }}</strong>
+                  <span class="tv-answer-card__applause">
+                    {{ card.applauseCount ?? 0 }} applause
+                  </span>
+                  <span
+                    v-if="card.id === game.turn.winningCard.id"
+                    class="tv-answer-card__winner"
+                  >
+                    Winner · {{ game.turn.winningCard.playedByDisplayName }}
+                  </span>
+                </article>
+              </div>
               <p v-else>The winning card is coming into focus…</p>
             </div>
           </section>
@@ -618,43 +635,44 @@ function playerStatus(player: PlayerSummary): string {
   padding-top: 5px;
 }
 
-.tv-winning-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: clamp(20px, 4vw, 64px);
-  width: min(100%, 720px);
-  min-height: 180px;
-  padding: clamp(24px, 3vw, 42px);
-  transform: rotate(-0.6deg);
-  border: 4px solid var(--pimd-ink);
+.tv-card-grid--reveal {
+  width: 100%;
+}
+
+.tv-answer-card--revealed {
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-content: stretch;
+  gap: 10px;
+  padding-bottom: 12px;
+}
+
+.tv-answer-card--winner {
   background: var(--pimd-highlight);
-  box-shadow: 8px 9px 0 var(--pimd-primary-dark);
-  color: var(--pimd-ink);
+  box-shadow: 6px 7px 0 var(--pimd-primary-dark);
 }
 
-.tv-winning-card > strong {
-  font-size: clamp(27px, 3vw, 48px);
-  line-height: 1.02;
-  letter-spacing: -0.04em;
-  overflow-wrap: anywhere;
-}
-
-.tv-winning-card > span {
-  display: grid;
-  gap: 4px;
-  padding: 9px 11px 8px;
-  transform: rotate(2deg);
-  background: var(--pimd-meta);
+.tv-answer-card__applause,
+.tv-answer-card__winner {
+  width: fit-content;
+  padding: 5px 7px 4px;
+  border: 2px solid var(--pimd-ink);
   font-family: 'Bungee', sans-serif;
-  font-size: clamp(8px, 0.8vw, 11px);
+  font-size: clamp(7px, 0.65vw, 9px);
   line-height: 1;
   text-transform: uppercase;
 }
 
-.tv-winning-card b {
-  font-size: 1.35em;
-  font-weight: 400;
+.tv-answer-card__applause {
+  align-self: end;
+  background: var(--pimd-paper);
+}
+
+.tv-answer-card__winner {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  transform: rotate(1.5deg);
+  background: var(--pimd-meta);
 }
 
 .tv-finished {
@@ -930,8 +948,7 @@ function playerStatus(player: PlayerSummary): string {
     grid-template-columns: 0.65fr 1fr 0.85fr;
   }
 
-  .tv-question__heading,
-  .tv-winning-card {
+  .tv-question__heading {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -941,10 +958,6 @@ function playerStatus(player: PlayerSummary): string {
 
   .tv-question__heading strong {
     text-align: left;
-  }
-
-  .tv-winning-card > span {
-    justify-self: start;
   }
 
 }
@@ -961,7 +974,6 @@ function playerStatus(player: PlayerSummary): string {
   .tv-panel,
   .tv-question,
   .tv-answer-card,
-  .tv-winning-card,
   .tv-leaderboard li {
     border-color: CanvasText;
     background: Canvas;

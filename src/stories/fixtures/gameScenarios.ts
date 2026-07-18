@@ -64,6 +64,7 @@ const playedCards: Card[] = [
 
 const winningCard: RevealedCard = {
   ...playedCards[2],
+  applauseCount: 2,
   playedByPlayerId: 'sam',
   playedByDisplayName: 'Sam',
 };
@@ -101,16 +102,19 @@ const roundHistory: RoundHistoryEntry[] = [
     winningAnswer: 'One suspiciously damp sock.',
     winningPlayerId: 'alex',
     winningPlayerDisplayName: 'Alex',
+    winningAnswerApplause: 1,
     otherAnswers: [
       {
         text: 'An aggressively enthusiastic thumbs-up.',
         playedByPlayerId: 'rowan',
         playedByDisplayName: 'Rowan',
+        applauseCount: 3,
       },
       {
         text: 'A tiny horse with a huge mortgage.',
         playedByPlayerId: 'jules',
         playedByDisplayName: 'Jules',
+        applauseCount: 0,
       },
     ],
   },
@@ -120,16 +124,19 @@ const roundHistory: RoundHistoryEntry[] = [
     winningAnswer: 'The exact opposite of a soft launch.',
     winningPlayerId: 'rowan',
     winningPlayerDisplayName: 'Rowan',
+    winningAnswerApplause: 2,
     otherAnswers: [
       {
         text: 'Calling it networking so nobody asks questions.',
         playedByPlayerId: 'sam',
         playedByDisplayName: 'Sam',
+        applauseCount: 2,
       },
       {
         text: 'Putting the team on my back and immediately falling over.',
         playedByPlayerId: 'alex',
         playedByDisplayName: 'Alex',
+        applauseCount: 1,
       },
     ],
   },
@@ -150,6 +157,8 @@ function privatePlayer(
     isPrivileged: playerId === 'alex',
     playedThisTurn: false,
     redrawsUsed: 1,
+    ownSubmissionId: null,
+    applauseBySubmissionId: {},
     ...options,
   };
 }
@@ -185,6 +194,7 @@ function playingFixture(
     cardActionPending?: boolean;
     connectionState?: 'open' | 'reconnecting';
     disconnectedPlayerId?: string;
+    applauseBySubmissionId?: Record<string, number>;
   } = {},
 ): GameStoryFixture {
   const phase = options.phase ?? 'COLLECTING';
@@ -218,14 +228,22 @@ function playingFixture(
                 : 'REVEAL',
           questionCard: 'My five-year plan mostly involves _.',
           czarPlayerId: 'alex',
-          playedCards: submittedCards,
+          playedCards:
+            phase === 'REVEAL'
+              ? submittedCards.map((card, index) => ({ ...card, applauseCount: [3, 1, 2][index] }))
+              : submittedCards,
           submittedPlayerIds,
           winningCard: phase === 'REVEAL' ? winningCard : null,
         },
         chatMessages,
         roundHistory,
       },
-      me: privatePlayer(playerId, { playedThisTurn: options.playedThisTurn ?? false }),
+      me: privatePlayer(playerId, {
+        playedThisTurn: options.playedThisTurn ?? phase !== 'COLLECTING',
+        ownSubmissionId:
+          phase === 'COLLECTING' || playerId === 'alex' ? null : `played-${playerId}`,
+        applauseBySubmissionId: options.applauseBySubmissionId ?? {},
+      }),
     }),
     state: {
       connectionState: options.connectionState ?? 'open',
@@ -246,6 +264,10 @@ export const gameScenarios = {
   playerWaitingForReconnect: playingFixture('rowan', { disconnectedPlayerId: 'sam' }),
   czarCollecting: playingFixture('alex'),
   czarJudging: playingFixture('alex', { phase: 'JUDGING' }),
+  playerJudging: playingFixture('rowan', {
+    phase: 'JUDGING',
+    applauseBySubmissionId: { 'played-jules': 2 },
+  }),
   winnerReveal: playingFixture('alex', { phase: 'REVEAL' }),
   gameWon: {
     snapshot: makeGameSnapshot({
@@ -262,6 +284,31 @@ export const gameScenarios = {
           winner: players[0],
           rounds: 7,
           leaderboard: players,
+          applauseRecap: {
+            totalApplause: 11,
+            crowdFavorites: [
+              { playerId: 'rowan', displayName: 'Rowan', applauseCount: 4 },
+              { playerId: 'sam', displayName: 'Sam', applauseCount: 4 },
+            ],
+            mostApplaudedAnswers: [
+              {
+                round: 1,
+                question: 'The secret ingredient is _.',
+                answer: 'An aggressively enthusiastic thumbs-up.',
+                playedByPlayerId: 'rowan',
+                playedByDisplayName: 'Rowan',
+                applauseCount: 3,
+              },
+              {
+                round: 5,
+                question: 'I knew the party was over when _.',
+                answer: 'Someone brought a spreadsheet.',
+                playedByPlayerId: 'sam',
+                playedByDisplayName: 'Sam',
+                applauseCount: 3,
+              },
+            ],
+          },
         },
       },
       me: privatePlayer('alex'),
@@ -283,6 +330,11 @@ export const gameScenarios = {
           winner: null,
           rounds: 4,
           leaderboard: players,
+          applauseRecap: {
+            totalApplause: 0,
+            crowdFavorites: [],
+            mostApplaudedAnswers: [],
+          },
         },
       },
       me: privatePlayer('rowan'),

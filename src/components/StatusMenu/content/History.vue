@@ -22,7 +22,9 @@
           <li class="miniCard winningAnswer">
             <span class="miniCard-badge">Winner</span>
             <strong class="miniCard-text">{{ round.winningAnswer }}</strong>
-            <span class="miniCard-player">{{ round.winningPlayerDisplayName }}</span>
+            <span class="miniCard-player">
+              {{ round.winningPlayerDisplayName }} · {{ round.winningAnswerApplause }} applause
+            </span>
           </li>
           <li
             v-for="answer in round.otherAnswers"
@@ -30,7 +32,9 @@
             class="miniCard"
           >
             <strong class="miniCard-text">{{ answer.text }}</strong>
-            <span class="miniCard-player">{{ answer.playedByDisplayName }}</span>
+            <span class="miniCard-player">
+              {{ answer.playedByDisplayName }} · {{ answer.applauseCount }} applause
+            </span>
           </li>
         </ol>
       </article>

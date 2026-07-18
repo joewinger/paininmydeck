@@ -8,6 +8,7 @@
       'is-dragging': isDragging,
       'is-winner': isWinner,
       'is-facedown': effectiveFacedown,
+      'has-applause': showsApplauseStatus,
     }"
     :style="cardStyle"
   >
@@ -31,7 +32,8 @@
       :disabled="isEditableBlank ? undefined : !isCardActionable"
       :role="isEditableBlank ? 'group' : undefined"
       :aria-label="cardAriaLabel"
-      :aria-busy="pending || undefined"
+      :aria-describedby="showsApplauseStatus ? applauseStatusId : undefined"
+      :aria-busy="pending || applausePending || undefined"
       @click="onClick"
     >
       <span v-if="effectiveFacedown" class="card-back" aria-hidden="true">
@@ -91,6 +93,30 @@
         </span>
       </template>
     </component>
+
+    <div
+      v-if="showsApplauseStatus"
+      class="applause-controls"
+      :class="{ 'applause-controls--own': isOwnSubmission }"
+    >
+      <span
+        :id="applauseStatusId"
+        class="applause-controls__status"
+        :aria-live="isApplauseInteractive ? 'polite' : undefined"
+      >
+        {{ applauseStatusText }}
+      </span>
+      <button
+        v-if="isApplauseInteractive && displayedApplauseCount > 0"
+        type="button"
+        class="btn-applause-undo"
+        :aria-label="`Undo one applause for: ${card.text}`"
+        :disabled="applausePending"
+        @click="undoApplause"
+      >
+        Undo
+      </button>
+    </div>
   </div>
 </template>
 
@@ -98,13 +124,13 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import interact from 'interactjs';
 import { hasScrollableCardText } from '@/components/cardTextOverflow';
-import type { Card, PlayedCard } from '@/shared/protocol';
+import type { PlayedCard } from '@/shared/protocol';
 import { useGameStore } from '@/stores/game';
 import { useUiStore } from '@/stores/ui';
 
-const props = withDefaults(defineProps<{ card: Card | PlayedCard; facedown?: boolean; index?: number }>(), {
-	facedown: false,
-	index: 0,
+const props = withDefaults(defineProps<{ card: PlayedCard; facedown?: boolean; index?: number }>(), {
+  facedown: false,
+  index: 0,
 });
 const game = useGameStore();
 const ui = useUiStore();
@@ -116,6 +142,8 @@ const blanktext = ref('');
 const editing = ref(false);
 const disableClicks = ref(false);
 const pending = ref(false);
+const applausePending = ref(false);
+const displayedApplauseCount = ref(0);
 const pendingAction = ref<'play' | 'choose-winner' | 'blank' | 'redraw' | null>(null);
 const isDragging = ref(false);
 const swipeOffset = ref(0);
@@ -124,6 +152,32 @@ const trashMode = ref(false);
 const isEditableBlank = computed(() => props.card.text.startsWith('%BLANK%'));
 const usesBlankFont = computed(() => Boolean(props.card.blank));
 const isWinner = computed(() => game.turn.winningCard?.id === props.card.id);
+const isOwnSubmission = computed(() => game.self?.ownSubmissionId === props.card.id);
+const serverApplauseCount = computed(
+  () => game.self?.applauseBySubmissionId[props.card.id] ?? 0,
+);
+const isApplauseInteractive = computed(
+  () =>
+    game.phase === 'JUDGING' &&
+    game.playedThisTurn &&
+    !game.isCzar &&
+    !isOwnSubmission.value,
+);
+const showsApplauseStatus = computed(
+  () =>
+    game.phase === 'REVEAL' ||
+    (game.phase === 'JUDGING' && game.playedThisTurn && !game.isCzar),
+);
+const applauseStatusId = computed(() => `applause-${props.card.id}-${props.index}`);
+const applauseStatusText = computed(() => {
+  if (game.phase === 'REVEAL') {
+    const total = props.card.applauseCount ?? 0;
+    return `${total} applause`;
+  }
+  if (isOwnSubmission.value) return 'Your answer';
+  if (applausePending.value) return `Saving ${displayedApplauseCount.value} / 3…`;
+  return `${displayedApplauseCount.value} / 3 applause`;
+});
 const effectiveFacedown = computed(() => props.facedown || pending.value);
 const isTrashable = computed(
   () =>
@@ -133,15 +187,21 @@ const isTrashable = computed(
     !game.playedThisTurn &&
     !game.isCzar,
 );
-const cardActionIntent = computed<'play' | 'choose-winner' | null>(() => {
+const cardActionIntent = computed<'play' | 'choose-winner' | 'applaud' | null>(() => {
   if (isEditableBlank.value || effectiveFacedown.value) return null;
   if (game.isCzar) {
     return game.phase === 'JUDGING' && game.turn.winningCard === null ? 'choose-winner' : null;
   }
+  if (isApplauseInteractive.value) return 'applaud';
   return game.phase === 'COLLECTING' && !game.playedThisTurn ? 'play' : null;
 });
 const isCardActionable = computed(
-  () => cardActionIntent.value !== null && !disableClicks.value && !game.cardActionPending,
+  () =>
+    cardActionIntent.value !== null &&
+    (cardActionIntent.value !== 'applaud' || displayedApplauseCount.value < 3) &&
+    !applausePending.value &&
+    !disableClicks.value &&
+    !game.cardActionPending,
 );
 const cardTag = computed(() => (isEditableBlank.value ? 'div' : 'button'));
 const displayIndex = computed(() => String(props.index + 1).padStart(2, '0'));
@@ -181,6 +241,16 @@ const cardAriaLabel = computed(() => {
     return 'Submitting answer';
   }
   if (effectiveFacedown.value) return `Hidden answer ${props.index + 1}`;
+  if (game.phase === 'REVEAL') {
+    const total = props.card.applauseCount ?? 0;
+    const prefix = isWinner.value ? 'Winning answer' : 'Answer';
+    const player = isWinner.value
+      ? `Played by ${game.turn.winningCard?.playedByDisplayName ?? 'another player'}.`
+      : null;
+    return [`${prefix}: ${props.card.text}`, player, `${total} applause`]
+      .filter(Boolean)
+      .join(' ');
+  }
   if (isWinner.value) {
     const player = game.turn.winningCard?.playedByDisplayName ?? 'another player';
     return `Winning answer: ${props.card.text}. Played by ${player}`;
@@ -188,6 +258,9 @@ const cardAriaLabel = computed(() => {
   if (isEditableBlank.value) return 'Write your own answer';
   if (cardActionIntent.value === 'choose-winner') return `Choose winner: ${props.card.text}`;
   if (cardActionIntent.value === 'play') return `Play answer: ${props.card.text}`;
+  if (cardActionIntent.value === 'applaud')
+    return `Applaud answer: ${props.card.text} ${displayedApplauseCount.value} of 3 given`;
+  if (isOwnSubmission.value) return `Your answer: ${props.card.text} Applause unavailable`;
   return `Answer: ${props.card.text}`;
 });
 const classList = computed(() => ({
@@ -197,6 +270,8 @@ const classList = computed(() => ({
   blankfont: usesBlankFont.value && !isEditableBlank.value,
   actionable: isCardActionable.value,
   pending: pending.value,
+  applaudable: cardActionIntent.value === 'applaud',
+  'own-submission': isOwnSubmission.value,
 }));
 let peekTimer: number | undefined;
 let closePeekTimer: number | undefined;
@@ -261,6 +336,10 @@ async function onClick(mouseEvent: MouseEvent) {
     editing.value = true;
     return;
   }
+  if (cardActionIntent.value === 'applaud') {
+    await changeApplause(displayedApplauseCount.value + 1);
+    return;
+  }
 
   disableClicks.value = true;
   pendingAction.value = cardActionIntent.value;
@@ -282,6 +361,27 @@ async function onClick(mouseEvent: MouseEvent) {
     disableClicks.value = false;
     game.cardActionPending = false;
   }
+}
+
+async function changeApplause(nextCount: number) {
+  if (applausePending.value) return;
+  const count = Math.max(0, Math.min(3, nextCount));
+  if (count === displayedApplauseCount.value) return;
+  const previous = displayedApplauseCount.value;
+  displayedApplauseCount.value = count;
+  applausePending.value = true;
+  try {
+    await game.setApplause(props.card.id, count);
+    if (serverApplauseCount.value === count) displayedApplauseCount.value = count;
+  } catch {
+    displayedApplauseCount.value = previous;
+  } finally {
+    applausePending.value = false;
+  }
+}
+
+async function undoApplause() {
+  await changeApplause(displayedApplauseCount.value - 1);
 }
 
 function onBlur(event: FocusEvent) {
@@ -401,6 +501,14 @@ watch([() => props.card.text, effectiveFacedown], async () => {
   observeCardText();
 });
 
+watch(
+  serverApplauseCount,
+  (count) => {
+    if (!applausePending.value) displayedApplauseCount.value = count;
+  },
+  { immediate: true },
+);
+
 onBeforeUnmount(() => {
   clearPeekTimers();
   cardTextResizeObserver?.disconnect();
@@ -508,13 +616,104 @@ onBeforeUnmount(() => {
   transform: translate(5px, 6px) rotate(0deg);
 }
 
+.whiteCard.applaudable {
+  background-image:
+    linear-gradient(rgb(255 214 74 / 17%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 214 74 / 17%) 1px, transparent 1px);
+}
+
+.whiteCard.own-submission,
+.whiteCard.own-submission:disabled {
+  background-color: color-mix(in srgb, var(--pimd-paper) 84%, var(--pimd-sky));
+}
+
 .whiteCard:focus-visible,
 .blank-input:focus-visible,
 .btn-save:focus-visible,
-.btn-trash:focus-visible {
+.btn-trash:focus-visible,
+.btn-applause-undo:focus-visible {
   outline: 3px solid var(--pimd-ink);
   outline-offset: 4px;
   box-shadow: 0 0 0 7px var(--pimd-highlight);
+}
+
+.whiteCard-wrapper.has-applause .card-text {
+  padding-bottom: 82px;
+}
+
+.whiteCard-wrapper.has-applause .card-meta {
+  bottom: 57px;
+}
+
+.applause-controls {
+  position: absolute;
+  right: 7px;
+  bottom: 6px;
+  left: 7px;
+  z-index: 6;
+  display: flex;
+  min-width: 0;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  pointer-events: none;
+}
+
+.applause-controls__status {
+  min-width: 0;
+  padding: 7px 8px 6px;
+  overflow: hidden;
+  transform: rotate(-0.5deg);
+  border: 2px solid var(--pimd-ink);
+  background: var(--pimd-highlight);
+  box-shadow: 2px 2px 0 var(--pimd-ink);
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(7px, 1.9vw, 9px);
+  font-weight: 400;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.applause-controls--own .applause-controls__status {
+  background: var(--pimd-sky);
+}
+
+.btn-applause-undo {
+  display: grid;
+  flex: 0 0 auto;
+  min-width: 44px;
+  min-height: 44px;
+  place-items: center;
+  padding: 0 7px;
+  pointer-events: auto;
+  border: 2px solid var(--pimd-ink);
+  border-radius: 50%;
+  background: var(--pimd-paper);
+  box-shadow: 2px 2px 0 var(--pimd-ink);
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: 7px;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.btn-applause-undo:hover:not(:disabled) {
+  background: var(--pimd-highlight);
+  transform: translateY(-1px);
+}
+
+.btn-applause-undo:active:not(:disabled) {
+  box-shadow: none;
+  transform: translate(2px, 2px);
+}
+
+.btn-applause-undo:disabled {
+  opacity: 0.62;
 }
 
 .card-index {
@@ -827,6 +1026,14 @@ onBeforeUnmount(() => {
   padding-bottom: 70px;
 }
 
+.whiteCard-wrapper.has-applause .whiteCard.winner .card-text {
+  padding-bottom: 112px;
+}
+
+.whiteCard-wrapper.has-applause .ribbon {
+  bottom: 59px;
+}
+
 .ribbon {
   position: absolute;
   right: -7px;
@@ -888,7 +1095,9 @@ onBeforeUnmount(() => {
   .card-back > span,
   .ribbon,
   .btn-save,
-  .btn-trash {
+  .btn-trash,
+  .applause-controls__status,
+  .btn-applause-undo {
     border-color: CanvasText;
     background: Canvas;
     box-shadow: none;

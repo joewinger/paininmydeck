@@ -1,5 +1,6 @@
 import { DurableObject } from 'cloudflare:workers';
 import type {
+  ApplauseRecap,
   Card,
   ChatMessage,
   ClientCommand,
@@ -166,6 +167,28 @@ type RoundAnswerRow = SqlRow<{
   player_id: string | null;
   player_name: string;
   is_winner: number;
+  applause_count: number;
+}>;
+
+type ApplauseCountRow = SqlRow<{
+  submission_id: string;
+  applause_count: number;
+}>;
+
+type CrowdFavoriteRow = SqlRow<{
+  player_id: string;
+  player_name: string;
+  applause_count: number;
+}>;
+
+type MostApplaudedAnswerRow = SqlRow<{
+  round_number: number;
+  answer_order: number;
+  question: string;
+  text: string;
+  player_id: string | null;
+  player_name: string;
+  applause_count: number;
 }>;
 
 type FinalPlayerRow = SqlRow<{
@@ -1246,6 +1269,10 @@ export class GameRoom extends DurableObject<Env> {
       (room.turn_status === 'WAITING_FOR_CZAR' || room.turn_status === 'REVEAL')
         ? this.submissions(room.round_id)
         : [];
+    const revealedApplause =
+      room.round_id !== null && room.turn_status === 'REVEAL'
+        ? this.applauseTotals(room.round_id)
+        : new Map<string, number>();
 
     const playedCards: PlayedCard[] =
       room.turn_status === 'WAITING_FOR_CARDS'
@@ -1257,6 +1284,9 @@ export class GameRoom extends DurableObject<Env> {
             id: submission.submission_id,
             text: submission.custom_text ?? submission.card_text,
             ...(submission.is_blank === 1 ? { blank: true } : {}),
+            ...(room.turn_status === 'REVEAL'
+              ? { applauseCount: revealedApplause.get(submission.submission_id) ?? 0 }
+              : {}),
           }));
     const winner =
       room.winning_submission_id === null
@@ -1294,6 +1324,33 @@ export class GameRoom extends DurableObject<Env> {
             )
             .one().value > 0
         : false;
+    const ownSubmissionId =
+      selfPlayer === null || room.round_id === null
+        ? null
+        : (first(
+            this.sql
+              .exec<SqlRow<{ submission_id: string }>>(
+                `SELECT submission_id FROM submissions
+								 WHERE round_id = ? AND player_id = ? LIMIT 1`,
+                room.round_id,
+                selfPlayer.player_id,
+              )
+              .toArray(),
+          )?.submission_id ?? null);
+    const applauseBySubmissionId =
+      selfPlayer === null || room.round_id === null
+        ? {}
+        : Object.fromEntries(
+            this.sql
+              .exec<SqlRow<{ submission_id: string; count: number }>>(
+                `SELECT submission_id, count FROM applause
+								 WHERE round_id = ? AND voter_player_id = ?`,
+                room.round_id,
+                selfPlayer.player_id,
+              )
+              .toArray()
+              .map((row) => [row.submission_id, row.count]),
+          );
     const me: PrivatePlayerState | null =
       selfPlayer === null
         ? null
@@ -1305,6 +1362,8 @@ export class GameRoom extends DurableObject<Env> {
             isPrivileged: room.host_player_id === selfPlayer.player_id,
             playedThisTurn,
             redrawsUsed: selfPlayer.redraws_used,
+            ownSubmissionId,
+            applauseBySubmissionId,
           };
 
     return {
@@ -1343,6 +1402,9 @@ export class GameRoom extends DurableObject<Env> {
                   id: winner.submission_id,
                   text: winner.custom_text ?? winner.card_text,
                   ...(winner.is_blank === 1 ? { blank: true } : {}),
+                  ...(room.turn_status === 'REVEAL'
+                    ? { applauseCount: revealedApplause.get(winner.submission_id) ?? 0 }
+                    : {}),
                   playedByPlayerId: winner.player_id,
                   playedByDisplayName: winner.display_name,
                 },
@@ -1409,6 +1471,19 @@ export class GameRoom extends DurableObject<Env> {
       .toArray();
   }
 
+  private applauseTotals(roundId: string): Map<string, number> {
+    return new Map(
+      this.sql
+        .exec<ApplauseCountRow>(
+          `SELECT submission_id, SUM(count) AS applause_count
+					 FROM applause WHERE round_id = ? GROUP BY submission_id`,
+          roundId,
+        )
+        .toArray()
+        .map((row) => [row.submission_id, row.applause_count]),
+    );
+  }
+
   private chatMessages(): ChatMessage[] {
     return this.sql
       .exec<MessageRow>(
@@ -1436,18 +1511,22 @@ export class GameRoom extends DurableObject<Env> {
       )
       .toArray();
     return rounds.map((round) => {
-      const otherAnswers: RoundAnswer[] = this.sql
+      const answers = this.sql
         .exec<RoundAnswerRow>(
           `SELECT * FROM round_answers
-					 WHERE round_number = ? AND is_winner = 0
+					 WHERE round_number = ?
 					 ORDER BY answer_order ASC`,
           round.round_number,
         )
-        .toArray()
+        .toArray();
+      const winningAnswer = answers.find((answer) => answer.is_winner === 1);
+      const otherAnswers: RoundAnswer[] = answers
+        .filter((answer) => answer.is_winner === 0)
         .map((answer) => ({
           text: answer.text,
           ...(answer.player_id === null ? {} : { playedByPlayerId: answer.player_id }),
           playedByDisplayName: answer.player_name,
+          applauseCount: answer.applause_count,
         }));
       return {
         round: round.round_number,
@@ -1455,9 +1534,63 @@ export class GameRoom extends DurableObject<Env> {
         winningAnswer: round.winning_answer,
         ...(round.winning_player_id === null ? {} : { winningPlayerId: round.winning_player_id }),
         winningPlayerDisplayName: round.winning_player_name,
+        winningAnswerApplause: winningAnswer?.applause_count ?? 0,
         otherAnswers,
       };
     });
+  }
+
+  private applauseRecap(): ApplauseRecap {
+    const received = this.sql
+      .exec<CrowdFavoriteRow>(
+        `SELECT player_id, player_name, SUM(applause_count) AS applause_count
+				 FROM round_answers
+				 WHERE player_id IS NOT NULL
+				 GROUP BY player_id, player_name
+				 ORDER BY applause_count DESC, player_name ASC, player_id ASC`,
+      )
+      .toArray();
+    const mostReceived = received[0]?.applause_count ?? 0;
+    const crowdFavorites =
+      mostReceived === 0
+        ? []
+        : received
+            .filter((row) => row.applause_count === mostReceived)
+            .map((row) => ({
+              playerId: row.player_id,
+              displayName: row.player_name,
+              applauseCount: row.applause_count,
+            }));
+
+    const answers = this.sql
+      .exec<MostApplaudedAnswerRow>(
+        `SELECT ra.round_number, ra.answer_order, r.question, ra.text,
+				        ra.player_id, ra.player_name, ra.applause_count
+				 FROM round_answers ra
+				 JOIN rounds r ON r.round_number = ra.round_number
+				 ORDER BY ra.applause_count DESC, ra.round_number ASC, ra.answer_order ASC`,
+      )
+      .toArray();
+    const mostApplause = answers[0]?.applause_count ?? 0;
+    const mostApplaudedAnswers =
+      mostApplause === 0
+        ? []
+        : answers
+            .filter((answer) => answer.applause_count === mostApplause)
+            .map((answer) => ({
+              round: answer.round_number,
+              question: answer.question,
+              answer: answer.text,
+              ...(answer.player_id === null ? {} : { playedByPlayerId: answer.player_id }),
+              playedByDisplayName: answer.player_name,
+              applauseCount: answer.applause_count,
+            }));
+
+    return {
+      totalApplause: answers.reduce((total, answer) => total + answer.applause_count, 0),
+      crowdFavorites,
+      mostApplaudedAnswers,
+    };
   }
 
   private finalRecord(): FinalRecord | null {
@@ -1494,6 +1627,7 @@ export class GameRoom extends DurableObject<Env> {
       winner,
       rounds: room.completed_rounds,
       leaderboard,
+      applauseRecap: this.applauseRecap(),
     };
   }
 
@@ -1509,7 +1643,8 @@ export class GameRoom extends DurableObject<Env> {
       command.type === 'submit_card' ||
       command.type === 'submit_blank' ||
       command.type === 'redraw_card' ||
-      command.type === 'choose_winner';
+      command.type === 'choose_winner' ||
+      command.type === 'set_applause';
     if (gameplayCommand && command.roundId !== room.round_id) {
       throw new RoomError('STALE_ROUND', 'That command belongs to an earlier round.', 409);
     }
@@ -1538,6 +1673,12 @@ export class GameRoom extends DurableObject<Env> {
       case 'choose_winner':
         this.chooseWinner(player, command.payload.cardId, now);
         return { changed: true, duplicate: false, closeSelf: false };
+      case 'set_applause':
+        return {
+          changed: this.setApplause(player, command.payload.cardId, command.payload.count),
+          duplicate: false,
+          closeSelf: false,
+        };
       case 'send_chat':
         this.chatMessage(player, command.payload.text, now);
         return { changed: true, duplicate: false, closeSelf: false };
@@ -1634,6 +1775,7 @@ export class GameRoom extends DurableObject<Env> {
     );
     this.sql.exec('DELETE FROM card_instances');
     this.sql.exec('DELETE FROM question_cards');
+    this.sql.exec('DELETE FROM applause');
     this.sql.exec('DELETE FROM submissions');
     this.sql.exec('DELETE FROM rounds');
     this.sql.exec('DELETE FROM round_answers');
@@ -2059,6 +2201,73 @@ export class GameRoom extends DurableObject<Env> {
     this.putJob('reveal', room.round_id, revealDeadline);
   }
 
+  private setApplause(player: PlayerRow, submissionId: string, count: number): boolean {
+    const room = this.roomOrThrow();
+    if (room.game_state !== 'PLAYING' || room.turn_status !== 'WAITING_FOR_CZAR') {
+      throw new RoomError(
+        'APPLAUSE_CLOSED',
+        'Applause is only open while the Czar is judging.',
+        409,
+      );
+    }
+    if (room.czar_player_id === player.player_id) {
+      throw new RoomError('CZAR_CANNOT_APPLAUD', 'The Card Czar cannot applaud this round.', 403);
+    }
+    if (room.round_id === null) {
+      throw new RoomError('ROUND_NOT_READY', 'The round is not ready.', 409);
+    }
+    if (!Number.isInteger(count) || count < 0 || count > 3) {
+      throw new RoomError('INVALID_APPLAUSE', 'Applause must be between zero and three.');
+    }
+    const submission = first(
+      this.submissions(room.round_id).filter(
+        (candidate) => candidate.submission_id === submissionId,
+      ),
+    );
+    if (submission === null) {
+      throw new RoomError('INVALID_SUBMISSION', 'Choose one of the displayed answers.', 409);
+    }
+    if (submission.player_id === player.player_id) {
+      throw new RoomError('SELF_APPLAUSE', 'You cannot applaud your own answer.', 403);
+    }
+
+    const previousCount =
+      first(
+        this.sql
+          .exec<SqlRow<{ count: number }>>(
+            `SELECT count FROM applause
+							 WHERE round_id = ? AND submission_id = ? AND voter_player_id = ?`,
+            room.round_id,
+            submission.submission_id,
+            player.player_id,
+          )
+          .toArray(),
+      )?.count ?? 0;
+    if (previousCount === count) return false;
+
+    if (count === 0) {
+      this.sql.exec(
+        `DELETE FROM applause
+				 WHERE round_id = ? AND submission_id = ? AND voter_player_id = ?`,
+        room.round_id,
+        submission.submission_id,
+        player.player_id,
+      );
+      return true;
+    }
+    this.sql.exec(
+      `INSERT INTO applause (round_id, submission_id, voter_player_id, count)
+			 VALUES (?, ?, ?, ?)
+			 ON CONFLICT(round_id, submission_id, voter_player_id)
+			 DO UPDATE SET count = excluded.count`,
+      room.round_id,
+      submission.submission_id,
+      player.player_id,
+      count,
+    );
+    return true;
+  }
+
   private chatMessage(player: PlayerRow, text: string, now: number): void {
     this.sql.exec(
       `INSERT INTO messages (
@@ -2103,6 +2312,7 @@ export class GameRoom extends DurableObject<Env> {
       throw new RoomError('ROUND_NOT_READY', 'The round is not ready.', 409);
     }
     const submissions = this.submissions(room.round_id);
+    const applauseTotals = this.applauseTotals(room.round_id);
     const winningAnswer = winner.custom_text ?? winner.card_text;
     this.sql.exec(
       `INSERT INTO rounds (
@@ -2121,14 +2331,15 @@ export class GameRoom extends DurableObject<Env> {
       this.sql.exec(
         `INSERT INTO round_answers (
 					round_number, answer_order, text, player_id,
-					player_name, is_winner
-				) VALUES (?, ?, ?, ?, ?, ?)`,
+					player_name, is_winner, applause_count
+				) VALUES (?, ?, ?, ?, ?, ?, ?)`,
         room.round_number,
         answerOrder,
         submission.custom_text ?? submission.card_text,
         submission.player_id,
         submission.display_name,
         submission.submission_id === winner.submission_id ? 1 : 0,
+        applauseTotals.get(submission.submission_id) ?? 0,
       );
     }
     this.sql.exec(
@@ -2200,6 +2411,9 @@ export class GameRoom extends DurableObject<Env> {
         );
       }
     }
+    if (room.round_id !== null) {
+      this.sql.exec('DELETE FROM applause WHERE round_id = ?', room.round_id);
+    }
     this.sql.exec('DELETE FROM submissions');
     const players = this.activePlayers();
     for (const player of players) {
@@ -2240,6 +2454,7 @@ export class GameRoom extends DurableObject<Env> {
       `UPDATE card_instances SET location = 'discard', owner_player_id = NULL
 			 WHERE instance_id IN (SELECT card_instance_id FROM submissions)`,
     );
+    this.sql.exec('DELETE FROM applause');
     this.sql.exec('DELETE FROM submissions');
   }
 

@@ -164,6 +164,24 @@ export function parseClientCommand(value: unknown): ClientCommand {
         payload: { cardId: payload.cardId },
       };
     }
+    case 'set_applause': {
+      if (!isRecord(payload) || typeof payload.cardId !== 'string') {
+        throw new RoomError('INVALID_COMMAND', 'Applause payload is invalid.');
+      }
+      if (payload.cardId.length < 1 || payload.cardId.length > 128) {
+        throw new RoomError('INVALID_COMMAND', 'Submission id is invalid.');
+      }
+      if (!integerInRange(payload.count, 0, 3)) {
+        throw new RoomError('INVALID_APPLAUSE', 'Applause must be between zero and three.');
+      }
+      return {
+        protocolVersion: 1,
+        commandId,
+        type: 'set_applause',
+        roundId: gameplayRoundId(roundId),
+        payload: { cardId: payload.cardId, count: payload.count },
+      };
+    }
     case 'submit_blank': {
       if (
         !isRecord(payload) ||

@@ -73,6 +73,66 @@
         </li>
       </ol>
 
+      <section
+        v-if="applauseRecap"
+        class="crowd-report"
+        aria-labelledby="crowd-report-title"
+      >
+        <div class="crowd-report__heading">
+          <p class="pimd-eyebrow">Crowd report</p>
+          <h2 id="crowd-report-title">The room’s other verdict</h2>
+        </div>
+
+        <p v-if="applauseRecap.totalApplause === 0" class="crowd-report__empty">
+          No applause was recorded this game.
+        </p>
+        <template v-else>
+          <p class="crowd-report__total">
+            <strong>{{ applauseRecap.totalApplause }}</strong>
+            applause across the game
+          </p>
+
+          <div class="crowd-report__block">
+            <h3>
+              {{ applauseRecap.crowdFavorites.length === 1 ? 'Crowd favorite' : 'Crowd favorites' }}
+            </h3>
+            <ul class="crowd-favorites">
+              <li v-for="favorite in applauseRecap.crowdFavorites" :key="favorite.playerId">
+                <strong>{{ favorite.displayName }}</strong>
+                <span>{{ favorite.applauseCount }} received</span>
+              </li>
+            </ul>
+            <p v-if="applauseRecap.crowdFavorites.length > 1" class="crowd-report__tie">
+              Tied — no arbitrary tiebreaker.
+            </p>
+          </div>
+
+          <div class="crowd-report__block">
+            <h3>
+              {{
+                applauseRecap.mostApplaudedAnswers.length === 1
+                  ? 'Most-applauded answer'
+                  : 'Most-applauded answers'
+              }}
+            </h3>
+            <ol class="most-applauded">
+              <li
+                v-for="answer in applauseRecap.mostApplaudedAnswers"
+                :key="`${answer.round}-${answer.playedByPlayerId}-${answer.answer}`"
+              >
+                <span>Round {{ answer.round }} · {{ answer.applauseCount }} applause</span>
+                <strong>{{ blankify(answer.question) }}</strong>
+                <p>{{ answer.answer }}</p>
+                <small>{{ answer.playedByDisplayName }}</small>
+              </li>
+            </ol>
+            <p v-if="applauseRecap.mostApplaudedAnswers.length > 1" class="crowd-report__tie">
+              These answers tied for the biggest reaction.
+            </p>
+          </div>
+        </template>
+      </section>
+
       <button type="button" class="pimd-primary-button gameover-leave" @click="router.replace('/')">
         Leave Game
       </button>
@@ -83,11 +143,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { blankify } from '@/shared/protocol';
 import { useGameStore } from '@/stores/game';
 
 const router = useRouter();
 const game = useGameStore();
 const roomData = computed(() => game.room.finalRecord);
+const applauseRecap = computed(() => roomData.value?.applauseRecap ?? null);
 
 function getOrdinalSuffix(number: number): string {
   if (number === 1) return 'st';
@@ -443,6 +505,150 @@ function getOrdinalSuffix(number: number): string {
   font-size: 0.65rem;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.crowd-report {
+  display: grid;
+  gap: 18px;
+  margin-top: 28px;
+  padding-top: 23px;
+  border-top: 3px dashed var(--pimd-ink);
+  color: var(--pimd-ink);
+}
+
+.crowd-report__heading {
+  display: grid;
+  gap: 5px;
+}
+
+.crowd-report__heading h2,
+.crowd-report__block h3 {
+  margin: 0;
+  font-family: 'Bungee', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.crowd-report__heading h2 {
+  font-size: clamp(1.15rem, 4vw, 1.65rem);
+  line-height: 1.05;
+}
+
+.crowd-report__empty {
+  margin: 0;
+  padding: 16px;
+  transform: rotate(-0.3deg);
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-highlight);
+  font-weight: 850;
+}
+
+.crowd-report__total {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: fit-content;
+  margin: 0;
+  padding: 9px 11px 8px;
+  transform: rotate(-0.5deg);
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-highlight);
+  box-shadow: 3px 4px 0 var(--pimd-ink);
+  font-weight: 900;
+}
+
+.crowd-report__total strong {
+  font-family: 'Bungee', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.crowd-report__block {
+  display: grid;
+  gap: 10px;
+}
+
+.crowd-report__block h3 {
+  font-size: 0.85rem;
+}
+
+.crowd-favorites,
+.most-applauded {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.crowd-favorites {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.crowd-favorites li {
+  display: grid;
+  gap: 2px;
+  padding: 11px 12px;
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-sky);
+  box-shadow: 3px 4px 0 var(--pimd-meta);
+}
+
+.crowd-favorites strong {
+  overflow: hidden;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.crowd-favorites span,
+.most-applauded > li > span,
+.most-applauded small {
+  font-family: 'Bungee', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 400;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.most-applauded > li {
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+  transform: rotate(0.2deg);
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-paper);
+  box-shadow: 4px 5px 0 var(--pimd-primary);
+}
+
+.most-applauded > li:nth-child(even) {
+  transform: rotate(-0.2deg);
+  box-shadow: 4px 5px 0 var(--pimd-highlight);
+}
+
+.most-applauded > li > strong {
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+.most-applauded p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.most-applauded small {
+  padding-top: 7px;
+  border-top: 2px solid var(--pimd-ink);
+}
+
+.crowd-report__tie {
+  margin: 0;
+  color: var(--pimd-ink-soft);
+  font-size: 0.76rem;
+  font-weight: 800;
 }
 
 .gameover-leave {

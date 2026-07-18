@@ -25,9 +25,12 @@ export interface Card {
   blank?: boolean;
 }
 
-export type PlayedCard = Card;
+export interface PlayedCard extends Card {
+  /** Present only after the Czar confirms a winner. */
+  applauseCount?: number;
+}
 
-export interface RevealedCard extends Card {
+export interface RevealedCard extends PlayedCard {
   playedByPlayerId: string;
   playedByDisplayName: string;
 }
@@ -49,6 +52,8 @@ export interface PrivatePlayerState {
   isPrivileged: boolean;
   playedThisTurn: boolean;
   redrawsUsed: number;
+  ownSubmissionId: string | null;
+  applauseBySubmissionId: Record<string, number>;
 }
 
 export interface TurnState {
@@ -76,6 +81,7 @@ export interface RoundAnswer {
   text: string;
   playedByPlayerId?: string;
   playedByDisplayName: string;
+  applauseCount: number;
 }
 
 export interface RoundHistoryEntry {
@@ -84,7 +90,29 @@ export interface RoundHistoryEntry {
   winningAnswer: string;
   winningPlayerId?: string;
   winningPlayerDisplayName: string;
+  winningAnswerApplause: number;
   otherAnswers: RoundAnswer[];
+}
+
+export interface CrowdFavorite {
+  playerId: string;
+  displayName: string;
+  applauseCount: number;
+}
+
+export interface MostApplaudedAnswer {
+  round: number;
+  question: string;
+  answer: string;
+  playedByPlayerId?: string;
+  playedByDisplayName: string;
+  applauseCount: number;
+}
+
+export interface ApplauseRecap {
+  totalApplause: number;
+  crowdFavorites: CrowdFavorite[];
+  mostApplaudedAnswers: MostApplaudedAnswer[];
 }
 
 export interface FinalRecord {
@@ -92,6 +120,7 @@ export interface FinalRecord {
   winner: PlayerSummary | null;
   rounds: number;
   leaderboard: PlayerSummary[];
+  applauseRecap: ApplauseRecap;
 }
 
 export interface RoomState {
@@ -161,6 +190,7 @@ export interface CommandPayloads {
   submit_blank: { cardId: string; text: string };
   redraw_card: { cardId: string };
   choose_winner: { cardId: string };
+  set_applause: { cardId: string; count: number };
   send_chat: { text: string };
   kick_player: { playerId: string };
   leave_room: Record<string, never>;

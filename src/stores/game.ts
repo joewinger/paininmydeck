@@ -309,6 +309,13 @@ export const useGameStore = defineStore('game', {
     async chooseWinner(cardId: string): Promise<void> {
       await this.send({ type: 'choose_winner', roundId: this.turn.roundId, payload: { cardId } });
     },
+    async setApplause(cardId: string, count: number): Promise<void> {
+      await this.send({
+        type: 'set_applause',
+        roundId: this.turn.roundId,
+        payload: { cardId, count },
+      });
+    },
     async sendChat(text: string): Promise<void> {
       await this.send({ type: 'send_chat', payload: { text } });
     },

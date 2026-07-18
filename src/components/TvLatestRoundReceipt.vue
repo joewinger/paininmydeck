@@ -1,7 +1,7 @@
 <template>
   <article class="tv-latest-round" :aria-label="`Last round: round ${round.round}`">
     <span class="tv-latest-round__label">
-      Last round · {{ round.winningPlayerDisplayName }}
+      Last round · {{ round.winningPlayerDisplayName }} · {{ round.winningAnswerApplause }} applause
     </span>
     <strong>{{ blankify(round.question) }}</strong>
     <p>{{ round.winningAnswer }}</p>

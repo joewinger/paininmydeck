@@ -111,7 +111,7 @@ const phaseHeading = computed(() => {
   if (game.isCzar)
     return game.phase === 'JUDGING' ? 'Pick the winning card' : 'Waiting on answers';
   if (game.playedThisTurn)
-    return game.phase === 'JUDGING' ? 'The Czar is choosing' : 'Your card is in';
+    return game.phase === 'JUDGING' ? 'Applaud the room' : 'Your card is in';
   return 'Pick one from your hand';
 });
 
@@ -123,20 +123,21 @@ const phaseInstruction = computed(() => {
     return 'The answers stay hidden until everyone has played.';
   }
   if (game.playedThisTurn) {
-    if (game.phase === 'JUDGING') return `Waiting for ${czarName.value} to make the call.`;
+    if (game.phase === 'JUDGING')
+      return `Tap any answer but yours to applaud, up to three times. Undo before ${czarName.value} chooses.`;
     return 'Answers will flip when everyone has played.';
   }
   return 'Tap a card to play it immediately. Swipe to redraw.';
 });
 
 const cardSetLabel = computed(() => {
-  if (game.turn.winningCard) return 'Winning answer';
+  if (game.turn.winningCard) return 'Revealed answers and applause totals';
   if (game.isCzar || game.playedThisTurn) return 'Submitted answers';
   return 'Your answer cards';
 });
 
 const cardSet = computed<(Card | PlayedCard)[]>(() => {
-  if (game.turn.winningCard) return [game.turn.winningCard];
+  if (game.turn.winningCard) return game.turn.playedCards;
   if (game.isCzar || game.playedThisTurn) return game.turn.playedCards;
   return game.hand;
 });

@@ -28,6 +28,7 @@ export const storyActions = {
   submitBlank: fn(async (cardId: string, text: string): Promise<void> => void [cardId, text]),
   redrawCard: fn(async (cardId: string): Promise<void> => void cardId),
   chooseWinner: fn(async (cardId: string): Promise<void> => void cardId),
+  setApplause: fn(async (cardId: string, count: number): Promise<void> => void [cardId, count]),
   sendChat: fn(async (text: string): Promise<void> => void text),
 };
 
@@ -77,6 +78,7 @@ export function stubStoryTransport(game: GameStore): void {
   game.submitBlank = storyActions.submitBlank;
   game.redrawCard = storyActions.redrawCard;
   game.chooseWinner = storyActions.chooseWinner;
+  game.setApplause = storyActions.setApplause;
   game.sendChat = storyActions.sendChat;
   game.kickPlayer = async () => undefined;
   game.send = async () => undefined;
