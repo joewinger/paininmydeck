@@ -1,12 +1,16 @@
 <template>
-  <div id="statusMenuWrapper">
+  <div
+    id="statusMenuWrapper"
+    :data-persistent-chat="persistentChat"
+    :class="{ 'statusMenuWrapper--hidden': game.username === '' }"
+  >
     <transition name="fade">
       <button
-        v-if="currentMenu !== null"
+        v-if="overlayOpen"
         type="button"
         class="backgroundEffect"
         aria-label="Close room tools"
-        @click="currentMenu = null"
+        @click="closeMenu"
       />
     </transition>
 
@@ -14,7 +18,8 @@
       id="statusMenu"
       :class="{
         hidden: game.username === '',
-        open,
+        open: toolMenuOpen,
+        'statusMenu--chat-open': currentMenu === 'CHAT' && !persistentChat,
         'statusMenu--history-open': currentMenu === 'HISTORY',
       }"
       aria-label="Room tools"
@@ -39,9 +44,13 @@
         </status-bar-button>
 
         <status-bar-button
+          ref="chatButton"
+          v-if="!persistentChat"
           label="Chat"
           :active="currentMenu === 'CHAT'"
           :notification="hasUnreadMessages"
+          controls="statusMenuContent-chat"
+          :expanded="currentMenu === 'CHAT'"
           @click="toggleMenu('CHAT')"
         >
           <ion-icon name="chatbubble-outline"></ion-icon>
@@ -69,18 +78,29 @@
       <div id="statusMenuContent-container">
         <transition name="slide" mode="out-in">
           <component
-            :is="currentComponent"
-            v-if="currentComponent"
-            @close-menu="currentMenu = null"
+            :is="currentToolComponent"
+            v-if="currentToolComponent"
+            @close-menu="closeMenu"
           />
         </transition>
       </div>
     </aside>
+
+    <div
+      ref="roomChatPanel"
+      id="roomChatPanel"
+      :class="{ 'roomChatPanel--visible': chatVisible }"
+      :aria-hidden="!chatVisible"
+      :inert="chatVisible ? undefined : true"
+      @keydown.esc="closeChat"
+    >
+      <status-menu-content-chat />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import StatusBarButton from './StatusBarButton.vue';
 import StatusMenuContentInfo from './content/Info.vue';
@@ -91,33 +111,68 @@ import StatusMenuContentLeaderboard from './content/Leaderboard/index.vue';
 import { useGameStore } from '@/stores/game';
 
 type MenuName = 'INFO' | 'HISTORY' | 'CHAT' | 'SETTINGS' | 'LEADERBOARD';
+const props = defineProps<{ persistentChat: boolean }>();
 const route = useRoute();
 const game = useGameStore();
 const currentMenu = ref<MenuName | null>(null);
 const hasUnreadMessages = ref(false);
-const open = computed(() => currentMenu.value !== null);
+const chatButton = ref<InstanceType<typeof StatusBarButton> | null>(null);
+const roomChatPanel = ref<HTMLElement | null>(null);
+const toolMenuOpen = computed(
+  () => currentMenu.value !== null && currentMenu.value !== 'CHAT',
+);
+const chatVisible = computed(
+  () => game.username !== '' && (props.persistentChat || currentMenu.value === 'CHAT'),
+);
+const overlayOpen = computed(
+  () => game.username !== '' && (toolMenuOpen.value || (!props.persistentChat && chatVisible.value)),
+);
 const menuComponents = {
   INFO: StatusMenuContentInfo,
   HISTORY: StatusMenuContentHistory,
-  CHAT: StatusMenuContentChat,
   SETTINGS: StatusMenuContentSettings,
   LEADERBOARD: StatusMenuContentLeaderboard,
 };
-const currentComponent = computed(() =>
-  currentMenu.value ? menuComponents[currentMenu.value] : null,
+const currentToolComponent = computed(() =>
+  currentMenu.value && currentMenu.value !== 'CHAT' ? menuComponents[currentMenu.value] : null,
 );
 
 function toggleMenu(menuName: MenuName) {
+  const opening = currentMenu.value !== menuName;
   if (menuName === 'CHAT') hasUnreadMessages.value = false;
-  currentMenu.value = currentMenu.value === menuName ? null : menuName;
+  currentMenu.value = opening ? menuName : null;
+}
+
+function closeMenu(): void {
+  currentMenu.value = null;
+}
+
+function closeChat(): void {
+  if (props.persistentChat || currentMenu.value !== 'CHAT') return;
+  currentMenu.value = null;
+  void nextTick(() => chatButton.value?.focus());
 }
 
 watch(
   () => game.chatMessages.at(-1)?.id,
   (messageId, previousMessageId) => {
-    if (currentMenu.value !== 'CHAT' && messageId && messageId !== previousMessageId) {
+    if (!chatVisible.value && messageId && messageId !== previousMessageId) {
       hasUnreadMessages.value = true;
     }
+  },
+);
+
+watch(chatVisible, (visible) => {
+  if (visible) hasUnreadMessages.value = false;
+});
+
+watch(
+  () => props.persistentChat,
+  async () => {
+    const messageLog = roomChatPanel.value?.querySelector<HTMLElement>('#chatMessages');
+    const scrollTop = messageLog?.scrollTop;
+    await nextTick();
+    if (messageLog && scrollTop !== undefined) messageLog.scrollTop = scrollTop;
   },
 );
 
@@ -140,11 +195,15 @@ watch(
   z-index: 2450;
 }
 
+#statusMenuWrapper.statusMenuWrapper--hidden {
+  pointer-events: none;
+}
+
 #statusMenu {
   position: fixed;
   bottom: max(12px, env(safe-area-inset-bottom));
   left: 50%;
-  z-index: 1;
+  z-index: 2;
   display: grid;
   grid-template-rows: minmax(0, auto) 60px;
   width: min(440px, calc(100vw - 24px));
@@ -178,10 +237,98 @@ watch(
   pointer-events: none;
 }
 
+#statusMenu.statusMenu--chat-open::before {
+  display: none;
+}
+
 #statusMenu.hidden {
   opacity: 0;
   pointer-events: none;
   transform: translate(-50%, calc(100% + 32px));
+}
+
+#roomChatPanel {
+  --gutter: clamp(13px, 4vw, 22px);
+  position: fixed;
+  bottom: calc(max(12px, env(safe-area-inset-bottom)) + 64px);
+  left: 50%;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: var(--gutter) minmax(0, 1fr) var(--gutter);
+  width: min(440px, calc(100vw - 24px));
+  max-height: calc(100svh - var(--navbar-height) - 88px);
+  padding-block: 21px 17px;
+  overflow: hidden;
+  transform: translate(-50%, calc(100% + 72px));
+  border: 4px solid var(--pimd-ink);
+  border-bottom: 0;
+  background-color: var(--pimd-paper);
+  background-image:
+    linear-gradient(var(--pimd-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pimd-grid) 1px, transparent 1px);
+  background-size: 18px 18px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease,
+    visibility 180ms ease;
+}
+
+#roomChatPanel::before {
+  position: absolute;
+  z-index: 3;
+  top: -4px;
+  left: 50%;
+  width: 68px;
+  height: 18px;
+  transform: translateX(-50%) rotate(-2deg);
+  background: rgb(87 205 189 / 88%);
+  clip-path: polygon(4% 8%, 98% 0, 94% 94%, 0 100%);
+  pointer-events: none;
+  content: '';
+}
+
+#roomChatPanel.roomChatPanel--visible {
+  transform: translateX(-50%);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+#statusMenuWrapper[data-persistent-chat='true'] {
+  align-self: stretch;
+  min-width: 0;
+  height: 100%;
+  padding: 20px 18px 24px 0;
+}
+
+#statusMenuWrapper[data-persistent-chat='true'] #roomChatPanel {
+  position: sticky;
+  top: calc(var(--navbar-height) + 20px);
+  bottom: auto;
+  left: auto;
+  width: 100%;
+  height: calc(100svh - var(--navbar-height) - 44px);
+  min-height: min(460px, calc(100svh - var(--navbar-height) - 44px));
+  max-height: calc(100svh - var(--navbar-height) - 44px);
+  padding-block: 21px 17px;
+  transform: translateY(24px) rotate(0.18deg);
+  border-bottom: 4px solid var(--pimd-ink);
+  box-shadow: 7px 8px 0 var(--pimd-primary-dark);
+}
+
+#statusMenuWrapper[data-persistent-chat='true']
+  #roomChatPanel.roomChatPanel--visible {
+  transform: rotate(0.18deg);
+}
+
+#statusMenuWrapper[data-persistent-chat='true']
+  #roomChatPanel
+  #statusMenuContent-chat {
+  height: 100%;
+  min-height: 0;
 }
 
 #statusBar {
@@ -385,6 +532,12 @@ watch(
     width: calc(100vw - 16px);
   }
 
+  #roomChatPanel {
+    --gutter: 12px;
+    bottom: calc(max(8px, env(safe-area-inset-bottom)) + 64px);
+    width: calc(100vw - 16px);
+  }
+
   #statusMenuContent-container {
     --gutter: 12px;
   }
@@ -392,6 +545,7 @@ watch(
 
 @media (prefers-reduced-motion: reduce) {
   #statusMenu,
+  #roomChatPanel,
   .slide-enter-active,
   .slide-leave-active,
   .fade-enter-active,
@@ -402,6 +556,7 @@ watch(
 
 @media (forced-colors: active) {
   #statusMenu,
+  #roomChatPanel,
   #statusBar,
   .status-menu-action {
     border-color: CanvasText;

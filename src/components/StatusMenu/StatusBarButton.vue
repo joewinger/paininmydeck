@@ -1,10 +1,13 @@
 <template>
   <button
+    ref="button"
     type="button"
     class="statusBarButton"
     :class="{ active, notification }"
     :aria-label="accessibleLabel"
     :aria-pressed="active"
+    :aria-controls="controls"
+    :aria-expanded="expanded"
     @click="$emit('click', $event)"
   >
     <span class="statusBarButton__icon" aria-hidden="true">
@@ -15,25 +18,32 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = withDefaults(
   defineProps<{
     label: string;
     active?: boolean;
     notification?: boolean;
+    controls?: string;
+    expanded?: boolean;
   }>(),
   {
     active: false,
     notification: false,
+    controls: undefined,
+    expanded: undefined,
   },
 );
 
 defineEmits<{ click: [event: MouseEvent] }>();
+const button = ref<HTMLButtonElement | null>(null);
 
 const accessibleLabel = computed(() =>
   props.notification ? `${props.label}, unread messages` : props.label,
 );
+
+defineExpose({ focus: () => button.value?.focus() });
 </script>
 
 <style scoped>

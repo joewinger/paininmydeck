@@ -104,14 +104,47 @@ export const SettingsOpen: Story = {
 };
 
 export const ChatOpen: Story = {
-  name: 'Lobby / chat open',
-  parameters: { route: lobbyRoute, game: gameScenarios.lobbyHost },
+  name: 'Lobby / narrow desktop chat open',
+  parameters: {
+    route: lobbyRoute,
+    game: gameScenarios.lobbyHost,
+    viewport: { defaultViewport: 'narrowDesktop' },
+  },
   play: async ({ canvasElement }) => {
     const canvas = await openStatusPanel(canvasElement, 1);
     await waitFor(() => expect(canvas.getByText('This round was made for me.')).toBeVisible());
-    await userEvent.type(canvas.getByRole('textbox', { name: 'Chat message' }), 'Deal me in.');
+    const chatInput = canvas.getByRole('textbox', { name: 'Chat message' });
+    await userEvent.type(chatInput, 'Deal me in.');
     await userEvent.click(canvas.getByRole('button', { name: 'Send message' }));
     await expect(storyActions.sendChat).toHaveBeenCalledWith('Deal me in.');
+  },
+};
+
+export const ChatOpenMobile: Story = {
+  name: 'Lobby / mobile chat open',
+  parameters: {
+    route: lobbyRoute,
+    game: gameScenarios.lobbyHost,
+    viewport: { defaultViewport: 'mobile' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = await openStatusPanel(canvasElement, 1);
+    await waitFor(() => expect(canvas.getByRole('region', { name: 'Chat' })).toBeVisible());
+    await expect(canvas.getByRole('textbox', { name: 'Chat message' })).toBeVisible();
+  },
+};
+
+export const PersistentChatLobby: Story = {
+  name: 'Lobby / persistent chat',
+  parameters: {
+    route: lobbyRoute,
+    game: gameScenarios.lobbyHost,
+    viewport: { defaultViewport: 'desktop' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('region', { name: 'Chat' })).toBeVisible();
+    await expect(canvas.queryByRole('button', { name: 'Chat' })).not.toBeInTheDocument();
   },
 };
 
@@ -126,6 +159,20 @@ export const PlayerCollecting: Story = {
       }),
     );
     await expect(storyActions.submitCard).toHaveBeenCalledWith('answer-1');
+  },
+};
+
+export const PersistentChatGame: Story = {
+  name: 'Game / persistent chat',
+  parameters: {
+    route: gameRoute,
+    game: gameScenarios.playerCollecting,
+    viewport: { defaultViewport: 'desktop' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('region', { name: 'Chat' })).toBeVisible();
+    await expect(canvas.queryByRole('button', { name: 'Chat' })).not.toBeInTheDocument();
   },
 };
 
@@ -262,6 +309,20 @@ export const LeaderboardOpen: Story = {
 export const GameWon: Story = {
   name: 'Results / game won',
   parameters: { route: resultsRoute, game: gameScenarios.gameWon },
+};
+
+export const PersistentChatResults: Story = {
+  name: 'Results / persistent chat',
+  parameters: {
+    route: resultsRoute,
+    game: gameScenarios.gameWon,
+    viewport: { defaultViewport: 'desktop' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('region', { name: 'Chat' })).toBeVisible();
+    await expect(canvas.queryByRole('button', { name: 'Chat' })).not.toBeInTheDocument();
+  },
 };
 
 export const GameCancelled: Story = {

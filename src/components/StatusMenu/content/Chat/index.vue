@@ -1,5 +1,10 @@
 <template>
-  <section id="statusMenuContent-chat" class="statusMenuContent" aria-labelledby="chat-title">
+  <section
+    id="statusMenuContent-chat"
+    class="statusMenuContent"
+    role="region"
+    aria-labelledby="chat-title"
+  >
     <h1 id="chat-title">Chat</h1>
     <div id="chatMessages" role="log" aria-label="Room chat" aria-live="polite">
       <chat-message

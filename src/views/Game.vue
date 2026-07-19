@@ -272,7 +272,7 @@ onBeforeRouteLeave((to) => {
   transition: transform 0s;
 }
 
-@media (min-width: 760px) {
+@container player-content (min-width: 760px) {
   .game-screen {
     padding-bottom: 124px;
   }
@@ -315,7 +315,7 @@ onBeforeRouteLeave((to) => {
   }
 }
 
-@media (min-width: 1080px) {
+@container player-content (min-width: 1080px) {
   .game-layout {
     grid-template-columns: minmax(320px, 390px) minmax(0, 1fr);
   }
