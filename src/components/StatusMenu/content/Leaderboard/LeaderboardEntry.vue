@@ -5,7 +5,6 @@
       'leaderboardEntry--czar': isCzar,
       'leaderboardEntry--played': playedCard,
       'leaderboardEntry--self': isSelf,
-      'leaderboardEntry--kickable': isKickable,
     }"
   >
     <div class="leaderboardEntry-rank" :aria-label="`Rank ${rank}`">
@@ -14,22 +13,23 @@
     <div class="leaderboardEntry-username">
       <strong>{{ userObj.displayName }}</strong>
       <span v-if="isSelf">You</span>
+      <button
+        v-if="isKickable"
+        type="button"
+        class="leaderboardEntry-remove"
+        :aria-label="`Remove ${userObj.displayName} from the game`"
+        :aria-busy="kickPending || undefined"
+        :disabled="kickPending"
+        @click="kickPlayer"
+      >
+        <ion-icon name="person-remove-outline" aria-hidden="true" />
+      </button>
     </div>
     <div class="leaderboardEntry-status">{{ status }}</div>
     <div class="leaderboardEntry-points" :aria-label="`${userObj.points} points`">
       <strong>{{ userObj.points }}</strong>
       <span>pts</span>
     </div>
-    <button
-      v-if="isKickable"
-      type="button"
-      class="leaderboardEntry-remove"
-      :aria-label="`Remove ${userObj.displayName} from the game`"
-      :disabled="kickPending"
-      @click="kickPlayer"
-    >
-      {{ kickPending ? 'Removing…' : 'Remove' }}
-    </button>
   </li>
 </template>
 
@@ -194,45 +194,44 @@ async function kickPlayer() {
   min-width: 40px;
 }
 
-.leaderboardEntry--kickable .leaderboardEntry-points {
-  grid-row: 1;
-}
-
 .leaderboardEntry-remove {
-  grid-column: 3;
-  grid-row: 2;
-  min-width: 66px;
-  min-height: 44px;
-  padding: 5px 7px 4px;
-  border: 2px solid var(--pimd-ink);
+  display: grid;
+  flex: 0 0 32px;
+  place-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
   border-radius: 0;
-  background: var(--pimd-paper);
-  box-shadow: 2px 2px 0 var(--pimd-primary);
-  color: var(--pimd-ink);
-  font-family: 'Bungee', sans-serif;
-  font-size: 0.5rem;
-  font-weight: 400;
-  line-height: 1;
-  text-transform: uppercase;
+  background: transparent;
+  box-shadow: none;
+  color: var(--pimd-ink-soft);
 }
 
 .leaderboardEntry-remove:hover:not(:disabled) {
   background: var(--pimd-highlight);
+  color: var(--pimd-ink);
 }
 
 .leaderboardEntry-remove:active:not(:disabled) {
-  box-shadow: none;
-  transform: translate(2px, 2px);
+  transform: translateY(1px);
 }
 
 .leaderboardEntry-remove:focus-visible {
-  outline: 3px solid var(--pimd-ink);
-  outline-offset: 3px;
-  box-shadow: 0 0 0 6px var(--pimd-highlight);
+  outline: 2px solid var(--pimd-ink);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--pimd-highlight);
 }
 
 .leaderboardEntry-remove:disabled {
   opacity: 0.62;
+}
+
+.leaderboardEntry-remove ion-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  --ionicon-stroke-width: 44px;
 }
 
 .leaderboardEntry-points strong {
