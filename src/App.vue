@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="app-shell"
+		class="app-shell pimd-screen"
 		:class="{
 			'app-shell--tv': isTvRoute,
 			'app-shell--persistent-chat': showPersistentChat,
@@ -87,7 +87,6 @@ onBeforeUnmount(() => game.dispose());
 	grid-template-rows: var(--navbar-height) minmax(calc(100svh - var(--navbar-height)), auto);
 	width: 100%;
 	min-height: 100svh;
-	background: var(--pimd-canvas);
 }
 
 .app-content {
@@ -108,6 +107,7 @@ onBeforeUnmount(() => game.dispose());
 .app-shell--persistent-chat {
 	grid-template-columns: minmax(0, 1fr) minmax(300px, 320px);
 	column-gap: 24px;
+	background-position: 0 var(--navbar-height);
 }
 
 .app-shell--persistent-chat > #navbar {
