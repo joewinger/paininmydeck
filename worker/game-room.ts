@@ -2074,12 +2074,8 @@ export class GameRoom extends DurableObject<Env> {
 
   private kickPlayer(actor: PlayerRow, targetPlayerId: string, now: number): string {
     const room = this.roomOrThrow();
-    if (room.game_state !== 'LOBBY') {
-      throw new RoomError(
-        'KICK_LOCKED',
-        'Players can only be removed before the game starts.',
-        409,
-      );
+    if (room.game_state === 'FINISHED') {
+      throw new RoomError('KICK_LOCKED', 'Players cannot be removed after the game ends.', 409);
     }
     if (room.host_player_id !== actor.player_id) {
       throw new RoomError('HOST_ONLY', 'Only the room host can remove players.', 403);
@@ -2315,9 +2311,12 @@ export class GameRoom extends DurableObject<Env> {
         remaining[0]?.player_id ?? null,
       );
     }
-    if (!kicked) {
-      this.systemMessage(`${player.display_name} has left the game.`, now);
-    }
+    this.systemMessage(
+      kicked
+        ? `${player.display_name} was removed from the game.`
+        : `${player.display_name} has left the game.`,
+      now,
+    );
 
     if (room.game_state === 'PLAYING') {
       if (remaining.length < MIN_PLAYERS) {

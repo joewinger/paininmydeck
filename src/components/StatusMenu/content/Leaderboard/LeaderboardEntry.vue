@@ -13,6 +13,17 @@
     <div class="leaderboardEntry-username">
       <strong>{{ userObj.displayName }}</strong>
       <span v-if="isSelf">You</span>
+      <button
+        v-if="isKickable"
+        type="button"
+        class="leaderboardEntry-remove"
+        :aria-label="`Remove ${userObj.displayName} from the game`"
+        :aria-busy="kickPending || undefined"
+        :disabled="kickPending"
+        @click="kickPlayer"
+      >
+        <ion-icon name="person-remove-outline" aria-hidden="true" />
+      </button>
     </div>
     <div class="leaderboardEntry-status">{{ status }}</div>
     <div class="leaderboardEntry-points" :aria-label="`${userObj.points} points`">
@@ -23,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import type { PlayerSummary } from '@/shared/protocol';
 import { useGameStore } from '@/stores/game';
 
@@ -34,12 +45,34 @@ const statusMessages = {
 };
 const props = defineProps<{ rank: number; userObj: PlayerSummary; playedCard: boolean }>();
 const game = useGameStore();
+const kickPending = ref(false);
 const isCzar = computed(() => game.turn.czarPlayerId === props.userObj.playerId);
 const isSelf = computed(() => game.self?.playerId === props.userObj.playerId);
+const isKickable = computed(
+  () => game.isPrivileged && game.gameState === 'PLAYING' && !isSelf.value,
+);
 const status = computed(() => {
   if (isCzar.value) return statusMessages.czar;
   return props.playedCard ? statusMessages.played : statusMessages.waiting;
 });
+
+async function kickPlayer() {
+  if (!isKickable.value || kickPending.value) return;
+  const consequence =
+    game.users.length <= 3
+      ? 'This will end the game because fewer than three players will remain.'
+      : 'The current round will restart so every remaining player sees the same cards.';
+  if (!window.confirm(`Remove ${props.userObj.displayName} from the game? ${consequence}`)) return;
+
+  kickPending.value = true;
+  try {
+    await game.kickPlayer(props.userObj.playerId);
+  } catch {
+    // The game store already presents the server error to the host.
+  } finally {
+    kickPending.value = false;
+  }
+}
 </script>
 
 <style scoped>
@@ -161,6 +194,46 @@ const status = computed(() => {
   min-width: 40px;
 }
 
+.leaderboardEntry-remove {
+  display: grid;
+  flex: 0 0 32px;
+  place-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--pimd-ink-soft);
+}
+
+.leaderboardEntry-remove:hover:not(:disabled) {
+  background: var(--pimd-highlight);
+  color: var(--pimd-ink);
+}
+
+.leaderboardEntry-remove:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.leaderboardEntry-remove:focus-visible {
+  outline: 2px solid var(--pimd-ink);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--pimd-highlight);
+}
+
+.leaderboardEntry-remove:disabled {
+  opacity: 0.62;
+}
+
+.leaderboardEntry-remove ion-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  --ionicon-stroke-width: 44px;
+}
+
 .leaderboardEntry-points strong {
   font-family: 'Bungee', sans-serif;
   font-size: 1.25rem;
@@ -178,7 +251,8 @@ const status = computed(() => {
 
 @media (forced-colors: active) {
   .leaderboardEntry,
-  .leaderboardEntry-rank {
+  .leaderboardEntry-rank,
+  .leaderboardEntry-remove {
     border: 3px solid CanvasText;
     background: Canvas;
     color: CanvasText;
