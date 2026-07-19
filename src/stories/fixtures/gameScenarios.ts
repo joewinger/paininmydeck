@@ -166,6 +166,7 @@ const completedGameHistory: RoundHistoryEntry[] = [
     round: 5,
     question: 'I knew the party was over when _.',
     winningAnswer: 'Someone brought a spreadsheet.',
+    winningAnswerBlank: true,
     winningPlayerId: 'sam',
     winningPlayerDisplayName: 'Sam',
     winningAnswerApplause: 3,

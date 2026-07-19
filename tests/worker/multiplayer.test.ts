@@ -858,6 +858,10 @@ describe('GameRoom multiplayer contract', () => {
       playedByPlayerId: lobby.players[1].playerId,
       playedByDisplayName: lobby.players[1].name,
     });
+    expect(reveal.room.roundHistory[0]).toMatchObject({
+      winningAnswer: 'My odd answer.',
+      winningAnswerBlank: true,
+    });
   });
 
   it('runs an eight-player game while refusing a ninth active member', async () => {

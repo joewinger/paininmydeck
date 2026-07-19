@@ -490,6 +490,7 @@ describe('GameRoom integration', () => {
         `);
         state.storage.sql.exec('DROP TABLE applause');
         state.storage.sql.exec('ALTER TABLE round_answers DROP COLUMN applause_count');
+        state.storage.sql.exec('ALTER TABLE round_answers DROP COLUMN is_blank');
         state.storage.sql.exec('DELETE FROM _sql_schema_migrations WHERE version >= 2');
       });
     });
@@ -524,6 +525,12 @@ describe('GameRoom integration', () => {
            WHERE name = 'applause_count'`,
         )
         .one().value,
+      blankColumn: state.storage.sql
+        .exec<{ value: number }>(
+          `SELECT COUNT(*) AS value FROM pragma_table_info('round_answers')
+           WHERE name = 'is_blank'`,
+        )
+        .one().value,
       version: state.storage.sql
         .exec<{ value: number }>('SELECT MAX(version) AS value FROM _sql_schema_migrations')
         .one().value,
@@ -533,7 +540,8 @@ describe('GameRoom integration', () => {
       legacyTable: 0,
       applauseTable: 1,
       applauseColumn: 1,
-      version: 3,
+      blankColumn: 1,
+      version: 4,
     });
   });
 

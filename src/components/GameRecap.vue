@@ -147,16 +147,23 @@
         >
           <div class="round-ticket__meta">
             <span>Round {{ String(round.round).padStart(2, '0') }}</span>
-            <span>#{{ winnerIdentity(round) }} · {{ round.winningPlayerDisplayName }}</span>
           </div>
           <p class="round-ticket__question">
             <span>Q</span>
             {{ blankify(round.question) }}
           </p>
-          <p class="round-ticket__answer">
-            <span>A</span>
-            {{ round.winningAnswer }}
-          </p>
+          <div class="round-ticket__winning-answer">
+            <p
+              class="round-ticket__answer"
+              :class="{ 'round-ticket__answer--blank': round.winningAnswerBlank }"
+            >
+              <span>A</span>
+              {{ round.winningAnswer }}
+            </p>
+            <p class="round-ticket__winner">
+              Winner · #{{ winnerIdentity(round) }} · {{ round.winningPlayerDisplayName }}
+            </p>
+          </div>
           <p class="round-ticket__crowd">
             Crowd receipt · {{ round.winningAnswerApplause }} applause
           </p>
@@ -611,13 +618,6 @@ function winnerIdentity(round: RoundHistoryEntry): number | string {
   text-transform: uppercase;
 }
 
-.round-ticket__meta span:last-child {
-  overflow: hidden;
-  text-align: right;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .round-ticket__question,
 .round-ticket__answer,
 .round-ticket__crowd {
@@ -637,6 +637,28 @@ function winnerIdentity(round: RoundHistoryEntry): number | string {
 
 .round-ticket__answer {
   font-size: 0.9rem;
+}
+
+.round-ticket__winning-answer {
+  min-width: 0;
+}
+
+.round-ticket__answer--blank {
+  font-family: 'Nanum Pen Script', 'Inter', sans-serif;
+  font-size: 1.45rem;
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.round-ticket__winner {
+  margin: 8px 0 0 29px;
+  color: var(--pimd-ink-soft);
+  font-family: 'Bungee', sans-serif;
+  font-size: 0.53rem;
+  line-height: 1.25;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .round-ticket__question > span,

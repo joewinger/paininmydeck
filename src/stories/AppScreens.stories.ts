@@ -286,6 +286,15 @@ export const GameWon: Story = {
     await expect(canvas.getByRole('img', { name: /Cumulative score by round/u })).toBeVisible();
     await expect(canvas.getByRole('list', { name: 'Player chart key' })).toBeVisible();
     await expect(canvas.getByRole('heading', { name: 'What took each point' })).toBeVisible();
+
+    const timeline = canvas.getByRole('list', { name: 'Winning answers by round' });
+    const handwrittenAnswer = within(timeline).getByText('Someone brought a spreadsheet.');
+    const ticket = handwrittenAnswer.closest('.round-ticket');
+    const winner = ticket?.querySelector('.round-ticket__winner');
+    await expect(handwrittenAnswer).toHaveClass('round-ticket__answer--blank');
+    await expect(getComputedStyle(handwrittenAnswer).fontFamily).toContain('Nanum Pen Script');
+    await expect(winner).toHaveTextContent('Winner · #4 · Sam');
+    await expect(handwrittenAnswer.nextElementSibling).toBe(winner);
   },
 };
 
