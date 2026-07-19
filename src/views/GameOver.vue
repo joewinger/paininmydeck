@@ -137,12 +137,20 @@
         Leave Game
       </button>
     </section>
+
+    <game-recap
+      v-if="game.roundHistory.length > 0"
+      class="gameover-recap"
+      :leaderboard="roomData.leaderboard"
+      :rounds="game.roundHistory"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import GameRecap from '@/components/GameRecap.vue';
 import { blankify } from '@/shared/protocol';
 import { useGameStore } from '@/stores/game';
 
@@ -169,8 +177,13 @@ function getOrdinalSuffix(number: number): string {
 }
 
 .gameover-poster-wrap,
-.gameover-standings {
+.gameover-standings,
+.gameover-recap {
   z-index: 1;
+}
+
+.gameover-poster-wrap,
+.gameover-standings {
   width: min(100%, 660px);
   margin-inline: auto;
 }
@@ -780,6 +793,10 @@ function getOrdinalSuffix(number: number): string {
 
   .gameover-poster {
     min-height: 470px;
+  }
+
+  .gameover-recap {
+    grid-column: 1 / -1;
   }
 }
 

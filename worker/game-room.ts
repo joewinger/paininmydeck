@@ -164,6 +164,7 @@ type RoundAnswerRow = SqlRow<{
   round_number: number;
   answer_order: number;
   text: string;
+  is_blank: number;
   player_id: string | null;
   player_name: string;
   is_winner: number;
@@ -1532,6 +1533,7 @@ export class GameRoom extends DurableObject<Env> {
         round: round.round_number,
         question: round.question,
         winningAnswer: round.winning_answer,
+        ...(winningAnswer?.is_blank === 1 ? { winningAnswerBlank: true } : {}),
         ...(round.winning_player_id === null ? {} : { winningPlayerId: round.winning_player_id }),
         winningPlayerDisplayName: round.winning_player_name,
         winningAnswerApplause: winningAnswer?.applause_count ?? 0,
@@ -2331,8 +2333,8 @@ export class GameRoom extends DurableObject<Env> {
       this.sql.exec(
         `INSERT INTO round_answers (
 					round_number, answer_order, text, player_id,
-					player_name, is_winner, applause_count
-				) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+					player_name, is_winner, applause_count, is_blank
+				) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         room.round_number,
         answerOrder,
         submission.custom_text ?? submission.card_text,
@@ -2340,6 +2342,7 @@ export class GameRoom extends DurableObject<Env> {
         submission.display_name,
         submission.submission_id === winner.submission_id ? 1 : 0,
         applauseTotals.get(submission.submission_id) ?? 0,
+        submission.is_blank,
       );
     }
     this.sql.exec(

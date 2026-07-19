@@ -88,6 +88,7 @@ export interface RoundHistoryEntry {
   round: number;
   question: string;
   winningAnswer: string;
+  winningAnswerBlank?: boolean;
   winningPlayerId?: string;
   winningPlayerDisplayName: string;
   winningAnswerApplause: number;

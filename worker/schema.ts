@@ -1,4 +1,4 @@
-const LATEST_MIGRATION_VERSION = 3;
+const LATEST_MIGRATION_VERSION = 4;
 
 export function migrate(storage: DurableObjectStorage): void {
   const sql = storage.sql;
@@ -252,6 +252,20 @@ export function migrate(storage: DurableObjectStorage): void {
       sql.exec(
         'INSERT INTO _sql_schema_migrations(version, applied_at) VALUES (?, ?)',
         3,
+        Date.now(),
+      );
+    });
+    current = 3;
+  }
+
+  if (current < 4) {
+    storage.transactionSync(() => {
+      sql.exec(
+        'ALTER TABLE round_answers ADD COLUMN is_blank INTEGER NOT NULL DEFAULT 0 CHECK (is_blank IN (0, 1))',
+      );
+      sql.exec(
+        'INSERT INTO _sql_schema_migrations(version, applied_at) VALUES (?, ?)',
+        4,
         Date.now(),
       );
     });
