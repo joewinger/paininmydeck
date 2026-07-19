@@ -213,6 +213,8 @@ test('TV mode creates a room and leaves the first phone in charge', async ({
       'data-join-url',
       new RegExp(`/join/${roomId}$`),
     );
+    await expect(display.getByText('Pass this around the room')).toHaveCount(0);
+    await expect(display.getByText('The room is quiet… for now.')).toBeVisible();
     await expect(display.getByText('0 of 8 players are checked in.')).toBeVisible();
 
     const phone = await joinRoom(phoneContext, roomId, 'Alice', 0);

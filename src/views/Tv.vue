@@ -20,7 +20,6 @@
           <room-qr-code :room-id="game.roomId ?? ''" :size="300" />
 
           <div class="tv-lobby__copy">
-            <p class="pimd-eyebrow">Pass this around the room</p>
             <h1 id="tv-lobby-title">Join the game</h1>
             <strong class="tv-room-code">{{ game.roomId }}</strong>
             <p>
@@ -174,7 +173,7 @@
 
           <div class="tv-chat__messages" role="log" aria-live="polite" aria-label="Room chat">
             <p v-if="visibleChatMessages.length === 0" class="tv-chat__empty">
-              The room is quiet—for now.
+              The room is quiet… for now.
             </p>
             <chat-message
               v-for="(message, index) in visibleChatMessages"
