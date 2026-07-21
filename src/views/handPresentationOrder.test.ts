@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { cardsInHandOrder, reconcileHandOrder, shuffleHandOrder } from './handPresentationOrder';
+import {
+  cardsInHandOrder,
+  reconcileHandOrder,
+  shuffleHandOrder,
+  shuffleHandOrderWithGroup,
+} from './handPresentationOrder';
 
 const hand = [
   { id: 'one', text: 'One' },
@@ -56,5 +61,23 @@ describe('hand presentation order', () => {
     expect(shuffleHandOrder(original, () => 0.999)).toEqual(['three', 'one', 'two']);
     expect(original).toEqual(['one', 'two', 'three']);
     expect(shuffleHandOrder(['one'], () => 0.999)).toEqual(['one']);
+  });
+
+  it('shuffles grouped cards as one visible unit', () => {
+    const original = ['one', 'blank-z', 'blank-a', 'two'];
+
+    expect(shuffleHandOrderWithGroup(original, ['blank-z', 'blank-a'], () => 0.999)).toEqual([
+      'two',
+      'one',
+      'blank-z',
+      'blank-a',
+    ]);
+    expect(original).toEqual(['one', 'blank-z', 'blank-a', 'two']);
+  });
+
+  it('keeps an all-grouped hand unchanged because it has one visible unit', () => {
+    expect(
+      shuffleHandOrderWithGroup(['blank-z', 'blank-a'], ['blank-z', 'blank-a'], () => 0),
+    ).toEqual(['blank-z', 'blank-a']);
   });
 });

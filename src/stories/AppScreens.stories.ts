@@ -250,6 +250,14 @@ export const CountedBlankStack: Story = {
       '4 blank cards in your hand. Writing an answer uses one blank card.',
     );
 
+    const visibleCardOrder = () =>
+      Array.from(
+        canvasElement.querySelectorAll('#card-container > .whiteCard-wrapper > .whiteCard'),
+      ).map((card) => card.getAttribute('aria-label'));
+    const initialCardOrder = visibleCardOrder();
+    await userEvent.click(canvas.getByRole('button', { name: 'Shuffle hand' }));
+    await waitFor(() => expect(visibleCardOrder()).not.toEqual(initialCardOrder));
+
     const editor = within(stack).getByRole('textbox', { name: 'Your blank answer' });
     editor.focus();
     await expect(editor).toHaveFocus();
@@ -312,6 +320,7 @@ export const AllBlankStackMobile: Story = {
     ).toBeVisible();
     await expect(canvas.queryByRole('button', { name: /^Select answer:/ })).not.toBeInTheDocument();
     await expect(canvas.queryByRole('button', { name: 'Redraw card' })).not.toBeInTheDocument();
+    await expect(canvas.getByRole('button', { name: 'Shuffle hand' })).toBeDisabled();
   },
 };
 

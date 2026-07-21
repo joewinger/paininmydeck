@@ -34,7 +34,7 @@
             v-if="showsPlayerHand"
             class="pimd-secondary-button game-shuffle-button"
             type="button"
-            :disabled="game.hand.length < 2"
+            :disabled="presentedCardSet.length < 2"
             @click="shuffleVisibleHand"
           >
             <span aria-hidden="true">↻</span>
@@ -123,7 +123,7 @@ import type { Card, PlayedCard } from '@/shared/protocol';
 import {
   cardsInHandOrder,
   reconcileHandOrder,
-  shuffleHandOrder,
+  shuffleHandOrderWithGroup,
 } from '@/views/handPresentationOrder';
 
 const game = useGameStore();
@@ -343,7 +343,8 @@ watch(
 
 function shuffleVisibleHand(): void {
   const currentOrder = reconcileHandOrder(handPresentationOrder.value, game.hand);
-  handPresentationOrder.value = shuffleHandOrder(currentOrder);
+  const blankCardIds = game.hand.filter(isEditableBlankCard).map((card) => card.id);
+  handPresentationOrder.value = shuffleHandOrderWithGroup(currentOrder, blankCardIds);
 }
 
 onBeforeRouteLeave((to) => {
