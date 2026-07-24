@@ -58,6 +58,16 @@
           </div>
         </div>
 
+        <p
+          v-if="showsPlayerHand"
+          class="game-blank-stack-status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {{ blankStackAnnouncement }}
+        </p>
+
         <transition-group
           id="card-container"
           tag="div"
@@ -66,18 +76,19 @@
           :aria-label="cardSetLabel"
         >
           <white-card
-            v-for="(card, index) in cardSet"
-            :key="card.id"
+            v-for="(entry, index) in presentedCardSet"
+            :key="entry.card.id"
             role="listitem"
             :style="{ '--delay': index * 0.3 + 's' }"
             :index="index"
-            :card="card"
+            :card="entry.card"
+            :blank-count="entry.blankCount"
             :facedown="(game.playedThisTurn || game.isCzar) && game.phase === 'COLLECTING'"
-            :selected="selectedCardId === card.id"
-            :confirmation-pending="confirmationPending && selectedCardId === card.id"
-            :blank-text="blankDrafts[card.id] ?? ''"
+            :selected="selectedCardId === entry.card.id"
+            :confirmation-pending="confirmationPending && selectedCardId === entry.card.id"
+            :blank-text="blankDrafts[entry.card.id] ?? ''"
             @select="selectCard"
-            @update:blank-text="updateBlankDraft(card.id, $event)"
+            @update:blank-text="updateBlankDraft(entry.card.id, $event)"
           />
         </transition-group>
       </section>
@@ -91,6 +102,11 @@ import { onBeforeRouteLeave } from 'vue-router';
 import InfoBar from '@/components/InfoBar.vue';
 import QuestionCard from '@/components/QuestionCard.vue';
 import WhiteCard from '@/components/WhiteCard.vue';
+import {
+  isEditableBlankCard,
+  presentHandCards,
+  type PresentedHandCard,
+} from '@/views/blankCardStack';
 import { useGameStore } from '@/stores/game';
 import { useUiStore } from '@/stores/ui';
 import type { Card, PlayedCard } from '@/shared/protocol';
@@ -179,10 +195,25 @@ const cardSetLabel = computed(() => {
   return 'Your answer cards';
 });
 
+const showsPlayerHand = computed(
+  () => !game.turn.winningCard && !game.isCzar && !game.playedThisTurn,
+);
+
 const cardSet = computed<(Card | PlayedCard)[]>(() => {
   if (game.turn.winningCard) return [game.turn.winningCard];
   if (game.isCzar || game.playedThisTurn) return game.turn.playedCards;
   return game.hand;
+});
+const presentedCardSet = computed<PresentedHandCard[]>(() =>
+  showsPlayerHand.value
+    ? presentHandCards(game.hand, selectedCardId.value)
+    : cardSet.value.map((card) => ({ card })),
+);
+const blankCardCount = computed(() => game.hand.filter(isEditableBlankCard).length);
+const blankStackAnnouncement = computed(() => {
+  const count = blankCardCount.value;
+  if (count === 0) return 'No blank cards in your hand.';
+  return `${count} blank ${count === 1 ? 'card' : 'cards'} in your hand. Writing an answer uses one blank card.`;
 });
 
 const selectedCard = computed(() =>
@@ -223,21 +254,11 @@ const canConfirmSelection = computed(
     !game.cardActionPending,
 );
 const selectionContext = computed(() => {
-  const availableCards =
-    selectionMode.value === 'answer'
-      ? game.hand
-      : selectionMode.value === 'winner'
-        ? game.turn.playedCards
-        : [];
   return [
     game.self?.playerId ?? '',
     game.turn.roundId,
     game.phase,
     game.isCzar ? 'czar' : 'player',
-    availableCards
-      .map((card) => card.id)
-      .sort()
-      .join(','),
   ].join('|');
 });
 
@@ -286,6 +307,13 @@ async function confirmSelection(): Promise<void> {
 }
 
 watch(selectionContext, clearStaleSelection, { flush: 'sync' });
+watch(
+  () => [selectedCardId.value, cardSet.value.map((card) => card.id).join('|')] as const,
+  ([cardId]) => {
+    if (cardId && !cardSet.value.some((card) => card.id === cardId)) clearStaleSelection();
+  },
+  { flush: 'sync' },
+);
 
 onBeforeRouteLeave((to) => {
   if (to.name !== 'home' || game.beingKicked || game.terminalExit !== null) return true;
@@ -453,6 +481,17 @@ onBeforeRouteLeave((to) => {
   margin: 0;
   padding: 7px 0 16px;
   perspective: 800px;
+}
+
+.game-blank-stack-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Transition-group needs a short removal buffer before the staggered hand arrives. */

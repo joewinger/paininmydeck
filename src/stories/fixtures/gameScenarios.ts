@@ -56,6 +56,22 @@ const hand: Card[] = [
   { id: 'answer-6', text: 'Putting the team on my back and immediately falling over.' },
 ];
 
+const mixedBlankStackHand: Card[] = [
+  { id: 'answer-stack-1', text: 'A regular card on either side of the stack.' },
+  { id: 'blank-z', text: '%BLANK%', blank: true },
+  { id: 'answer-stack-2', text: 'Proof that regular cards remain individual.' },
+  { id: 'blank-c', text: '%BLANK%', blank: true },
+  { id: 'blank-a', text: '%BLANK%', blank: true },
+  { id: 'blank-m', text: '%BLANK%', blank: true },
+];
+
+const allBlankStackHand: Card[] = [
+  { id: 'blank-z', text: '%BLANK%', blank: true },
+  { id: 'blank-c', text: '%BLANK%', blank: true },
+  { id: 'blank-a', text: '%BLANK%', blank: true },
+  { id: 'blank-m', text: '%BLANK%', blank: true },
+];
+
 const playedCards: Card[] = [
   { id: 'played-rowan', text: 'A group chat that should have stayed private.' },
   { id: 'played-jules', text: 'The confidence of a man with the wrong answer.' },
@@ -185,6 +201,7 @@ function playingFixture(
     cardActionPending?: boolean;
     connectionState?: 'open' | 'reconnecting';
     disconnectedPlayerId?: string;
+    hand?: Card[];
   } = {},
 ): GameStoryFixture {
   const phase = options.phase ?? 'COLLECTING';
@@ -225,7 +242,10 @@ function playingFixture(
         chatMessages,
         roundHistory,
       },
-      me: privatePlayer(playerId, { playedThisTurn: options.playedThisTurn ?? false }),
+      me: privatePlayer(playerId, {
+        playedThisTurn: options.playedThisTurn ?? false,
+        ...(options.hand ? { hand: structuredClone(options.hand) } : {}),
+      }),
     }),
     state: {
       connectionState: options.connectionState ?? 'open',
@@ -240,6 +260,12 @@ export const gameScenarios = {
   lobbyGuest: lobbyFixture('rowan'),
   lobbyDisconnected: lobbyFixture('alex', { disconnectedPlayerId: 'sam' }),
   playerCollecting: playingFixture('rowan'),
+  playerBlankStack: playingFixture('rowan', { hand: mixedBlankStackHand }),
+  playerAllBlankStack: playingFixture('rowan', { hand: allBlankStackHand }),
+  playerBlankStackReconnecting: playingFixture('rowan', {
+    hand: mixedBlankStackHand,
+    connectionState: 'reconnecting',
+  }),
   playerActionPending: playingFixture('rowan', { cardActionPending: true }),
   playerSubmitted: playingFixture('rowan', { playedThisTurn: true }),
   playerReconnecting: playingFixture('rowan', { connectionState: 'reconnecting' }),
