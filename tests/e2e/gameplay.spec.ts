@@ -100,12 +100,17 @@ test('three friends can complete a game and reload the results', async ({ browse
       .not.toContain(originalCardText as string);
 
     await second.locator('.whiteCard').nth(1).click();
+    await expect(second.getByRole('button', { name: 'Play Card' })).toBeEnabled();
+    await second.getByRole('button', { name: 'Play Card' }).click();
     await expect(second.locator('#infoBar')).toContainText('Waiting for everyone to play a card!');
     await third.locator('.whiteCard').nth(1).click();
+    await third.getByRole('button', { name: 'Play Card' }).click();
     await expect(third.locator('#infoBar')).toContainText('Waiting for Alice to pick a winner');
     await expect(host.locator('.whiteCard')).toHaveCount(2);
     await expect(host.locator('.whiteCard.facedown')).toHaveCount(0);
     await host.locator('.whiteCard').first().click();
+    await expect(host.getByRole('button', { name: 'Choose Winner' })).toBeEnabled();
+    await host.getByRole('button', { name: 'Choose Winner' }).click();
 
     await Promise.all([
       expect(host).toHaveURL(new RegExp(`/join/${roomId}/results$`), { timeout: 7_000 }),

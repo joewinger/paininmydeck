@@ -623,6 +623,8 @@ describe('GameRoom multiplayer contract', () => {
       }),
     );
     expect(blankSubmission.room.turn.playedCards).toEqual([{ id: 'facedown-0', text: '' }]);
+    expect(blankSubmission.me?.hand).toHaveLength(2);
+    expect(blankSubmission.me?.hand.map((card) => card.id)).not.toContain(blank.id);
 
     const playerThreeCard = playerThreeFrame.frame.snapshot.me?.hand.find(
       (card) => card.blank !== true,

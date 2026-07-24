@@ -8,6 +8,8 @@
       'is-dragging': isDragging,
       'is-winner': isWinner,
       'is-facedown': effectiveFacedown,
+      'is-selected': selected,
+      'is-blank-stack': isBlankStack,
     }"
     :style="cardStyle"
   >
@@ -31,7 +33,8 @@
       :disabled="isEditableBlank ? undefined : !isCardActionable"
       :role="isEditableBlank ? 'group' : undefined"
       :aria-label="cardAriaLabel"
-      :aria-busy="pending || undefined"
+      :aria-pressed="!isEditableBlank && isCardActionable ? selected : undefined"
+      :aria-busy="effectivePending || undefined"
       @click="onClick"
     >
       <span v-if="effectiveFacedown" class="card-back" aria-hidden="true">
@@ -41,6 +44,13 @@
       <template v-else>
         <span class="card-index" aria-hidden="true">{{ displayIndex }}</span>
         <span class="card-meta" aria-hidden="true">{{ cardMeta }}</span>
+        <span
+          v-if="isBlankStack"
+          class="blank-stack-count"
+          aria-hidden="true"
+        >
+          {{ blankCountLabel }}
+        </span>
 
         <span
           v-if="!isEditableBlank"
@@ -53,34 +63,22 @@
 
         <template v-else-if="!pending">
           <textarea
-            v-model="blanktext"
+            :value="blankText"
             class="blank-input"
             aria-label="Your blank answer"
             placeholder="Blank Card"
             maxlength="60"
-            @focus="editing = true"
+            @input="updateBlankText"
+            @focus="startBlankEditing"
             @blur="onBlur"
           />
           <span
-            v-if="editing && blanktext.length > 30"
+            v-if="editing && blankText.length > 30"
             class="char-limit"
             aria-live="polite"
           >
-            {{ blanktext.length }}/60
+            {{ blankText.length }}/60
           </span>
-          <transition name="save-btn">
-            <button
-              v-if="editing"
-              class="btn-save"
-              type="button"
-              aria-label="Play blank answer"
-              :disabled="game.cardActionPending"
-              @pointerdown="preserveBlankSave"
-              @click.stop="submitBlankCard"
-            >
-              <ion-icon name="checkmark" aria-hidden="true" />
-            </button>
-          </transition>
         </template>
 
         <span v-if="isWinner" class="ribbon">
@@ -100,31 +98,53 @@ import interact from 'interactjs';
 import { hasScrollableCardText } from '@/components/cardTextOverflow';
 import type { Card, PlayedCard } from '@/shared/protocol';
 import { useGameStore } from '@/stores/game';
-import { useUiStore } from '@/stores/ui';
 
-const props = withDefaults(defineProps<{ card: Card | PlayedCard; facedown?: boolean; index?: number }>(), {
-	facedown: false,
-	index: 0,
-});
+const props = withDefaults(
+  defineProps<{
+    card: Card | PlayedCard;
+    facedown?: boolean;
+    index?: number;
+    selected?: boolean;
+    confirmationPending?: boolean;
+    blankText?: string;
+    blankCount?: number;
+  }>(),
+  {
+    facedown: false,
+    index: 0,
+    selected: false,
+    confirmationPending: false,
+    blankText: '',
+  },
+);
+const emit = defineEmits<{
+  select: [cardId: string];
+  'update:blankText': [value: string];
+}>();
 const game = useGameStore();
-const ui = useUiStore();
 const wrapperElement = ref<HTMLElement | null>(null);
 const cardElement = ref<HTMLElement | null>(null);
 const cardTextElement = ref<HTMLElement | null>(null);
 const cardTextOverflows = ref(false);
-const blanktext = ref('');
 const editing = ref(false);
-const disableClicks = ref(false);
 const pending = ref(false);
-const pendingAction = ref<'play' | 'choose-winner' | 'blank' | 'redraw' | null>(null);
+const pendingAction = ref<'redraw' | null>(null);
 const isDragging = ref(false);
 const swipeOffset = ref(0);
 const trashOpenOffset = ref(64);
 const trashMode = ref(false);
 const isEditableBlank = computed(() => props.card.text.startsWith('%BLANK%'));
+const isBlankStack = computed(
+  () => isEditableBlank.value && props.blankCount !== undefined && props.blankCount > 0,
+);
+const blankCountLabel = computed(() => {
+  const count = props.blankCount ?? 0;
+  return `${count} blank ${count === 1 ? 'card' : 'cards'}`;
+});
 const usesBlankFont = computed(() => Boolean(props.card.blank));
 const isWinner = computed(() => game.turn.winningCard?.id === props.card.id);
-const effectiveFacedown = computed(() => props.facedown || pending.value);
+const effectivePending = computed(() => pending.value || props.confirmationPending);
+const effectiveFacedown = computed(() => props.facedown || effectivePending.value);
 const isTrashable = computed(
   () =>
     !pending.value &&
@@ -134,19 +154,21 @@ const isTrashable = computed(
     !game.isCzar,
 );
 const cardActionIntent = computed<'play' | 'choose-winner' | null>(() => {
-  if (isEditableBlank.value || effectiveFacedown.value) return null;
+  if (effectiveFacedown.value) return null;
   if (game.isCzar) {
     return game.phase === 'JUDGING' && game.turn.winningCard === null ? 'choose-winner' : null;
   }
   return game.phase === 'COLLECTING' && !game.playedThisTurn ? 'play' : null;
 });
 const isCardActionable = computed(
-  () => cardActionIntent.value !== null && !disableClicks.value && !game.cardActionPending,
+  () => cardActionIntent.value !== null && !game.cardActionPending,
 );
 const cardTag = computed(() => (isEditableBlank.value ? 'div' : 'button'));
 const displayIndex = computed(() => String(props.index + 1).padStart(2, '0'));
 const cardMeta = computed(() => {
   if (isWinner.value) return 'Round winner';
+  if (isBlankStack.value) return props.selected ? 'Selected · uses one' : 'Uses one card';
+  if (props.selected) return game.isCzar ? 'Selected winner' : 'Selected answer';
   if (isEditableBlank.value) return 'Wild card';
   return game.isCzar || game.playedThisTurn
     ? `Candidate ${displayIndex.value}`
@@ -168,39 +190,49 @@ const cardStyle = computed<Record<string, string>>(() => ({
   '--trash-open-offset': `${trashOpenOffset.value}px`,
 }));
 const facedownStamp = computed(() => {
-  if (!pending.value) return 'Under wraps';
-  if (pendingAction.value === 'choose-winner') return 'Choosing…';
+  if (!effectivePending.value) return 'Under wraps';
+  if (props.confirmationPending && game.isCzar) return 'Choosing…';
+  if (props.confirmationPending) return 'Sending…';
   if (pendingAction.value === 'redraw') return 'Redrawing…';
-  return 'Sending…';
+  return 'Under wraps';
 });
 const cardAriaLabel = computed(() => {
-  if (pending.value) {
-    if (pendingAction.value === 'choose-winner') return 'Choosing winner';
+  if (effectivePending.value) {
+    if (props.confirmationPending && game.isCzar) return 'Choosing winner';
+    if (props.confirmationPending && isBlankStack.value)
+      return `Submitting one answer from ${blankCountLabel.value}`;
+    if (props.confirmationPending) return 'Submitting answer';
     if (pendingAction.value === 'redraw') return 'Redrawing card';
-    if (pendingAction.value === 'blank') return 'Submitting blank answer';
-    return 'Submitting answer';
   }
   if (effectiveFacedown.value) return `Hidden answer ${props.index + 1}`;
   if (isWinner.value) {
     const player = game.turn.winningCard?.playedByDisplayName ?? 'another player';
     return `Winning answer: ${props.card.text}. Played by ${player}`;
   }
-  if (isEditableBlank.value) return 'Write your own answer';
-  if (cardActionIntent.value === 'choose-winner') return `Choose winner: ${props.card.text}`;
-  if (cardActionIntent.value === 'play') return `Play answer: ${props.card.text}`;
+  if (isBlankStack.value) {
+    const selectedState = props.selected ? ' Selected.' : '';
+    return `${blankCountLabel.value}.${selectedState} Write an answer to play one blank card.`;
+  }
+  if (isEditableBlank.value)
+    return props.selected ? 'Selected blank answer. Write your answer.' : 'Write your own answer';
+  if (cardActionIntent.value === 'choose-winner')
+    return `${props.selected ? 'Selected winner' : 'Select winner'}: ${props.card.text}`;
+  if (cardActionIntent.value === 'play')
+    return `${props.selected ? 'Selected answer' : 'Select answer'}: ${props.card.text}`;
   return `Answer: ${props.card.text}`;
 });
 const classList = computed(() => ({
   facedown: effectiveFacedown.value,
   winner: isWinner.value,
   blank: isEditableBlank.value,
+  'blank-stack': isBlankStack.value,
   blankfont: usesBlankFont.value && !isEditableBlank.value,
   actionable: isCardActionable.value,
-  pending: pending.value,
+  selected: props.selected,
+  pending: effectivePending.value,
 }));
 let peekTimer: number | undefined;
 let closePeekTimer: number | undefined;
-let blankSavePointerDown = false;
 let cardTextResizeObserver: ResizeObserver | undefined;
 
 function measureCardTextOverflow() {
@@ -239,12 +271,11 @@ function handleEscape(event: KeyboardEvent) {
   if (event.key === 'Escape') closeTrashMode();
 }
 
-async function onClick(mouseEvent: MouseEvent) {
+function onClick(mouseEvent: MouseEvent) {
   if (
     !props.card.text ||
     effectiveFacedown.value ||
     isDragging.value ||
-    disableClicks.value ||
     game.cardActionPending
   )
     return;
@@ -254,75 +285,30 @@ async function onClick(mouseEvent: MouseEvent) {
     return;
   }
   if (isEditableBlank.value) {
+    emit('select', props.card.id);
     const target = mouseEvent.target as HTMLElement;
-    if (!target.closest('.blank-input, .btn-save')) {
+    if (!target.closest('.blank-input')) {
       cardElement.value?.querySelector<HTMLTextAreaElement>('.blank-input')?.focus();
     }
     editing.value = true;
     return;
   }
 
-  disableClicks.value = true;
-  pendingAction.value = cardActionIntent.value;
-  pending.value = true;
-  game.cardActionPending = true;
-  try {
-    if (game.isCzar) {
-      if (game.phase === 'JUDGING' && game.turn.winningCard === null) {
-        await game.chooseWinner(props.card.id);
-      }
-    } else if (game.phase === 'COLLECTING' && !game.playedThisTurn) {
-      await game.submitCard(props.card.id);
-    }
-  } catch {
-    // The store reports command failures in the existing toast.
-  } finally {
-    pending.value = false;
-    pendingAction.value = null;
-    disableClicks.value = false;
-    game.cardActionPending = false;
-  }
+  if (cardActionIntent.value) emit('select', props.card.id);
 }
 
-function onBlur(event: FocusEvent) {
-  if (blankSavePointerDown) return;
-  if ((event.relatedTarget as HTMLElement | null)?.classList.contains('btn-save')) return;
+function onBlur() {
   editing.value = false;
 }
 
-function preserveBlankSave() {
-  blankSavePointerDown = true;
-  window.setTimeout(() => {
-    blankSavePointerDown = false;
-  }, 500);
+function startBlankEditing() {
+  editing.value = true;
+  if (cardActionIntent.value) emit('select', props.card.id);
 }
 
-async function submitBlankCard() {
-  editing.value = false;
-  blanktext.value = blanktext.value.trim().slice(0, 60);
-  if (!blanktext.value) {
-    ui.notify({ message: "Blank cards can't be blank!" });
-    return;
-  }
-  if (blanktext.value.startsWith('%BLANK%')) {
-    ui.notify({ message: "Blank cards can't begin like that!" });
-    blanktext.value = '';
-    return;
-  }
-  disableClicks.value = true;
-  pendingAction.value = 'blank';
-  pending.value = true;
-  game.cardActionPending = true;
-  try {
-    await game.submitBlank(props.card.id, blanktext.value);
-  } catch {
-    // The store reports command failures in the existing toast.
-  } finally {
-    pending.value = false;
-    pendingAction.value = null;
-    disableClicks.value = false;
-    game.cardActionPending = false;
-  }
+function updateBlankText(event: Event) {
+  const value = (event.target as HTMLTextAreaElement).value.slice(0, 60);
+  emit('update:blankText', value);
 }
 
 async function trashCard() {
@@ -437,12 +423,33 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
+.whiteCard-wrapper.is-blank-stack::before {
+  inset: 7px -7px -8px 7px;
+  transform: rotate(1.15deg);
+}
+
+.whiteCard-wrapper.is-blank-stack::after {
+  position: absolute;
+  inset: 12px -12px -13px 12px;
+  z-index: 0;
+  transform: rotate(2deg);
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-secondary);
+  box-shadow: 2px 3px 0 rgb(45 37 64 / 18%);
+  content: '';
+  pointer-events: none;
+}
+
 .whiteCard-wrapper.is-winner::before {
   background: var(--pimd-meta);
 }
 
 .whiteCard-wrapper.is-facedown::before {
   background: var(--pimd-primary-dark);
+}
+
+.whiteCard-wrapper.is-selected::before {
+  background: var(--pimd-highlight);
 }
 
 .whiteCard {
@@ -508,9 +515,18 @@ onBeforeUnmount(() => {
   transform: translate(5px, 6px) rotate(0deg);
 }
 
+.whiteCard.selected,
+.whiteCard.selected:hover,
+.whiteCard.selected:active {
+  border-color: var(--pimd-ink);
+  background-color: var(--pimd-highlight);
+  box-shadow: 0 0 0 4px var(--pimd-meta);
+  color: var(--pimd-ink);
+  transform: translateY(-7px) rotate(0deg);
+}
+
 .whiteCard:focus-visible,
 .blank-input:focus-visible,
-.btn-save:focus-visible,
 .btn-trash:focus-visible {
   outline: 3px solid var(--pimd-ink);
   outline-offset: 4px;
@@ -550,6 +566,26 @@ onBeforeUnmount(() => {
   font-weight: 400;
   line-height: 1;
   letter-spacing: 0;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.blank-stack-count {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  max-width: calc(100% - 50px);
+  padding: 5px 6px 4px;
+  overflow: hidden;
+  border: 2px solid var(--pimd-ink);
+  background: var(--pimd-highlight);
+  color: var(--pimd-ink);
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(7px, 1.9vw, 9px);
+  font-weight: 400;
+  line-height: 1;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
@@ -628,7 +664,6 @@ onBeforeUnmount(() => {
   letter-spacing: 0;
 }
 
-.btn-save,
 .btn-trash {
   display: grid;
   width: 44px;
@@ -643,56 +678,11 @@ onBeforeUnmount(() => {
   line-height: 1;
 }
 
-.btn-save {
-  position: absolute;
-  right: 7px;
-  bottom: 7px;
-  z-index: 4;
-  background: var(--pimd-primary);
-  box-shadow: 3px 3px 0 var(--pimd-highlight);
-  color: var(--pimd-on-primary);
-}
-
-.btn-save:hover:not(:disabled) {
-  border-color: var(--pimd-ink);
-  background: var(--pimd-primary-dark);
-  color: var(--pimd-on-primary);
-  transform: translateY(-2px);
-}
-
-.btn-save:active:not(:disabled) {
-  border-color: var(--pimd-ink);
-  background: var(--pimd-primary-dark);
-  color: var(--pimd-on-primary);
-  box-shadow: 1px 1px 0 var(--pimd-highlight);
-  transform: translate(2px, 2px);
-}
-
-.btn-save:disabled {
-  border-color: var(--pimd-ink);
-  background: var(--pimd-primary);
-  color: var(--pimd-on-primary);
-  opacity: 0.55;
-}
-
 .btn-trash:disabled {
   border-color: var(--pimd-ink);
   background: var(--pimd-danger);
   color: var(--pimd-paper);
   opacity: 0.55;
-}
-
-.save-btn-enter-active,
-.save-btn-leave-active {
-  transition:
-    opacity 120ms ease,
-    transform 120ms ease;
-}
-
-.save-btn-enter-from,
-.save-btn-leave-to {
-  opacity: 0;
-  transform: scale(0.65);
 }
 
 .btn-trash {
@@ -873,7 +863,6 @@ onBeforeUnmount(() => {
 
 @media (prefers-reduced-motion: reduce) {
   .whiteCard,
-  .btn-save,
   .btn-trash,
   .whiteCard.pending .card-back > span {
     animation: none;
@@ -883,11 +872,12 @@ onBeforeUnmount(() => {
 
 @media (forced-colors: active) {
   .whiteCard-wrapper::before,
+  .whiteCard-wrapper.is-blank-stack::after,
   .whiteCard,
   .card-index,
+  .blank-stack-count,
   .card-back > span,
   .ribbon,
-  .btn-save,
   .btn-trash {
     border-color: CanvasText;
     background: Canvas;

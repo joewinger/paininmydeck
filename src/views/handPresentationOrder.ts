@@ -57,3 +57,29 @@ export function shuffleHandOrder(
 
   return shuffled;
 }
+
+/** Shuffle one presentation group as a single visible unit. */
+export function shuffleHandOrderWithGroup(
+  currentOrder: readonly string[],
+  groupedCardIds: readonly string[],
+  random: RandomSource = Math.random,
+): string[] {
+  const groupedIdSet = new Set(groupedCardIds);
+  const groupedOrder = currentOrder.filter((cardId) => groupedIdSet.has(cardId));
+  if (groupedOrder.length === 0) return shuffleHandOrder(currentOrder, random);
+
+  const visibleUnits: string[][] = [];
+  let groupInserted = false;
+  for (const cardId of currentOrder) {
+    if (!groupedIdSet.has(cardId)) {
+      visibleUnits.push([cardId]);
+      continue;
+    }
+    if (groupInserted) continue;
+    visibleUnits.push(groupedOrder);
+    groupInserted = true;
+  }
+
+  const unitOrder = visibleUnits.map((_, index) => String(index));
+  return shuffleHandOrder(unitOrder, random).flatMap((index) => visibleUnits[Number(index)]);
+}
