@@ -7,6 +7,11 @@ import type {
 import { RoomError } from './errors';
 
 const COMMAND_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/u;
+const HAND_REDEAL_MODES: ReadonlySet<string> = new Set([
+  'replenish',
+  'every_round',
+  'czar_rotation',
+]);
 const ALLOWED_COLOR_SETS = new Set([
   '#EE796E,#FAB4AD',
   '#F2A971,#FCD4B5',
@@ -31,6 +36,10 @@ function emptyPayload(value: unknown): value is Record<string, never> {
   return isRecord(value) && Object.keys(value).length === 0;
 }
 
+function isHandRedealMode(value: unknown): value is GameSettings['handRedealMode'] {
+  return typeof value === 'string' && HAND_REDEAL_MODES.has(value);
+}
+
 export function parseSettings(value: unknown): GameSettings {
   if (!isRecord(value)) {
     throw new RoomError('INVALID_SETTINGS', 'Game settings are invalid.');
@@ -43,7 +52,8 @@ export function parseSettings(value: unknown): GameSettings {
     !integerInRange(value.guaranteedBlanks, 0, 30) ||
     typeof value.allBlanks !== 'boolean' ||
     typeof value.familyMode !== 'boolean' ||
-    !integerInRange(value.numRedraws, 0, 30)
+    !integerInRange(value.numRedraws, 0, 30) ||
+    !isHandRedealMode(value.handRedealMode)
   ) {
     throw new RoomError('INVALID_SETTINGS', 'One or more game settings are out of range.');
   }
@@ -59,6 +69,7 @@ export function parseSettings(value: unknown): GameSettings {
     allBlanks: value.allBlanks,
     familyMode: value.familyMode,
     numRedraws: value.numRedraws,
+    handRedealMode: value.handRedealMode,
   };
 }
 

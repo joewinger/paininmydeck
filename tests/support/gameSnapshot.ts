@@ -37,6 +37,7 @@ export function makeGameSnapshot(overrides: GameSnapshotOverrides = {}): GameSna
         allBlanks: false,
         familyMode: false,
         numRedraws: 4,
+        handRedealMode: 'replenish',
         ...settingsOverrides,
       },
       turn: {

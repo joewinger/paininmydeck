@@ -219,7 +219,7 @@ test('approved refresh: mobile Settings', async ({ page }, testInfo) => {
 
   const settings = page.locator('#statusMenuContent-settings');
   await expect(settings).toBeVisible();
-  await expect(settings.locator('tr')).toHaveCount(7);
+  await expect(settings.locator('tr')).toHaveCount(8);
   await expect(settings).not.toContainText('Public Game');
   await expect
     .poll(() =>
@@ -229,6 +229,13 @@ test('approved refresh: mobile Settings', async ({ page }, testInfo) => {
     )
     .toEqual(['7', '10', '0', '0', '4']);
   await expect(settings.locator('input[type="checkbox"]')).toHaveCount(2);
+  const handRedeal = settings.getByRole('combobox', { name: 'Hand re-deal' });
+  await expect(handRedeal).toHaveValue('replenish');
+  await expect(handRedeal.locator('option')).toHaveText([
+    'Replenish played cards',
+    'Every round',
+    'After a full Czar rotation',
+  ]);
   await expect(settings.getByRole('button', { name: 'Save' })).toBeVisible();
   await page.locator('.lobby-room-card h1 strong').evaluate((element) => {
     element.textContent = 'ABCDE';

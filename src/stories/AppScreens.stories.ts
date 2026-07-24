@@ -101,6 +101,32 @@ export const SettingsOpen: Story = {
   play: async ({ canvasElement }) => {
     const canvas = await openStatusPanel(canvasElement, 2);
     await waitFor(() => expect(canvas.getByRole('heading', { name: 'Settings' })).toBeVisible());
+    const handRedeal = canvas.getByRole('combobox', { name: 'Hand re-deal' });
+    await expect(handRedeal).toHaveValue('replenish');
+    await expect(
+      canvas.getAllByRole('option').map((option: HTMLElement) => option.textContent),
+    ).toEqual(['Replenish played cards', 'Every round', 'After a full Czar rotation']);
+  },
+};
+
+export const SettingsUpdateHandRedeal: Story = {
+  name: 'Lobby / update hand re-deal',
+  parameters: { route: lobbyRoute, game: gameScenarios.lobbyHost },
+  play: async ({ canvasElement }) => {
+    const canvas = await openStatusPanel(canvasElement, 2);
+    const handRedeal = canvas.getByRole('combobox', { name: 'Hand re-deal' });
+    await userEvent.selectOptions(handRedeal, 'czar_rotation');
+    await userEvent.click(canvas.getByRole('button', { name: 'Save' }));
+    await expect(storyActions.updateSettings).toHaveBeenCalledWith({
+      cardsPerHand: 7,
+      pointsToWin: 10,
+      numBlankCards: 0,
+      guaranteedBlanks: 0,
+      allBlanks: false,
+      familyMode: false,
+      numRedraws: 4,
+      handRedealMode: 'czar_rotation',
+    });
   },
 };
 

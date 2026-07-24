@@ -1,4 +1,4 @@
-const LATEST_MIGRATION_VERSION = 2;
+const LATEST_MIGRATION_VERSION = 3;
 
 export function migrate(storage: DurableObjectStorage): void {
   const sql = storage.sql;
@@ -226,6 +226,22 @@ export function migrate(storage: DurableObjectStorage): void {
       sql.exec(
         'INSERT INTO _sql_schema_migrations(version, applied_at) VALUES (?, ?)',
         2,
+        Date.now(),
+      );
+    });
+    current = 2;
+  }
+
+  if (current < 3) {
+    storage.transactionSync(() => {
+      sql.exec(`
+			ALTER TABLE room_state
+			ADD COLUMN hand_redeal_mode TEXT NOT NULL DEFAULT 'replenish'
+			CHECK (hand_redeal_mode IN ('replenish', 'every_round', 'czar_rotation'))
+		`);
+      sql.exec(
+        'INSERT INTO _sql_schema_migrations(version, applied_at) VALUES (?, ?)',
+        3,
         Date.now(),
       );
     });
