@@ -1,6 +1,6 @@
 /// <reference types="@cloudflare/vitest-pool-workers/types" />
 
-import { env, reset } from 'cloudflare:test';
+import { env, reset, runInDurableObject } from 'cloudflare:test';
 import { afterEach, describe, expect, it } from 'vitest';
 import type {
   ClientCommand,
@@ -228,9 +228,29 @@ async function connect(lobby: TestLobby, playerIndex: number): Promise<SocketHar
   return harness;
 }
 
+async function connectDisplay(lobby: TestLobby): Promise<SocketHarness> {
+  const response = await lobby.stub.fetch(
+    new Request('https://game-room.internal/watch-socket', {
+      headers: {
+        Upgrade: 'websocket',
+        'X-PID-Room-Generation': lobby.generation,
+        'X-PID-Socket-Role': 'display',
+      },
+    }),
+  );
+  expect(response.status).toBe(101);
+  if (response.webSocket === null) {
+    throw new Error('Expected a display WebSocket response.');
+  }
+  const harness = new SocketHarness(response.webSocket);
+  const snapshot = await harness.initialSnapshot();
+  expect(snapshot.me).toBeNull();
+  return harness;
+}
+
 function simpleCommand(
   commandId: string,
-  type: 'start_game' | 'leave_room' | 'request_snapshot' | 'process_due',
+  type: 'start_game' | 'play_again' | 'leave_room' | 'request_snapshot' | 'process_due',
 ): ClientCommand {
   return { protocolVersion: 1, commandId, type, payload: {} };
 }
@@ -363,6 +383,7 @@ describe('GameRoom multiplayer contract', () => {
     expect(snapshotFrom(settingsResult).room.settings).toEqual(QUICK_SETTINGS);
 
     const playerThree = await connect(lobby, 2);
+    const display = await connectDisplay(lobby);
     const startResult = await host.command(simpleCommand('start-connected', 'start_game'));
     const hostStart = snapshotFrom(startResult);
     expect(hostStart.room).toMatchObject({
@@ -499,6 +520,129 @@ describe('GameRoom multiplayer contract', () => {
     });
     expect(finished.room.finalRecord?.winner?.points).toBe(1);
     expect(finished.room.roundHistory).toHaveLength(1);
+
+    await display.waitForSnapshot((snapshot) => snapshot.room.phase === 'FINISHED');
+    expectError(
+      await playerTwo.command(simpleCommand('non-host-rematch', 'play_again')),
+      'HOST_ONLY',
+    );
+
+    const playerTwoBeforeRematch = playerTwo.frames.length;
+    const playerThreeBeforeRematch = playerThree.frames.length;
+    const displayBeforeRematch = display.frames.length;
+    const rematchCommand = simpleCommand('host-rematch', 'play_again');
+    const rematchResult = await host.command(rematchCommand);
+    const rematch = snapshotFrom(rematchResult);
+    expect(rematch.room).toMatchObject({
+      roomId: 'ABCDE',
+      phase: 'LOBBY',
+      gameState: 'LOBBY',
+      settings: QUICK_SETTINGS,
+      players: lobby.players.map((player, index) => ({
+        playerId: player.playerId,
+        displayName: player.name,
+        points: 0,
+        czarOrder: index,
+        connected: true,
+      })),
+      turn: {
+        roundId: '',
+        round: 0,
+        questionCard: '',
+        czarPlayerId: '',
+        playedCards: [],
+        submittedPlayerIds: [],
+        winningCard: null,
+      },
+      roundHistory: [],
+      finalRecord: null,
+    });
+    expect(rematch.me).toMatchObject({
+      playerId: lobby.players[0].playerId,
+      isPrivileged: true,
+      hand: [],
+      playedThisTurn: false,
+      redrawsUsed: 0,
+    });
+    expect(rematch.room.chatMessages.at(-1)?.text).toBe(
+      'Player 1 opened the table for another game.',
+    );
+    const persistedReset = await runInDurableObject(lobby.stub, (_instance, state) => ({
+      cards: state.storage.sql
+        .exec<{ value: number }>('SELECT COUNT(*) AS value FROM card_instances')
+        .one().value,
+      questions: state.storage.sql
+        .exec<{ value: number }>('SELECT COUNT(*) AS value FROM question_cards')
+        .one().value,
+      submissions: state.storage.sql
+        .exec<{ value: number }>('SELECT COUNT(*) AS value FROM submissions')
+        .one().value,
+      rounds: state.storage.sql
+        .exec<{ value: number }>('SELECT COUNT(*) AS value FROM rounds')
+        .one().value,
+      roundAnswers: state.storage.sql
+        .exec<{ value: number }>('SELECT COUNT(*) AS value FROM round_answers')
+        .one().value,
+      finalPlayers: state.storage.sql
+        .exec<{ value: number }>('SELECT COUNT(*) AS value FROM final_players')
+        .one().value,
+      revealJobs: state.storage.sql
+        .exec<{ value: number }>(
+          "SELECT COUNT(*) AS value FROM scheduled_jobs WHERE job_type = 'reveal'",
+        )
+        .one().value,
+    }));
+    expect(persistedReset).toEqual({
+      cards: 0,
+      questions: 0,
+      submissions: 0,
+      rounds: 0,
+      roundAnswers: 0,
+      finalPlayers: 0,
+      revealJobs: 0,
+    });
+
+    const [playerTwoLobby, playerThreeLobby, displayLobby] = await Promise.all([
+      playerTwo.waitForSnapshot(
+        (snapshot) => snapshot.room.phase === 'LOBBY',
+        playerTwoBeforeRematch,
+      ),
+      playerThree.waitForSnapshot(
+        (snapshot) => snapshot.room.phase === 'LOBBY',
+        playerThreeBeforeRematch,
+      ),
+      display.waitForSnapshot((snapshot) => snapshot.room.phase === 'LOBBY', displayBeforeRematch),
+    ]);
+    expect(playerTwoLobby.frame).toMatchObject({
+      type: 'snapshot',
+      snapshot: { room: { roomId: 'ABCDE', finalRecord: null } },
+    });
+    expect(playerThreeLobby.frame).toMatchObject({
+      type: 'snapshot',
+      snapshot: { room: { roomId: 'ABCDE', finalRecord: null } },
+    });
+    expect(displayLobby.frame).toMatchObject({
+      type: 'snapshot',
+      snapshot: { room: { roomId: 'ABCDE', phase: 'LOBBY' }, me: null },
+    });
+
+    const exactRematchRetry = await host.command(rematchCommand);
+    expect(exactRematchRetry.response.frame).toEqual(rematchResult.response.frame);
+    expect(snapshotFrom(exactRematchRetry)).toEqual(rematch);
+
+    const secondGame = snapshotFrom(
+      await host.command(simpleCommand('start-second-game', 'start_game')),
+    );
+    expect(secondGame.room).toMatchObject({
+      roomId: 'ABCDE',
+      phase: 'COLLECTING',
+      gameState: 'PLAYING',
+      settings: QUICK_SETTINGS,
+      turn: { round: 1, czarPlayerId: lobby.players[0].playerId },
+      roundHistory: [],
+      finalRecord: null,
+    });
+    expect(secondGame.me?.hand).toHaveLength(3);
   });
 
   it('preserves blank-card and redraw rules configured by a non-host lobby member', async () => {
@@ -580,6 +724,8 @@ describe('GameRoom multiplayer contract', () => {
       }),
     );
     expect(blankSubmission.room.turn.playedCards).toEqual([{ id: 'facedown-0', text: '' }]);
+    expect(blankSubmission.me?.hand).toHaveLength(2);
+    expect(blankSubmission.me?.hand.map((card) => card.id)).not.toContain(blank.id);
 
     const playerThreeCard = playerThreeFrame.frame.snapshot.me?.hand.find(
       (card) => card.blank !== true,
@@ -938,6 +1084,71 @@ describe('GameRoom multiplayer contract', () => {
     });
     expect(cancelledFrame.frame.snapshot.room.players).toHaveLength(2);
     expect(cancelledFrame.frame.snapshot.room.finalRecord?.leaderboard).toHaveLength(2);
+
+    expectError(
+      await sockets[2].command(simpleCommand('cancelled-non-host-rematch', 'play_again')),
+      'HOST_ONLY',
+    );
+    const cancelledRematch = snapshotFrom(
+      await sockets[1].command(simpleCommand('cancelled-host-rematch', 'play_again')),
+    );
+    expect(cancelledRematch.room).toMatchObject({
+      roomId: 'KLMNP',
+      phase: 'LOBBY',
+      gameState: 'LOBBY',
+      settings: { ...QUICK_SETTINGS, pointsToWin: 10 },
+      players: [
+        { playerId: lobby.players[1].playerId, points: 0 },
+        { playerId: lobby.players[2].playerId, points: 0 },
+      ],
+      turn: { round: 0, czarPlayerId: '', playedCards: [] },
+      roundHistory: [],
+      finalRecord: null,
+    });
+    expect(cancelledRematch.me).toMatchObject({
+      playerId: lobby.players[1].playerId,
+      isPrivileged: true,
+      hand: [],
+    });
+
+    const replacementSession = sessionHash(4);
+    const rematchNow = Date.now();
+    const replacementEntry = unwrap(
+      await lobby.stub.enterRoom({ sessionHash: replacementSession, now: rematchNow }),
+    );
+    expect(replacementEntry).toMatchObject({ needsProfile: true, generation: lobby.generation });
+    const replacementProfile = unwrap(
+      await lobby.stub.setProfile({
+        sessionHash: replacementSession,
+        generation: lobby.generation,
+        displayName: 'Replacement',
+        colorSet: COLORS[4],
+        now: rematchNow + 1,
+      }),
+    );
+    if (replacementProfile.snapshot.me === null) {
+      throw new Error('Expected the replacement player profile.');
+    }
+    lobby.players.push({
+      name: replacementProfile.snapshot.me.displayName,
+      playerId: replacementProfile.snapshot.me.playerId,
+      sessionHash: replacementSession,
+    });
+    await connect(lobby, 4);
+
+    const restartedGame = snapshotFrom(
+      await sockets[1].command(simpleCommand('start-after-cancelled-rematch', 'start_game')),
+    );
+    expect(restartedGame.room).toMatchObject({
+      roomId: 'KLMNP',
+      phase: 'COLLECTING',
+      players: [
+        { playerId: lobby.players[1].playerId, points: 0 },
+        { playerId: lobby.players[2].playerId, points: 0 },
+        { playerId: replacementProfile.snapshot.me.playerId, points: 0 },
+      ],
+      turn: { round: 1, czarPlayerId: lobby.players[1].playerId },
+    });
   });
 
   it('reuses an expired room code without accepting the stale room generation', async () => {

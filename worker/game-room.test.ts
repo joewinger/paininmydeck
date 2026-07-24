@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import type { GameSnapshot, ServerSocketMessage, SnapshotMessage } from '../src/shared/protocol';
 import { GameRoom } from './game-room';
 import worker from './index';
+import { parseClientCommand } from './validation';
 
 const rooms = env.GAME_ROOMS as DurableObjectNamespace<GameRoom>;
 const TEST_SESSION_SIGNING_KEY = 'worker-test-session-signing-key-32-bytes-minimum';
@@ -56,6 +57,30 @@ afterEach(async () => {
 });
 
 describe('GameRoom integration', () => {
+  it('accepts only the empty host rematch command payload', () => {
+    expect(
+      parseClientCommand({
+        protocolVersion: 1,
+        commandId: 'play-again',
+        type: 'play_again',
+        payload: {},
+      }),
+    ).toEqual({
+      protocolVersion: 1,
+      commandId: 'play-again',
+      type: 'play_again',
+      payload: {},
+    });
+    expect(() =>
+      parseClientCommand({
+        protocolVersion: 1,
+        commandId: 'play-again-with-data',
+        type: 'play_again',
+        payload: { preserveScore: true },
+      }),
+    ).toThrow('This command does not accept a payload.');
+  });
+
   it('serves the versioned health contract with API security headers', async () => {
     const response = await SELF.fetch('https://game.test/api/healthz');
     expect(response.status).toBe(200);

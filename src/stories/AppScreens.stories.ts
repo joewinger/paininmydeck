@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 import App from '@/App.vue';
+import { useGameStore } from '@/stores/game';
 import { storyActions } from '../../.storybook/gameStore';
 import { gameScenarios, ROOM_ID } from './fixtures/gameScenarios';
 
@@ -146,11 +147,37 @@ export const PlayerCollecting: Story = {
   parameters: { route: gameRoute, game: gameScenarios.playerCollecting },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByRole('button', {
-        name: 'Play answer: An aggressively enthusiastic thumbs-up.',
-      }),
-    );
+    const visibleCardOrder = () =>
+      Array.from(
+        canvasElement.querySelectorAll('#card-container > .whiteCard-wrapper > .whiteCard'),
+      ).map((card) => card.getAttribute('aria-label'));
+    const initialCardOrder = visibleCardOrder();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Shuffle hand' }));
+    await waitFor(() => expect(visibleCardOrder()).not.toEqual(initialCardOrder));
+    await expect(storyActions.submitCard).not.toHaveBeenCalled();
+    await expect(storyActions.redrawCard).not.toHaveBeenCalled();
+
+    const firstAnswer = canvas.getByRole('button', {
+      name: 'Select answer: An aggressively enthusiastic thumbs-up.',
+    });
+    const secondAnswer = canvas.getByRole('button', {
+      name: 'Select answer: Trying to look casual while everything is on fire.',
+    });
+
+    firstAnswer.focus();
+    await userEvent.keyboard('{Enter}');
+    await expect(firstAnswer).toHaveAttribute('aria-pressed', 'true');
+    await expect(storyActions.submitCard).not.toHaveBeenCalled();
+
+    await userEvent.click(secondAnswer);
+    await expect(firstAnswer).toHaveAttribute('aria-pressed', 'false');
+    await expect(secondAnswer).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.click(canvas.getByRole('button', { name: 'Cancel' }));
+    await expect(canvas.getByRole('button', { name: 'Play Card' })).toBeDisabled();
+
+    await userEvent.click(firstAnswer);
+    await userEvent.click(canvas.getByRole('button', { name: 'Play Card' }));
     await expect(storyActions.submitCard).toHaveBeenCalledWith('answer-1');
   },
 };
@@ -162,9 +189,28 @@ export const PlayerActionPending: Story = {
     const canvas = within(canvasElement);
     await expect(
       canvas.getByRole('button', {
-        name: 'Play answer: An aggressively enthusiastic thumbs-up.',
+        name: 'Select answer: An aggressively enthusiastic thumbs-up.',
       }),
     ).toBeDisabled();
+  },
+};
+
+export const PlayerSelectionClearsOnRoundChange: Story = {
+  name: 'Game / stale selection clears',
+  parameters: { route: gameRoute, game: gameScenarios.playerCollecting },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const answer = canvas.getByRole('button', {
+      name: 'Select answer: An aggressively enthusiastic thumbs-up.',
+    });
+
+    await userEvent.click(answer);
+    await expect(answer).toHaveAttribute('aria-pressed', 'true');
+
+    useGameStore().room.turn.roundId = 'round-4';
+
+    await waitFor(() => expect(answer).toHaveAttribute('aria-pressed', 'false'));
+    await expect(canvas.getByRole('button', { name: 'Play Card' })).toBeDisabled();
   },
 };
 
@@ -187,15 +233,166 @@ export const BlankCardEditing: Story = {
   parameters: { route: gameRoute, game: gameScenarios.playerCollecting },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const blankStack = canvas.getByRole('group', {
+      name: '1 blank card. Write an answer to play one blank card.',
+    });
+    await expect(blankStack.closest('.whiteCard-wrapper')).toHaveClass('is-blank-stack');
+    await expect(canvas.getByText('1 blank card')).toBeVisible();
     const blankCard = canvas.getByPlaceholderText('Blank Card');
     await userEvent.click(blankCard);
+    await expect(canvas.getByText('Write an answer on the selected blank card.')).toBeVisible();
+    await expect(canvas.getByRole('button', { name: 'Play Card' })).toBeDisabled();
     await userEvent.type(blankCard, 'A suspicious number of tiny cowboy hats');
     await expect(canvas.findByText('39/60')).resolves.toBeVisible();
-    await userEvent.click(canvas.getByRole('button', { name: 'Play blank answer' }));
+    await expect(storyActions.submitBlank).not.toHaveBeenCalled();
+    await userEvent.click(canvas.getByRole('button', { name: 'Play Card' }));
     await expect(storyActions.submitBlank).toHaveBeenCalledWith(
       'blank-1',
       'A suspicious number of tiny cowboy hats',
     );
+  },
+};
+
+export const CountedBlankStack: Story = {
+  name: 'Game / counted blank stack',
+  parameters: {
+    route: gameRoute,
+    game: gameScenarios.playerBlankStack,
+    viewport: { defaultViewport: 'desktop' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const game = useGameStore();
+    const stack = canvas.getByRole('group', {
+      name: '4 blank cards. Write an answer to play one blank card.',
+    });
+    const stackWrapper = stack.closest('.whiteCard-wrapper');
+
+    await expect(canvas.getByText('4 blank cards')).toBeVisible();
+    await expect(stackWrapper).toHaveClass('is-blank-stack');
+    await expect(stackWrapper?.querySelector('.btn-trash')).toBeNull();
+    await expect(canvas.getAllByRole('button', { name: /^Select answer:/ })).toHaveLength(2);
+    await expect(canvas.getByRole('status')).toHaveTextContent(
+      '4 blank cards in your hand. Writing an answer uses one blank card.',
+    );
+
+    const visibleCardOrder = () =>
+      Array.from(
+        canvasElement.querySelectorAll('#card-container > .whiteCard-wrapper > .whiteCard'),
+      ).map((card) => card.getAttribute('aria-label'));
+    const initialCardOrder = visibleCardOrder();
+    await userEvent.click(canvas.getByRole('button', { name: 'Shuffle hand' }));
+    await waitFor(() => expect(visibleCardOrder()).not.toEqual(initialCardOrder));
+
+    const editor = within(stack).getByRole('textbox', { name: 'Your blank answer' });
+    editor.focus();
+    await expect(editor).toHaveFocus();
+    await userEvent.keyboard('A deterministic write-in');
+    await expect(
+      canvas.getByRole('group', {
+        name: '4 blank cards. Selected. Write an answer to play one blank card.',
+      }),
+    ).toBeVisible();
+
+    if (!game.self) throw new Error('Expected a private player fixture.');
+    game.self.hand = game.self.hand.filter((card) => card.id !== 'blank-z').reverse();
+    await waitFor(() =>
+      expect(
+        canvas.getByRole('group', {
+          name: '3 blank cards. Selected. Write an answer to play one blank card.',
+        }),
+      ).toBeVisible(),
+    );
+    await expect(editor).toHaveValue('A deterministic write-in');
+
+    storyActions.submitBlank.mockImplementationOnce(async (cardId) => {
+      if (!game.self) throw new Error('Expected a private player fixture.');
+      game.self.hand = game.self.hand.filter((card) => card.id !== cardId);
+    });
+    const confirm = canvas.getByRole('button', { name: 'Play Card' });
+    confirm.focus();
+    await userEvent.keyboard('{Enter}');
+
+    await expect(storyActions.submitBlank).toHaveBeenCalledOnce();
+    await expect(storyActions.submitBlank).toHaveBeenCalledWith(
+      'blank-a',
+      'A deterministic write-in',
+    );
+    await waitFor(() =>
+      expect(
+        canvas.getByRole('group', {
+          name: '2 blank cards. Write an answer to play one blank card.',
+        }),
+      ).toBeVisible(),
+    );
+    await expect(canvas.getByRole('status')).toHaveTextContent('2 blank cards in your hand');
+  },
+};
+
+export const AllBlankStackMobile: Story = {
+  name: 'Game / all-blank stack (mobile)',
+  parameters: {
+    route: gameRoute,
+    game: gameScenarios.playerAllBlankStack,
+    viewport: { defaultViewport: 'mobile' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('list', { name: 'Your answer cards' }).children).toHaveLength(1);
+    await expect(
+      canvas.getByRole('group', {
+        name: '4 blank cards. Write an answer to play one blank card.',
+      }),
+    ).toBeVisible();
+    await expect(canvas.queryByRole('button', { name: /^Select answer:/ })).not.toBeInTheDocument();
+    await expect(canvas.queryByRole('button', { name: 'Redraw card' })).not.toBeInTheDocument();
+    await expect(canvas.getByRole('button', { name: 'Shuffle hand' })).toBeDisabled();
+  },
+};
+
+export const BlankStackVanishesAtZero: Story = {
+  name: 'Game / blank stack removed at zero',
+  parameters: { route: gameRoute, game: gameScenarios.playerBlankStack },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const game = useGameStore();
+    if (!game.self) throw new Error('Expected a private player fixture.');
+
+    game.self.hand = game.self.hand.filter((card) => !card.text.startsWith('%BLANK%'));
+
+    await waitFor(() =>
+      expect(canvas.queryByRole('group', { name: /blank cards?/ })).not.toBeInTheDocument(),
+    );
+    await expect(canvas.getByRole('status')).toHaveTextContent('No blank cards in your hand.');
+    await expect(canvas.getAllByRole('button', { name: /^Select answer:/ })).toHaveLength(2);
+  },
+};
+
+export const BlankStackReconnectingMobile: Story = {
+  name: 'Game / blank stack reconnecting (mobile)',
+  parameters: {
+    route: gameRoute,
+    game: gameScenarios.playerBlankStackReconnecting,
+    viewport: { defaultViewport: 'mobile' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const game = useGameStore();
+    const editor = canvas.getByRole('textbox', { name: 'Your blank answer' });
+
+    editor.focus();
+    await userEvent.keyboard('Still here after reconnect');
+    await expect(canvas.getByText('Reconnecting to the room...')).toBeVisible();
+    if (!game.self) throw new Error('Expected a private player fixture.');
+    game.self.hand = [...game.self.hand].reverse();
+    game.connectionState = 'open';
+
+    await expect(editor).toHaveValue('Still here after reconnect');
+    await expect(
+      canvas.getByRole('group', {
+        name: '4 blank cards. Selected. Write an answer to play one blank card.',
+      }),
+    ).toBeVisible();
   },
 };
 
@@ -229,11 +426,13 @@ export const CzarJudging: Story = {
   parameters: { route: gameRoute, game: gameScenarios.czarJudging },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByRole('button', {
-        name: 'Choose winner: A group chat that should have stayed private.',
-      }),
-    );
+    const answer = canvas.getByRole('button', {
+      name: 'Select winner: A group chat that should have stayed private.',
+    });
+    await userEvent.click(answer);
+    await expect(answer).toHaveAttribute('aria-pressed', 'true');
+    await expect(storyActions.chooseWinner).not.toHaveBeenCalled();
+    await userEvent.click(canvas.getByRole('button', { name: 'Choose Winner' }));
     await expect(storyActions.chooseWinner).toHaveBeenCalledWith('played-rowan');
   },
 };
@@ -257,9 +456,11 @@ export const RoundInterstitial: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const status = await canvas.findByRole('status');
+    const heading = await canvas.findByRole('heading', { name: 'Round 3' });
+    const status = heading.closest<HTMLElement>('[role="status"]');
+    if (!status) throw new Error('Expected the round heading inside a status region.');
     await expect(status).toBeVisible();
-    await expect(within(status).getByRole('heading', { name: 'Round 3' })).toBeVisible();
+    await expect(heading).toBeVisible();
     await expect(within(status).getByText('Alex is the Card Czar')).toBeVisible();
   },
 };
@@ -288,6 +489,24 @@ export const LeaderboardOpen: Story = {
 export const GameWon: Story = {
   name: 'Results / game won',
   parameters: { route: resultsRoute, game: gameScenarios.gameWon },
+};
+
+export const GameWonGuest: Story = {
+  name: 'Results / guest waiting for rematch',
+  parameters: { route: resultsRoute, game: gameScenarios.gameWonGuest },
+};
+
+export const HostStartsRematch: Story = {
+  name: 'Results / host starts rematch',
+  parameters: { route: resultsRoute, game: gameScenarios.gameWon },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: 'Play Again' }));
+    await expect(storyActions.playAgain).toHaveBeenCalledOnce();
+    await waitFor(() =>
+      expect(canvas.getByRole('heading', { name: 'At the table' })).toBeVisible(),
+    );
+  },
 };
 
 export const GameCancelled: Story = {

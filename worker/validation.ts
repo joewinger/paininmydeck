@@ -146,6 +146,7 @@ export function parseClientCommand(value: unknown): ClientCommand {
         payload: { settings: parseSettings(payload.settings) },
       };
     case 'start_game':
+    case 'play_again':
     case 'leave_room':
     case 'request_snapshot':
     case 'process_due':
