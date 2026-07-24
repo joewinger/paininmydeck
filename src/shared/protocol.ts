@@ -157,6 +157,7 @@ export interface ApiErrorBody {
 export interface CommandPayloads {
   update_settings: { settings: GameSettings };
   start_game: Record<string, never>;
+  play_again: Record<string, never>;
   submit_card: { cardId: string };
   submit_blank: { cardId: string; text: string };
   redraw_card: { cardId: string };

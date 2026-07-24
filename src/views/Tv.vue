@@ -111,7 +111,7 @@
 
         <section v-else class="tv-finished" aria-labelledby="tv-finished-title">
           <p class="pimd-eyebrow">
-            {{ game.phase === 'CANCELLED' ? 'Room closed' : 'Final score' }}
+            {{ game.phase === 'CANCELLED' ? 'Game ended' : 'Final score' }}
           </p>
           <h1 id="tv-finished-title">
             <template v-if="game.phase === 'CANCELLED'">Game cancelled</template>

@@ -294,6 +294,27 @@ export const gameScenarios = {
     }),
     state: { connectionState: 'open' },
   },
+  gameWonGuest: {
+    snapshot: makeGameSnapshot({
+      revision: 20,
+      room: {
+        roomId: ROOM_ID,
+        phase: 'FINISHED',
+        gameState: 'FINISHED',
+        players,
+        chatMessages,
+        roundHistory,
+        finalRecord: {
+          outcome: 'won',
+          winner: players[0],
+          rounds: 7,
+          leaderboard: players,
+        },
+      },
+      me: privatePlayer('rowan'),
+    }),
+    state: { connectionState: 'open' },
+  },
   gameCancelled: {
     snapshot: makeGameSnapshot({
       revision: 20,

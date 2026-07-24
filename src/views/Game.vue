@@ -30,6 +30,16 @@
             <h1 id="game-phase-heading">{{ phaseHeading }}</h1>
           </div>
           <p>{{ phaseInstruction }}</p>
+          <button
+            v-if="showsPlayerHand"
+            class="pimd-secondary-button game-shuffle-button"
+            type="button"
+            :disabled="game.hand.length < 2"
+            @click="shuffleVisibleHand"
+          >
+            <span aria-hidden="true">↻</span>
+            Shuffle hand
+          </button>
         </div>
 
         <div v-if="selectionMode" class="game-confirmation-panel">
@@ -110,6 +120,11 @@ import {
 import { useGameStore } from '@/stores/game';
 import { useUiStore } from '@/stores/ui';
 import type { Card, PlayedCard } from '@/shared/protocol';
+import {
+  cardsInHandOrder,
+  reconcileHandOrder,
+  shuffleHandOrder,
+} from '@/views/handPresentationOrder';
 
 const game = useGameStore();
 const ui = useUiStore();
@@ -120,6 +135,7 @@ const submittedCount = computed(() => game.playedPlayerIds.length);
 const expectedAnswerCount = computed(() => Math.max(game.users.length - 1, 0));
 const roleLabel = computed(() => (game.isCzar ? 'Card Czar' : 'Player'));
 const questionPinned = ref(true);
+const handPresentationOrder = ref<string[]>([]);
 const selectedCardId = ref<string | null>(null);
 const blankDrafts = reactive<Record<string, string>>({});
 const confirmationPending = ref(false);
@@ -199,14 +215,16 @@ const showsPlayerHand = computed(
   () => !game.turn.winningCard && !game.isCzar && !game.playedThisTurn,
 );
 
+const orderedHand = computed(() => cardsInHandOrder(game.hand, handPresentationOrder.value));
+
 const cardSet = computed<(Card | PlayedCard)[]>(() => {
   if (game.turn.winningCard) return [game.turn.winningCard];
   if (game.isCzar || game.playedThisTurn) return game.turn.playedCards;
-  return game.hand;
+  return orderedHand.value;
 });
 const presentedCardSet = computed<PresentedHandCard[]>(() =>
   showsPlayerHand.value
-    ? presentHandCards(game.hand, selectedCardId.value)
+    ? presentHandCards(orderedHand.value, selectedCardId.value)
     : cardSet.value.map((card) => ({ card })),
 );
 const blankCardCount = computed(() => game.hand.filter(isEditableBlankCard).length);
@@ -315,6 +333,19 @@ watch(
   { flush: 'sync' },
 );
 
+watch(
+  () => game.hand.map((card) => card.id),
+  () => {
+    handPresentationOrder.value = reconcileHandOrder(handPresentationOrder.value, game.hand);
+  },
+  { immediate: true },
+);
+
+function shuffleVisibleHand(): void {
+  const currentOrder = reconcileHandOrder(handPresentationOrder.value, game.hand);
+  handPresentationOrder.value = shuffleHandOrder(currentOrder);
+}
+
 onBeforeRouteLeave((to) => {
   if (to.name !== 'home' || game.beingKicked || game.terminalExit !== null) return true;
   return window.confirm("Are you sure you'd like to leave in the middle of this game?");
@@ -418,6 +449,22 @@ onBeforeRouteLeave((to) => {
   font-weight: 750;
   line-height: 1.35;
   text-align: center;
+}
+
+.game-shuffle-button {
+  justify-self: center;
+  width: auto;
+  gap: 7px;
+  min-height: 44px;
+  margin: 2px 0 0;
+  padding: 9px 14px 8px;
+  font-size: clamp(11px, 3vw, 13px);
+}
+
+.game-shuffle-button > span {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 19px;
+  line-height: 1;
 }
 
 .game-confirmation-panel {

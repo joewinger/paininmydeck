@@ -121,6 +121,17 @@ export const PlayerCollecting: Story = {
   parameters: { route: gameRoute, game: gameScenarios.playerCollecting },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const visibleCardOrder = () =>
+      Array.from(
+        canvasElement.querySelectorAll('#card-container > .whiteCard-wrapper > .whiteCard'),
+      ).map((card) => card.getAttribute('aria-label'));
+    const initialCardOrder = visibleCardOrder();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Shuffle hand' }));
+    await waitFor(() => expect(visibleCardOrder()).not.toEqual(initialCardOrder));
+    await expect(storyActions.submitCard).not.toHaveBeenCalled();
+    await expect(storyActions.redrawCard).not.toHaveBeenCalled();
+
     const firstAnswer = canvas.getByRole('button', {
       name: 'Select answer: An aggressively enthusiastic thumbs-up.',
     });
@@ -443,6 +454,24 @@ export const LeaderboardOpen: Story = {
 export const GameWon: Story = {
   name: 'Results / game won',
   parameters: { route: resultsRoute, game: gameScenarios.gameWon },
+};
+
+export const GameWonGuest: Story = {
+  name: 'Results / guest waiting for rematch',
+  parameters: { route: resultsRoute, game: gameScenarios.gameWonGuest },
+};
+
+export const HostStartsRematch: Story = {
+  name: 'Results / host starts rematch',
+  parameters: { route: resultsRoute, game: gameScenarios.gameWon },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: 'Play Again' }));
+    await expect(storyActions.playAgain).toHaveBeenCalledOnce();
+    await waitFor(() =>
+      expect(canvas.getByRole('heading', { name: 'At the table' })).toBeVisible(),
+    );
+  },
 };
 
 export const GameCancelled: Story = {

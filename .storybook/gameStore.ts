@@ -28,6 +28,7 @@ export const storyActions = {
   submitBlank: fn(async (cardId: string, text: string): Promise<void> => void [cardId, text]),
   redrawCard: fn(async (cardId: string): Promise<void> => void cardId),
   chooseWinner: fn(async (cardId: string): Promise<void> => void cardId),
+  playAgain: fn(async (): Promise<void> => undefined),
   sendChat: fn(async (text: string): Promise<void> => void text),
 };
 
@@ -73,6 +74,31 @@ export function stubStoryTransport(game: GameStore): void {
   game.leaveRoom = async () => undefined;
   game.updateSettings = async () => undefined;
   game.startGame = async () => undefined;
+  game.playAgain = async () => {
+    await storyActions.playAgain();
+    game.$patch({
+      room: {
+        ...game.room,
+        phase: 'LOBBY',
+        gameState: 'LOBBY',
+        players: game.room.players.map((player) => ({ ...player, points: 0 })),
+        turn: {
+          roundId: '',
+          revealDeadline: null,
+          round: 0,
+          status: 'WAITING_FOR_CARDS',
+          questionCard: '',
+          czarPlayerId: '',
+          playedCards: [],
+          submittedPlayerIds: [],
+          winningCard: null,
+        },
+        roundHistory: [],
+        finalRecord: null,
+      },
+      self: game.self ? { ...game.self, hand: [], playedThisTurn: false, redrawsUsed: 0 } : null,
+    });
+  };
   game.submitCard = storyActions.submitCard;
   game.submitBlank = storyActions.submitBlank;
   game.redrawCard = storyActions.redrawCard;
