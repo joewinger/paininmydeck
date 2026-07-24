@@ -274,6 +274,24 @@ export const GameWon: Story = {
   parameters: { route: resultsRoute, game: gameScenarios.gameWon },
 };
 
+export const GameWonGuest: Story = {
+  name: 'Results / guest waiting for rematch',
+  parameters: { route: resultsRoute, game: gameScenarios.gameWonGuest },
+};
+
+export const HostStartsRematch: Story = {
+  name: 'Results / host starts rematch',
+  parameters: { route: resultsRoute, game: gameScenarios.gameWon },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: 'Play Again' }));
+    await expect(storyActions.playAgain).toHaveBeenCalledOnce();
+    await waitFor(() =>
+      expect(canvas.getByRole('heading', { name: 'At the table' })).toBeVisible(),
+    );
+  },
+};
+
 export const GameCancelled: Story = {
   name: 'Results / game cancelled',
   parameters: { route: resultsRoute, game: gameScenarios.gameCancelled },

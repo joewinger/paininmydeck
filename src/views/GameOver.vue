@@ -16,7 +16,7 @@
     <div class="gameover-poster-wrap">
       <section class="gameover-poster pimd-paper">
         <p class="pimd-eyebrow">
-          {{ roomData.outcome === 'cancelled' ? 'Room closed' : 'Final score' }}
+          {{ roomData.outcome === 'cancelled' ? 'Game ended' : 'Final score' }}
         </p>
 
         <h1 id="gameover-title">
@@ -73,9 +73,29 @@
         </li>
       </ol>
 
-      <button type="button" class="pimd-primary-button gameover-leave" @click="router.replace('/')">
-        Leave Game
-      </button>
+      <div class="gameover-actions">
+        <button-loadable
+          v-if="game.isPrivileged"
+          type="button"
+          class="pimd-primary-button gameover-rematch"
+          @click="playAgain"
+        >
+          Play Again
+        </button-loadable>
+
+        <div v-else class="gameover-rematch-waiting" role="status" aria-live="polite">
+          <strong>Waiting for the host</strong>
+          <span>Stay here. The host can bring everyone back to the lobby for another game.</span>
+        </div>
+
+        <button
+          type="button"
+          class="pimd-secondary-button gameover-leave"
+          @click="router.replace('/')"
+        >
+          Leave Game
+        </button>
+      </div>
     </section>
   </div>
 </template>
@@ -83,11 +103,22 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import ButtonLoadable from '@/components/ButtonLoadable.vue';
 import { useGameStore } from '@/stores/game';
 
 const router = useRouter();
 const game = useGameStore();
 const roomData = computed(() => game.room.finalRecord);
+
+async function playAgain(done: () => void): Promise<void> {
+  try {
+    await game.playAgain();
+  } catch {
+    // The store reports command failures in the existing toast.
+  } finally {
+    done();
+  }
+}
 
 function getOrdinalSuffix(number: number): string {
   if (number === 1) return 'st';
@@ -445,8 +476,35 @@ function getOrdinalSuffix(number: number): string {
   text-transform: uppercase;
 }
 
-.gameover-leave {
+.gameover-actions {
+  display: grid;
+  gap: 12px;
   margin-top: 24px;
+}
+
+.gameover-rematch-waiting {
+  display: grid;
+  gap: 6px;
+  padding: 15px 16px;
+  transform: rotate(-0.2deg);
+  border: 3px solid var(--pimd-ink);
+  background: var(--pimd-highlight);
+  box-shadow: 4px 5px 0 var(--pimd-primary);
+  color: var(--pimd-ink);
+}
+
+.gameover-rematch-waiting strong {
+  font-family: 'Bungee', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.gameover-rematch-waiting span {
+  color: var(--pimd-ink-soft);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.35;
 }
 
 .gameover--cancelled .gameover-poster {

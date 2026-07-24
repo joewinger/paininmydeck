@@ -49,6 +49,10 @@ watch(
 			return;
 		}
 		if (game.displayMode || isTvRoute.value) return;
+		if (phase === 'LOBBY' && ['game', 'gameover'].includes(String(route.name))) {
+			void router.replace({ name: 'lobby', params: { roomId: game.roomId } });
+			return;
+		}
 		if (['COLLECTING', 'JUDGING', 'REVEAL'].includes(phase) && route.name === 'lobby') {
 			void router.replace({ name: 'game', params: { roomId: game.roomId } });
 		}

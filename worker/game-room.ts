@@ -1521,6 +1521,9 @@ export class GameRoom extends DurableObject<Env> {
       case 'start_game':
         this.startGame(player, now);
         return { changed: true, duplicate: false, closeSelf: false };
+      case 'play_again':
+        this.playAgain(player, now);
+        return { changed: true, duplicate: false, closeSelf: false };
       case 'submit_card':
         this.submitCard(player, command.payload.cardId, null, now);
         return { changed: true, duplicate: false, closeSelf: false };
@@ -1632,11 +1635,11 @@ export class GameRoom extends DurableObject<Env> {
       'UPDATE sessions SET revoked_at = ? WHERE player_id IS NULL AND revoked_at IS NULL',
       now,
     );
+    this.sql.exec('DELETE FROM submissions');
     this.sql.exec('DELETE FROM card_instances');
     this.sql.exec('DELETE FROM question_cards');
-    this.sql.exec('DELETE FROM submissions');
-    this.sql.exec('DELETE FROM rounds');
     this.sql.exec('DELETE FROM round_answers');
+    this.sql.exec('DELETE FROM rounds');
     this.sql.exec('DELETE FROM final_players');
     this.deleteJob('reveal', room.round_id ?? '');
 
@@ -1707,6 +1710,38 @@ export class GameRoom extends DurableObject<Env> {
       players[0].player_id,
     );
     this.systemMessage(`Round 1: ${players[0].display_name} is the Czar.`, now);
+  }
+
+  private playAgain(actor: PlayerRow, now: number): void {
+    const room = this.roomOrThrow();
+    if (room.host_player_id !== actor.player_id) {
+      throw new RoomError('HOST_ONLY', 'Only the room host can start a rematch.', 403);
+    }
+    if (room.game_state !== 'FINISHED') {
+      throw new RoomError(
+        'REMATCH_NOT_AVAILABLE',
+        'A rematch is available after the current game ends.',
+        409,
+      );
+    }
+
+    this.sql.exec('DELETE FROM card_instances');
+    this.sql.exec('DELETE FROM question_cards');
+    this.sql.exec('DELETE FROM submissions');
+    this.sql.exec('DELETE FROM rounds');
+    this.sql.exec('DELETE FROM round_answers');
+    this.sql.exec('DELETE FROM final_players');
+    this.sql.exec("DELETE FROM scheduled_jobs WHERE job_type = 'reveal'");
+    this.sql.exec('UPDATE players SET points = 0, redraws_used = 0');
+    this.sql.exec(
+      `UPDATE room_state
+			 SET game_state = 'LOBBY', round_number = 0, completed_rounds = 0,
+			     round_id = NULL, turn_status = 'WAITING_FOR_CARDS', question_id = NULL,
+			     question_text = NULL, czar_player_id = NULL, winning_submission_id = NULL,
+			     reveal_deadline = NULL
+			 WHERE singleton = 1`,
+    );
+    this.systemMessage(`${actor.display_name} opened the table for another game.`, now);
   }
 
   private shuffleDrawPile(): void {
